@@ -1,0 +1,1908 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spec técnica Notificações e follow-ups · Hubfi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink:    { 900: '#0F1219', 800: '#1A1F2E', 700: '#2C3344', 600: '#4A5169', 500: '#6B7388', 400: '#9098A8', 300: '#B8BEC9' },
+          teal:   { 50:'#E6F7F4', 100:'#CDEEEA', 200:'#9CDCD3', 500:'#0E8B7A', 600:'#0B7567', 700:'#085A50' },
+          accent: { 400:'#22D3B7', 500:'#14B8A6' },
+          paper:  { 50:'#FAFBFB', 100:'#F4F5F7', 200:'#E5E7EB', 300:'#D1D5DB' },
+        },
+        fontFamily: {
+          sans: ['Manrope', 'system-ui', 'sans-serif'],
+          mono: ['JetBrains Mono', 'monospace']
+        },
+      }
+    }
+  }
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Manrope', sans-serif; -webkit-font-smoothing: antialiased; }
+  .prose-content p { margin-bottom: 1rem; line-height: 1.7; }
+  .prose-content p:last-child { margin-bottom: 0; }
+
+  /* Tabela */
+  table.spec { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.spec th { background: #F4F5F7; padding: 9px 12px; text-align: left; font-weight: 600; color: #1A1F2E; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #E5E7EB; }
+  table.spec td { padding: 10px 12px; border-bottom: 1px solid #F4F5F7; color: #2C3344; vertical-align: top; line-height: 1.55; }
+  table.spec tr:hover td { background: #FAFBFB; }
+  table.spec td.mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #0B7567; }
+  table.spec td.dim { color: #6B7388; }
+
+  /* Code block */
+  pre.code { background: #0F1219; color: #CDEEEA; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; line-height: 1.6; padding: 16px 18px; border-radius: 8px; overflow-x: auto; }
+  pre.code .k { color: #22D3B7; } /* keyword/key */
+  pre.code .s { color: #FCD34D; } /* string */
+  pre.code .n { color: #A5B4FC; } /* number */
+  pre.code .c { color: #6B7388; font-style: italic; } /* comment */
+
+  code.inline { font-family: 'JetBrains Mono', monospace; font-size: 0.85em; background: #F4F5F7; color: #085A50; padding: 1px 6px; border-radius: 4px; }
+
+  section { scroll-margin-top: 72px; }
+
+  /* TOC link hover */
+  .toc-link:hover { color: #0B7567; }
+  .toc-link:hover .toc-num { background: #0B7567; color: #fff; }
+
+  /* Schema field */
+  .schema-row { display: grid; grid-template-columns: 200px 110px 1fr; gap: 12px; padding: 8px 0; border-bottom: 1px solid #F4F5F7; font-size: 13px; }
+  .schema-row:last-child { border-bottom: 0; }
+  .schema-key { font-family: 'JetBrains Mono', monospace; color: #0B7567; font-size: 12.5px; }
+  .schema-type { font-family: 'JetBrains Mono', monospace; color: #6B7388; font-size: 11.5px; }
+  .schema-desc { color: #2C3344; line-height: 1.5; }
+
+  /* Pill */
+  .pill { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: 99px; font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; font-family: 'Manrope', sans-serif; }
+  .pill-slack { background: rgba(74,21,75,0.08); color: #4a154b; }
+  .pill-wa { background: rgba(37,211,102,0.12); color: #128c4e; }
+  .pill-amber { background: #FEF3C7; color: #92400E; }
+  .pill-critical { background: #FEE2E2; color: #991B1B; }
+  .pill-info { background: #DBEAFE; color: #1E40AF; }
+  .pill-success { background: #D1FAE5; color: #065F46; }
+  .pill-gray { background: #F4F5F7; color: #4A5169; }
+
+  /* Nomes de eventos em snake_case nos cards do mapa visual: quebram nos underscores */
+  .event-name {
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    line-height: 1.35;
+  }
+
+  /* Preview WhatsApp */
+  .wa-frame { background: #efeae2; border-radius: 12px; padding: 14px; }
+  .wa-bubble {
+    background: #fff; border-radius: 8px; padding: 9px 12px; max-width: 88%;
+    font-size: 13.5px; line-height: 1.5; color: #111b21;
+    box-shadow: 0 1px 0.5px rgba(11,20,26,.13);
+    white-space: pre-line;
+  }
+  .wa-bubble .wa-link { color: #1976d2; word-break: break-all; }
+  .wa-quickreply {
+    display: inline-block; background: #fff; border: 1px solid #cdc8c0;
+    border-radius: 14px; padding: 4px 10px; font-size: 12px; color: #0E8B7A;
+    margin-right: 4px; margin-top: 6px;
+  }
+
+  /* Preview Slack */
+  .slack-frame {
+    background: #f8f8f8; border: 1px solid #e1e1e1; border-radius: 8px;
+    padding: 12px 14px; font-size: 13px; line-height: 1.45; color: #1d1c1d;
+  }
+  .slack-channel {
+    color: #616061; font-size: 11.5px; font-weight: 600; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 3px;
+  }
+  .slack-msg {
+    border-left: 3px solid #4a154b; padding: 4px 0 4px 10px; margin-top: 6px;
+    white-space: pre-line;
+  }
+  .slack-bot {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-weight: 700; color: #1d1c1d; font-size: 12.5px; margin-bottom: 4px;
+  }
+  .slack-bot-icon {
+    display: inline-block; width: 16px; height: 16px;
+    background: #4a154b; border-radius: 3px;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 10px;
+  }
+  .slack-tag {
+    display: inline-block; background: #e8e8e8; color: #616061;
+    border-radius: 3px; padding: 1px 5px; font-size: 9.5px; font-weight: 700; margin-left: 3px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .slack-btn {
+    display: inline-block; padding: 4px 11px; border-radius: 4px;
+    font-size: 12px; font-weight: 600; margin-right: 5px; margin-top: 6px;
+  }
+  .slack-btn-primary { background: #007a5a; color: #fff; }
+  .slack-btn-secondary { background: #fff; border: 1px solid #dddedf; color: #1d1c1d; }
+</style>
+</head>
+
+<body class="bg-paper-50 text-ink-900">
+
+<!-- Top bar -->
+<header class="border-b border-paper-200 bg-white/85 backdrop-blur sticky top-0 z-40">
+  <div class="max-w-[1440px] mx-auto px-8 h-14 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <span class="w-6 h-6 rounded-full bg-accent-400 flex items-center justify-center text-ink-900 text-xs font-bold">h</span>
+      <span class="font-bold text-[14px]">
+        <span class="text-ink-900">hub</span><span class="text-teal-600">fi</span>
+      </span>
+      <span class="hidden sm:inline-block ml-3 pl-3 border-l border-paper-200 text-xs text-ink-500">Spec técnica</span>
+    </div>
+    <div class="text-xs text-ink-500">v0.1 · draft</div>
+  </div>
+</header>
+
+<article class="max-w-[1440px] mx-auto px-8 py-16">
+
+  <!-- Título -->
+  <div class="mb-12">
+    <div class="inline-block mb-5 text-xs font-semibold text-teal-600 uppercase tracking-wider">Documento de engenharia · Backend</div>
+    <h1 class="text-4xl md:text-5xl font-bold tracking-tight leading-[1.1] mb-6 text-ink-900">
+      Notificações e follow-ups
+    </h1>
+    <p class="text-lg text-ink-600 leading-relaxed mb-8">
+      Especificação técnica completa do sistema de mensageria automatizada que aciona o time interno (Slack) e o cliente final (WhatsApp) ao longo das 11 etapas de uma operação de crédito imobiliário com modelos de dados, contratos de eventos, regras críticas e roadmap de entrega.
+    </p>
+    <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-ink-500 pb-6 border-b border-paper-200">
+      <div><span class="text-ink-400">Status:</span> <span class="text-ink-700 font-medium">Draft em revisão</span></div>
+      <div><span class="text-ink-400">Owner:</span> <span class="text-ink-700 font-medium">Lucas Augusto · Produto</span></div>
+      <div><span class="text-ink-400">Última atualização:</span> <span class="text-ink-700 font-medium">14 mai 2026</span></div>
+    </div>
+  </div>
+
+  <!-- Sumário -->
+  <div class="mb-16 p-6 rounded-xl border border-paper-200 bg-white">
+    <div class="text-xs font-semibold text-ink-500 uppercase tracking-wider mb-4">Conteúdo</div>
+    <ol class="space-y-2 text-sm">
+      <li><a href="#s1" class="toc-link flex items-center gap-3 text-ink-700"><span class="toc-num font-mono text-[11px] w-6 h-6 rounded bg-paper-100 flex items-center justify-center text-ink-500 font-semibold">01</span>Visão geral e princípios</a></li>
+      <li><a href="#s2" class="toc-link flex items-center gap-3 text-ink-700"><span class="toc-num font-mono text-[11px] w-6 h-6 rounded bg-paper-100 flex items-center justify-center text-ink-500 font-semibold">02</span>Arquitetura</a></li>
+      <li><a href="#s3" class="toc-link flex items-center gap-3 text-ink-700"><span class="toc-num font-mono text-[11px] w-6 h-6 rounded bg-paper-100 flex items-center justify-center text-ink-500 font-semibold">03</span>Modelos de dados</a></li>
+      <li><a href="#s4" class="toc-link flex items-center gap-3 text-ink-700"><span class="toc-num font-mono text-[11px] w-6 h-6 rounded bg-paper-100 flex items-center justify-center text-ink-500 font-semibold">04</span>Catálogo de eventos</a></li>
+      <li><a href="#s5" class="toc-link flex items-center gap-3 text-ink-700"><span class="toc-num font-mono text-[11px] w-6 h-6 rounded bg-paper-100 flex items-center justify-center text-ink-500 font-semibold">05</span>Regras de notificação</a></li>
+      <li><a href="#s6" class="toc-link flex items-center gap-3 text-ink-700"><span class="toc-num font-mono text-[11px] w-6 h-6 rounded bg-paper-100 flex items-center justify-center text-ink-500 font-semibold">06</span>Regras de follow-up</a></li>
+      <li><a href="#s7" class="toc-link flex items-center gap-3 text-ink-700"><span class="toc-num font-mono text-[11px] w-6 h-6 rounded bg-paper-100 flex items-center justify-center text-ink-500 font-semibold">07</span>Mapa visual da operação</a></li>
+      <li><a href="#s8" class="toc-link flex items-center gap-3 text-ink-700"><span class="toc-num font-mono text-[11px] w-6 h-6 rounded bg-paper-100 flex items-center justify-center text-ink-500 font-semibold">08</span>Templates de mensagem</a></li>
+      <li><a href="#s9" class="toc-link flex items-center gap-3 text-ink-700"><span class="toc-num font-mono text-[11px] w-6 h-6 rounded bg-paper-100 flex items-center justify-center text-ink-500 font-semibold">09</span>Pipeline de execução</a></li>
+      <li><a href="#s10" class="toc-link flex items-center gap-3 text-ink-700"><span class="toc-num font-mono text-[11px] w-6 h-6 rounded bg-paper-100 flex items-center justify-center text-ink-500 font-semibold">10</span>Integrações externas</a></li>
+      <li><a href="#s11" class="toc-link flex items-center gap-3 text-ink-700"><span class="toc-num font-mono text-[11px] w-6 h-6 rounded bg-paper-100 flex items-center justify-center text-ink-500 font-semibold">11</span>Regras críticas</a></li>
+      <li><a href="#s12" class="toc-link flex items-center gap-3 text-ink-700"><span class="toc-num font-mono text-[11px] w-6 h-6 rounded bg-paper-100 flex items-center justify-center text-ink-500 font-semibold">12</span>Observabilidade</a></li>
+      <li><a href="#s13" class="toc-link flex items-center gap-3 text-ink-700"><span class="toc-num font-mono text-[11px] w-6 h-6 rounded bg-paper-100 flex items-center justify-center text-ink-500 font-semibold">13</span>Roadmap de entrega</a></li>
+    </ol>
+  </div>
+
+  <!-- 01 Visão geral -->
+  <section id="s1" class="mb-16">
+    <div class="flex items-baseline gap-3 mb-6">
+      <span class="font-mono text-sm text-teal-600 font-bold">01</span>
+      <h2 class="text-2xl font-bold tracking-tight text-ink-900">Visão geral e princípios</h2>
+    </div>
+
+    <div class="prose-content text-ink-700 mb-8">
+      <p>
+        O sistema reage a dois tipos de gatilho: <strong class="text-ink-900">eventos</strong> emitidos pela plataforma quando algo acontece, e <strong class="text-ink-900">timers</strong> que disparam quando algo deveria ter acontecido mas não aconteceu dentro do SLA configurado. Ambos resultam em mensagens enviadas via Slack (time interno) ou WhatsApp (cliente final), através de templates configuráveis.
+      </p>
+      <p>
+        Toda a configuração eventos, canais, templates, SLAs vive numa matriz editável pelo time de produto sem necessidade de deploy. Engenharia entrega o motor; produto opera as regras.
+      </p>
+    </div>
+
+    <h3 class="text-base font-semibold text-ink-900 mb-3">Princípios de design</h3>
+    <ul class="space-y-2 text-sm text-ink-700 mb-8">
+      <li class="flex gap-2"><span class="text-teal-600 font-mono font-bold flex-shrink-0">·</span><span><strong class="text-ink-900">Event-driven.</strong> A plataforma emite eventos no event bus; o sistema reage. Sem polling.</span></li>
+      <li class="flex gap-2"><span class="text-teal-600 font-mono font-bold flex-shrink-0">·</span><span><strong class="text-ink-900">Configurável sem deploy.</strong> Toda regra (evento → canal → template → SLA) vive em tabela editável.</span></li>
+      <li class="flex gap-2"><span class="text-teal-600 font-mono font-bold flex-shrink-0">·</span><span><strong class="text-ink-900">Idempotente.</strong> O mesmo evento não pode disparar a mesma notificação duas vezes.</span></li>
+      <li class="flex gap-2"><span class="text-teal-600 font-mono font-bold flex-shrink-0">·</span><span><strong class="text-ink-900">Auditável.</strong> Toda mensagem enviada vai pro log com payload, canal, timestamp e custo.</span></li>
+      <li class="flex gap-2"><span class="text-teal-600 font-mono font-bold flex-shrink-0">·</span><span><strong class="text-ink-900">Cancelável.</strong> Todo follow-up agendado tem um evento de cancelamento atrelado. Resolveu antes? Cancela.</span></li>
+      <li class="flex gap-2"><span class="text-teal-600 font-mono font-bold flex-shrink-0">·</span><span><strong class="text-ink-900">Respeitoso.</strong> Janela horária 8h–21h. Sem flood. Escalação só após N tentativas.</span></li>
+    </ul>
+
+    <h3 class="text-base font-semibold text-ink-900 mb-3">Stack proposta</h3>
+    <div class="flex flex-wrap gap-2 mb-4">
+      <span class="pill pill-info">Node.js / TypeScript</span>
+      <span class="pill pill-info">PostgreSQL</span>
+      <span class="pill pill-info">Redis (queues + locks)</span>
+      <span class="pill pill-info">BullMQ (scheduler)</span>
+      <span class="pill pill-info">Slack Bolt SDK</span>
+      <span class="pill pill-info">WhatsApp Business Cloud API</span>
+      <span class="pill pill-gray">a confirmar com tech lead</span>
+    </div>
+    <p class="text-sm text-ink-500 italic">A stack acima é referência; ajustar conforme padrões já estabelecidos no monorepo backend.</p>
+  </section>
+
+  <!-- 02 Arquitetura -->
+  <section id="s2" class="mb-16">
+    <div class="flex items-baseline gap-3 mb-6">
+      <span class="font-mono text-sm text-teal-600 font-bold">02</span>
+      <h2 class="text-2xl font-bold tracking-tight text-ink-900">Arquitetura</h2>
+    </div>
+
+    <p class="text-ink-700 mb-8 leading-relaxed">
+      O sistema é composto por seis componentes principais. A plataforma de operações é produtora de eventos; os demais módulos pertencem ao serviço de mensageria e podem ser entregues como um único serviço ou separados conforme decisão do time.
+    </p>
+
+    <!-- Diagrama SVG -->
+    <div class="mb-8 rounded-xl border border-paper-200 bg-white p-6 overflow-x-auto">
+      <svg viewBox="0 0 720 460" xmlns="http://www.w3.org/2000/svg" class="w-full max-w-full" style="min-width: 600px;">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#6B7388"/>
+          </marker>
+        </defs>
+
+        <!-- Plataforma -->
+        <g>
+          <rect x="20" y="20" width="170" height="60" rx="8" fill="#F4F5F7" stroke="#D1D5DB" stroke-width="1"/>
+          <text x="105" y="42" text-anchor="middle" font-family="Manrope" font-size="11" font-weight="700" fill="#0F1219" letter-spacing="0.5">PLATAFORMA</text>
+          <text x="105" y="59" text-anchor="middle" font-family="Manrope" font-size="11" fill="#4A5169">Operações · UI · API</text>
+          <text x="105" y="73" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#6B7388">publica eventos</text>
+        </g>
+
+        <!-- Event Bus -->
+        <g>
+          <rect x="270" y="20" width="170" height="60" rx="8" fill="#E6F7F4" stroke="#0E8B7A" stroke-width="1.5"/>
+          <text x="355" y="42" text-anchor="middle" font-family="Manrope" font-size="11" font-weight="700" fill="#0F1219" letter-spacing="0.5">EVENT BUS</text>
+          <text x="355" y="59" text-anchor="middle" font-family="Manrope" font-size="11" fill="#085A50">Redis Streams / Kafka</text>
+          <text x="355" y="73" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#0B7567">retenção 7 dias</text>
+        </g>
+
+        <!-- Listener -->
+        <g>
+          <rect x="520" y="20" width="170" height="60" rx="8" fill="#F4F5F7" stroke="#D1D5DB" stroke-width="1"/>
+          <text x="605" y="42" text-anchor="middle" font-family="Manrope" font-size="11" font-weight="700" fill="#0F1219" letter-spacing="0.5">EVENT LISTENER</text>
+          <text x="605" y="59" text-anchor="middle" font-family="Manrope" font-size="11" fill="#4A5169">subscriber</text>
+          <text x="605" y="73" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#6B7388">consumer groups</text>
+        </g>
+
+        <!-- Setas linha 1 -->
+        <line x1="190" y1="50" x2="270" y2="50" stroke="#6B7388" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="440" y1="50" x2="520" y2="50" stroke="#6B7388" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+        <!-- Engine -->
+        <g>
+          <rect x="270" y="160" width="170" height="80" rx="8" fill="#0F1219" stroke="#0F1219" stroke-width="1"/>
+          <text x="355" y="184" text-anchor="middle" font-family="Manrope" font-size="11" font-weight="700" fill="#22D3B7" letter-spacing="0.5">NOTIFICATION ENGINE</text>
+          <text x="355" y="202" text-anchor="middle" font-family="Manrope" font-size="11" fill="#CDEEEA">consulta matriz</text>
+          <text x="355" y="217" text-anchor="middle" font-family="Manrope" font-size="11" fill="#CDEEEA">resolve template</text>
+          <text x="355" y="232" text-anchor="middle" font-family="Manrope" font-size="11" fill="#CDEEEA">dispara mensagem</text>
+        </g>
+
+        <!-- SLA Engine -->
+        <g>
+          <rect x="520" y="160" width="170" height="80" rx="8" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1.5"/>
+          <text x="605" y="184" text-anchor="middle" font-family="Manrope" font-size="11" font-weight="700" fill="#92400E" letter-spacing="0.5">SLA ENGINE</text>
+          <text x="605" y="202" text-anchor="middle" font-family="Manrope" font-size="11" fill="#92400E">scheduler + worker</text>
+          <text x="605" y="217" text-anchor="middle" font-family="Manrope" font-size="11" fill="#92400E">BullMQ</text>
+          <text x="605" y="232" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#92400E">check 1x/min</text>
+        </g>
+
+        <!-- Setas listener -> engines -->
+        <line x1="605" y1="80" x2="605" y2="160" stroke="#6B7388" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="540" y1="80" x2="370" y2="160" stroke="#6B7388" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+        <!-- Setas entre engines -->
+        <path d="M 520 200 L 440 200" stroke="#6B7388" stroke-width="1.5" marker-end="url(#arrow)" fill="none"/>
+        <text x="480" y="195" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#6B7388">trigger</text>
+        <path d="M 440 215 L 520 215" stroke="#6B7388" stroke-width="1.5" marker-end="url(#arrow)" fill="none" stroke-dasharray="3,3"/>
+        <text x="480" y="226" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#6B7388">schedule</text>
+
+        <!-- Matriz (DB) -->
+        <g>
+          <rect x="20" y="160" width="170" height="80" rx="8" fill="#F4F5F7" stroke="#D1D5DB" stroke-width="1"/>
+          <text x="105" y="184" text-anchor="middle" font-family="Manrope" font-size="11" font-weight="700" fill="#0F1219" letter-spacing="0.5">MATRIZ</text>
+          <text x="105" y="202" text-anchor="middle" font-family="Manrope" font-size="11" fill="#4A5169">PostgreSQL</text>
+          <text x="105" y="220" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#6B7388">notification_rules</text>
+          <text x="105" y="232" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#6B7388">followup_rules</text>
+        </g>
+        <line x1="190" y1="200" x2="270" y2="200" stroke="#6B7388" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+        <!-- Adapters -->
+        <g>
+          <rect x="180" y="320" width="160" height="60" rx="8" fill="rgba(74,21,75,0.08)" stroke="#4a154b" stroke-width="1.5"/>
+          <text x="260" y="342" text-anchor="middle" font-family="Manrope" font-size="11" font-weight="700" fill="#4a154b" letter-spacing="0.5">SLACK ADAPTER</text>
+          <text x="260" y="360" text-anchor="middle" font-family="Manrope" font-size="11" fill="#4a154b">Bolt SDK</text>
+          <text x="260" y="372" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#4a154b">chat.postMessage</text>
+        </g>
+        <g>
+          <rect x="370" y="320" width="160" height="60" rx="8" fill="rgba(37,211,102,0.12)" stroke="#128c4e" stroke-width="1.5"/>
+          <text x="450" y="342" text-anchor="middle" font-family="Manrope" font-size="11" font-weight="700" fill="#128c4e" letter-spacing="0.5">WHATSAPP ADAPTER</text>
+          <text x="450" y="360" text-anchor="middle" font-family="Manrope" font-size="11" fill="#128c4e">Cloud API · HSM</text>
+          <text x="450" y="372" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#128c4e">/v18.0/messages</text>
+        </g>
+
+        <line x1="320" y1="240" x2="260" y2="320" stroke="#6B7388" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="390" y1="240" x2="450" y2="320" stroke="#6B7388" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+        <!-- Canais -->
+        <g>
+          <rect x="180" y="410" width="160" height="40" rx="8" fill="#fff" stroke="#D1D5DB" stroke-width="1" stroke-dasharray="4,3"/>
+          <text x="260" y="435" text-anchor="middle" font-family="Manrope" font-size="11" font-weight="600" fill="#4A5169">Slack workspace Hubfi</text>
+        </g>
+        <g>
+          <rect x="370" y="410" width="160" height="40" rx="8" fill="#fff" stroke="#D1D5DB" stroke-width="1" stroke-dasharray="4,3"/>
+          <text x="450" y="435" text-anchor="middle" font-family="Manrope" font-size="11" font-weight="600" fill="#4A5169">Cliente · WhatsApp</text>
+        </g>
+        <line x1="260" y1="380" x2="260" y2="410" stroke="#6B7388" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="450" y1="380" x2="450" y2="410" stroke="#6B7388" stroke-width="1.5" marker-end="url(#arrow)"/>
+      </svg>
+    </div>
+
+    <h3 class="text-base font-semibold text-ink-900 mb-3">Responsabilidades</h3>
+    <table class="spec mb-8">
+      <thead>
+        <tr><th class="w-1/3">Componente</th><th>Responsabilidade</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="mono">Plataforma</td><td>Emite eventos no event bus em cada ação relevante (criar operação, preencher formulário, etc).</td></tr>
+        <tr><td class="mono">Event Bus</td><td>Transporta eventos com retenção mínima de 7 dias para replay. Garante entrega at-least-once.</td></tr>
+        <tr><td class="mono">Event Listener</td><td>Consome o bus em consumer group próprio. Aciona engine de notificação e engine de SLA.</td></tr>
+        <tr><td class="mono">Notification Engine</td><td>Consulta a matriz, resolve template com variáveis, valida regras (idempotência, horário), chama adapter.</td></tr>
+        <tr><td class="mono">SLA Engine</td><td>Agenda jobs com vencimento futuro, verifica jobs vencidos a cada minuto, dispara follow-ups, cancela quando o evento de saneamento acontece.</td></tr>
+        <tr><td class="mono">Matriz</td><td>Tabelas em PostgreSQL contendo as regras de notificação e follow-up. Editável via painel admin.</td></tr>
+        <tr><td class="mono">Slack Adapter</td><td>Encapsula chamadas à API do Slack. Lida com rate limit e retry exponencial.</td></tr>
+        <tr><td class="mono">WhatsApp Adapter</td><td>Encapsula chamadas à WhatsApp Business Cloud API. Valida janela 24h, seleciona template HSM aprovado.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 03 Modelos de dados -->
+  <section id="s3" class="mb-16">
+    <div class="flex items-baseline gap-3 mb-6">
+      <span class="font-mono text-sm text-teal-600 font-bold">03</span>
+      <h2 class="text-2xl font-bold tracking-tight text-ink-900">Modelos de dados</h2>
+    </div>
+
+    <p class="text-ink-700 mb-8 leading-relaxed">
+      Sete tabelas em PostgreSQL. As três primeiras (events, notification_rules, followup_rules) compõem a fonte de verdade da configuração. As demais são logs operacionais e jobs de SLA.
+    </p>
+
+    <!-- Table: events_catalog -->
+    <h3 class="font-semibold text-ink-900 mb-2"><code class="inline">events_catalog</code></h3>
+    <p class="text-sm text-ink-600 mb-3">Definição estática dos eventos que a plataforma pode emitir. Editável apenas via migration.</p>
+    <table class="spec mb-8">
+      <thead><tr><th class="w-1/4">Coluna</th><th class="w-1/4">Tipo</th><th>Descrição</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">id</td><td class="mono">uuid pk</td><td>Identificador.</td></tr>
+        <tr><td class="mono">name</td><td class="mono">text unique</td><td>Nome canônico, snake_case (ex: <code class="inline">formulario_dados_preenchido</code>).</td></tr>
+        <tr><td class="mono">stage_id</td><td class="mono">smallint</td><td>Etapa da operação à qual o evento pertence (01–11).</td></tr>
+        <tr><td class="mono">payload_schema</td><td class="mono">jsonb</td><td>JSON Schema do payload esperado (validação no listener).</td></tr>
+        <tr><td class="mono">description</td><td class="mono">text</td><td>Descrição humana do evento.</td></tr>
+        <tr><td class="mono">created_at</td><td class="mono">timestamptz</td><td>—</td></tr>
+      </tbody>
+    </table>
+
+    <!-- Table: notification_rules -->
+    <h3 class="font-semibold text-ink-900 mb-2"><code class="inline">notification_rules</code></h3>
+    <p class="text-sm text-ink-600 mb-3">Para cada evento, define quais notificações disparar (1:N).</p>
+    <table class="spec mb-8">
+      <thead><tr><th class="w-1/4">Coluna</th><th class="w-1/4">Tipo</th><th>Descrição</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">id</td><td class="mono">uuid pk</td><td>—</td></tr>
+        <tr><td class="mono">event_name</td><td class="mono">text fk</td><td>Referencia <code class="inline">events_catalog.name</code>.</td></tr>
+        <tr><td class="mono">channel</td><td class="mono">enum</td><td><code class="inline">slack</code> | <code class="inline">whatsapp</code>.</td></tr>
+        <tr><td class="mono">template_id</td><td class="mono">text</td><td>Slack: ID interno do block kit. WhatsApp: nome do template HSM aprovado.</td></tr>
+        <tr><td class="mono">target_resolver</td><td class="mono">text</td><td>Função que resolve destinatário a partir do payload (ex: <code class="inline">operation_owner</code>, <code class="inline">client_phone</code>).</td></tr>
+        <tr><td class="mono">enabled</td><td class="mono">boolean</td><td>Desligar regra sem deletar.</td></tr>
+        <tr><td class="mono">created_at, updated_at, updated_by</td><td class="mono">—</td><td>Auditoria.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- Table: followup_rules -->
+    <h3 class="font-semibold text-ink-900 mb-2"><code class="inline">followup_rules</code></h3>
+    <p class="text-sm text-ink-600 mb-3">Define os follow-ups: quando um evento dispara um timer com SLA, qual evento o cancela, e o que enviar quando o SLA estoura.</p>
+    <table class="spec mb-8">
+      <thead><tr><th class="w-1/4">Coluna</th><th class="w-1/4">Tipo</th><th>Descrição</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">id</td><td class="mono">uuid pk</td><td>—</td></tr>
+        <tr><td class="mono">trigger_event</td><td class="mono">text fk</td><td>Evento que agenda este follow-up.</td></tr>
+        <tr><td class="mono">cancel_events</td><td class="mono">text[]</td><td>Lista de eventos que cancelam o follow-up agendado.</td></tr>
+        <tr><td class="mono">sla_seconds</td><td class="mono">integer</td><td>Tempo até disparo (ex: 600 = 10min; 28800 = 8h).</td></tr>
+        <tr><td class="mono">channel</td><td class="mono">enum</td><td><code class="inline">slack</code> | <code class="inline">whatsapp</code>.</td></tr>
+        <tr><td class="mono">template_id</td><td class="mono">text</td><td>Template a usar quando o SLA estoura.</td></tr>
+        <tr><td class="mono">target_resolver</td><td class="mono">text</td><td>Resolver do destinatário.</td></tr>
+        <tr><td class="mono">max_attempts</td><td class="mono">integer</td><td>Máximo de disparos antes de escalar. Default: 3.</td></tr>
+        <tr><td class="mono">escalation_rule_id</td><td class="mono">uuid fk null</td><td>Aponta para outra regra (escalação ao gestor, troca de canal).</td></tr>
+        <tr><td class="mono">enabled</td><td class="mono">boolean</td><td>—</td></tr>
+      </tbody>
+    </table>
+
+    <!-- Table: notification_log -->
+    <h3 class="font-semibold text-ink-900 mb-2"><code class="inline">notification_log</code></h3>
+    <p class="text-sm text-ink-600 mb-3">Toda mensagem disparada (notificação ou follow-up). Imutável.</p>
+    <table class="spec mb-8">
+      <thead><tr><th class="w-1/4">Coluna</th><th class="w-1/4">Tipo</th><th>Descrição</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">id</td><td class="mono">uuid pk</td><td>—</td></tr>
+        <tr><td class="mono">operation_id</td><td class="mono">uuid fk</td><td>Operação relacionada.</td></tr>
+        <tr><td class="mono">type</td><td class="mono">enum</td><td><code class="inline">notification</code> | <code class="inline">followup</code>.</td></tr>
+        <tr><td class="mono">rule_id</td><td class="mono">uuid fk</td><td>Regra que originou.</td></tr>
+        <tr><td class="mono">trigger_event_id</td><td class="mono">uuid fk null</td><td>Evento que disparou (null se for follow-up por timer).</td></tr>
+        <tr><td class="mono">channel</td><td class="mono">enum</td><td>—</td></tr>
+        <tr><td class="mono">recipient</td><td class="mono">text</td><td>ID Slack ou número WhatsApp.</td></tr>
+        <tr><td class="mono">payload</td><td class="mono">jsonb</td><td>Variáveis usadas no template.</td></tr>
+        <tr><td class="mono">delivery_status</td><td class="mono">enum</td><td><code class="inline">pending</code> | <code class="inline">sent</code> | <code class="inline">delivered</code> | <code class="inline">read</code> | <code class="inline">failed</code>.</td></tr>
+        <tr><td class="mono">delivery_error</td><td class="mono">text null</td><td>Mensagem de erro do canal.</td></tr>
+        <tr><td class="mono">external_id</td><td class="mono">text null</td><td>ID retornado pelo Slack/WhatsApp para reconciliação.</td></tr>
+        <tr><td class="mono">cost_cents</td><td class="mono">integer null</td><td>Custo em centavos (relevante para WhatsApp HSM).</td></tr>
+        <tr><td class="mono">created_at</td><td class="mono">timestamptz</td><td>—</td></tr>
+      </tbody>
+    </table>
+
+    <!-- Table: followup_jobs -->
+    <h3 class="font-semibold text-ink-900 mb-2"><code class="inline">followup_jobs</code></h3>
+    <p class="text-sm text-ink-600 mb-3">Jobs agendados aguardando vencimento de SLA. O scheduler consulta a cada minuto.</p>
+    <table class="spec mb-8">
+      <thead><tr><th class="w-1/4">Coluna</th><th class="w-1/4">Tipo</th><th>Descrição</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">id</td><td class="mono">uuid pk</td><td>—</td></tr>
+        <tr><td class="mono">operation_id</td><td class="mono">uuid fk</td><td>—</td></tr>
+        <tr><td class="mono">rule_id</td><td class="mono">uuid fk</td><td>Aponta para <code class="inline">followup_rules</code>.</td></tr>
+        <tr><td class="mono">trigger_event_id</td><td class="mono">uuid fk</td><td>Evento que originou o agendamento.</td></tr>
+        <tr><td class="mono">scheduled_for</td><td class="mono">timestamptz</td><td>Quando deve disparar.</td></tr>
+        <tr><td class="mono">attempt</td><td class="mono">integer</td><td>Número da tentativa.</td></tr>
+        <tr><td class="mono">status</td><td class="mono">enum</td><td><code class="inline">pending</code> | <code class="inline">fired</code> | <code class="inline">canceled</code> | <code class="inline">escalated</code>.</td></tr>
+        <tr><td class="mono">canceled_by_event_id</td><td class="mono">uuid fk null</td><td>Quando aplicável, evento que cancelou.</td></tr>
+        <tr><td class="mono">created_at, updated_at</td><td class="mono">—</td><td>—</td></tr>
+      </tbody>
+    </table>
+    <p class="text-xs text-ink-500 mb-8"><strong>Índices recomendados:</strong> <code class="inline">(status, scheduled_for)</code> para o scheduler, <code class="inline">(operation_id, rule_id, status)</code> para idempotência.</p>
+
+    <!-- Table: audit_log -->
+    <h3 class="font-semibold text-ink-900 mb-2"><code class="inline">audit_log</code></h3>
+    <p class="text-sm text-ink-600 mb-3">Mudanças em <code class="inline">notification_rules</code> e <code class="inline">followup_rules</code> via painel admin.</p>
+    <table class="spec mb-4">
+      <thead><tr><th class="w-1/4">Coluna</th><th class="w-1/4">Tipo</th><th>Descrição</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">id</td><td class="mono">uuid pk</td><td>—</td></tr>
+        <tr><td class="mono">entity</td><td class="mono">text</td><td><code class="inline">notification_rules</code> ou <code class="inline">followup_rules</code>.</td></tr>
+        <tr><td class="mono">entity_id</td><td class="mono">uuid</td><td>—</td></tr>
+        <tr><td class="mono">action</td><td class="mono">enum</td><td><code class="inline">create</code> | <code class="inline">update</code> | <code class="inline">delete</code>.</td></tr>
+        <tr><td class="mono">before, after</td><td class="mono">jsonb</td><td>Snapshot antes e depois.</td></tr>
+        <tr><td class="mono">user_id</td><td class="mono">uuid fk</td><td>Quem alterou.</td></tr>
+        <tr><td class="mono">created_at</td><td class="mono">timestamptz</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 04 Catálogo de eventos -->
+  <section id="s4" class="mb-16">
+    <div class="flex items-baseline gap-3 mb-6">
+      <span class="font-mono text-sm text-teal-600 font-bold">04</span>
+      <h2 class="text-2xl font-bold tracking-tight text-ink-900">Catálogo de eventos</h2>
+    </div>
+
+    <p class="text-ink-700 mb-6 leading-relaxed">
+      Os eventos abaixo cobrem as etapas 01–05. Etapas 06–11 são entregues em iteração posterior (ver roadmap), mas o mecanismo é o mesmo. Todos os payloads compartilham os campos base abaixo, e a plataforma é responsável por emiti-los sincronamente nos pontos do código indicados na coluna "disparado quando".
+    </p>
+
+    <h3 class="text-base font-semibold text-ink-900 mb-3">Payload base</h3>
+    <pre class="code mb-8"><span class="c">// envelope comum a todos os eventos</span>
+{
+  <span class="k">"event_id"</span>: <span class="s">"01HP4VK2QXM..."</span>,         <span class="c">// ULID, gerado pelo emissor</span>
+  <span class="k">"event_name"</span>: <span class="s">"formulario_dados_preenchido"</span>,
+  <span class="k">"emitted_at"</span>: <span class="s">"2026-04-09T14:30:12Z"</span>,
+  <span class="k">"operation_id"</span>: <span class="s">"op_19432"</span>,
+  <span class="k">"actor"</span>: { <span class="k">"type"</span>: <span class="s">"user"</span>, <span class="k">"id"</span>: <span class="s">"u_8821"</span> }, <span class="c">// quem causou o evento</span>
+  <span class="k">"data"</span>: { <span class="c">/* específico do evento */</span> }
+}</pre>
+
+    <h3 class="text-base font-semibold text-ink-900 mb-3">Eventos por etapa</h3>
+    <table class="spec mb-8">
+      <thead><tr><th class="w-12">#</th><th>Evento</th><th class="w-1/3">Disparado quando</th></tr></thead>
+      <tbody>
+        <tr>
+          <td colspan="3" class="font-semibold text-ink-900 bg-paper-100 text-xs uppercase tracking-wider">Etapa 01 · Coleta de dados</td>
+        </tr>
+        <tr><td class="mono">E01</td><td><code class="inline">nova_operacao_criada</code></td><td class="dim">Operação é criada na plataforma.</td></tr>
+        <tr><td class="mono">E02</td><td><code class="inline">formulario_dados_enviado</code></td><td class="dim">Link do formulário enviado ao cliente via WhatsApp.</td></tr>
+        <tr><td class="mono">E03</td><td><code class="inline">formulario_dados_preenchido</code></td><td class="dim">Cliente conclui o preenchimento do formulário.</td></tr>
+        <tr>
+          <td colspan="3" class="font-semibold text-ink-900 bg-paper-100 text-xs uppercase tracking-wider">Etapa 02 · Análise de crédito</td>
+        </tr>
+        <tr><td class="mono">E04</td><td><code class="inline">analise_credito_iniciada</code></td><td class="dim">Operação é colocada na fila de cotação.</td></tr>
+        <tr><td class="mono">E05</td><td><code class="inline">nova_proposta_disponivel</code></td><td class="dim">Banco retornou com proposta aprovada.</td></tr>
+        <tr>
+          <td colspan="3" class="font-semibold text-ink-900 bg-paper-100 text-xs uppercase tracking-wider">Etapa 03 · Cadastro de propostas</td>
+        </tr>
+        <tr><td class="mono">E06</td><td><code class="inline">propostas_resumo_enviado</code></td><td class="dim">Operador clica em "enviar resumo a cliente".</td></tr>
+        <tr>
+          <td colspan="3" class="font-semibold text-ink-900 bg-paper-100 text-xs uppercase tracking-wider">Etapa 04 · Escolha da instituição</td>
+        </tr>
+        <tr><td class="mono">E07</td><td><code class="inline">link_escolha_aberto</code></td><td class="dim">Cliente abre o link de escolha.</td></tr>
+        <tr><td class="mono">E08</td><td><code class="inline">cliente_escolheu_banco</code></td><td class="dim">Cliente confirma a escolha de uma proposta (ou operador escolhe em nome dela).</td></tr>
+        <tr>
+          <td colspan="3" class="font-semibold text-ink-900 bg-paper-100 text-xs uppercase tracking-wider">Etapa · Escolha do imóvel</td>
+        </tr>
+        <tr><td class="mono">E09</td><td><code class="inline">imovel_informado</code></td><td class="dim">Cliente informa qual imóvel pretende comprar (via link do formulário).</td></tr>
+        <tr>
+          <td colspan="3" class="font-semibold text-ink-900 bg-paper-100 text-xs uppercase tracking-wider">Etapa 05 · Documentação das partes</td>
+        </tr>
+        <tr><td class="mono">E10</td><td><code class="inline">formulario_doc_enviado</code></td><td class="dim">Link do formulário de upload é disparado automaticamente.</td></tr>
+        <tr><td class="mono">E11</td><td><code class="inline">documento_recebido</code></td><td class="dim">Cada vez que o cliente faz upload de um documento.</td></tr>
+        <tr><td class="mono">E12</td><td><code class="inline">documentacao_completa</code></td><td class="dim">Todos os documentos obrigatórios foram recebidos e validados.</td></tr>
+      </tbody>
+    </table>
+
+    <h3 class="text-base font-semibold text-ink-900 mb-3">Exemplos de payload</h3>
+    <p class="text-sm text-ink-600 mb-4">Apenas o campo <code class="inline">data</code> é exibido abaixo; o envelope é o mesmo de todos.</p>
+
+    <p class="text-xs font-semibold text-ink-700 mb-2 mt-4"><code class="inline">E01 · nova_operacao_criada</code></p>
+    <pre class="code mb-6">{
+  <span class="k">"data"</span>: {
+    <span class="k">"client"</span>: { <span class="k">"id"</span>: <span class="s">"c_4421"</span>, <span class="k">"name"</span>: <span class="s">"Maria Silva Santos"</span> },
+    <span class="k">"product"</span>: <span class="s">"financiamento_imobiliario_aquisicao"</span>,
+    <span class="k">"target_amount"</span>: <span class="n">490000</span>,
+    <span class="k">"channel_origin"</span>: <span class="s">"website"</span>
+  }
+}</pre>
+
+    <p class="text-xs font-semibold text-ink-700 mb-2"><code class="inline">E03 · formulario_dados_preenchido</code></p>
+    <pre class="code mb-6">{
+  <span class="k">"data"</span>: {
+    <span class="k">"form_id"</span>: <span class="s">"f_99812"</span>,
+    <span class="k">"completed_in_seconds"</span>: <span class="n">744</span>,
+    <span class="k">"fields_filled"</span>: <span class="n">23</span>,
+    <span class="k">"fields_total"</span>: <span class="n">23</span>
+  }
+}</pre>
+
+    <p class="text-xs font-semibold text-ink-700 mb-2"><code class="inline">E08 · cliente_escolheu_banco</code></p>
+    <pre class="code mb-6">{
+  <span class="k">"data"</span>: {
+    <span class="k">"proposal_id"</span>: <span class="s">"p_7732"</span>,
+    <span class="k">"bank_code"</span>: <span class="s">"CEF"</span>,
+    <span class="k">"chosen_by"</span>: <span class="s">"client"</span>,         <span class="c">// "client" | "operator"</span>
+    <span class="k">"justification"</span>: <span class="s">null</span>,           <span class="c">// preenchido se chosen_by = operator</span>
+    <span class="k">"first_installment_cents"</span>: <span class="n">318000</span>
+  }
+}</pre>
+
+    <p class="text-xs font-semibold text-ink-700 mb-2"><code class="inline">E10 · documento_recebido</code></p>
+    <pre class="code">{
+  <span class="k">"data"</span>: {
+    <span class="k">"document_type"</span>: <span class="s">"comprovante_renda"</span>,
+    <span class="k">"party"</span>: <span class="s">"buyer"</span>,             <span class="c">// "buyer" | "spouse" | "seller" | "property"</span>
+    <span class="k">"file_id"</span>: <span class="s">"file_a93x"</span>,
+    <span class="k">"validation_status"</span>: <span class="s">"pending"</span>  <span class="c">// "pending" | "approved" | "rejected"</span>
+  }
+}</pre>
+  </section>
+
+  <!-- 05 Regras de notificação -->
+  <section id="s5" class="mb-16">
+    <div class="flex items-baseline gap-3 mb-6">
+      <span class="font-mono text-sm text-teal-600 font-bold">05</span>
+      <h2 class="text-2xl font-bold tracking-tight text-ink-900">Regras de notificação</h2>
+    </div>
+
+    <p class="text-ink-700 mb-6 leading-relaxed">
+      Quando um evento entra no listener, esta matriz determina quais mensagens disparar imediatamente. Uma única ocorrência de evento pode gerar 0, 1 ou múltiplas notificações (uma por linha aplicável).
+    </p>
+
+    <table class="spec mb-8">
+      <thead><tr><th class="w-14">#</th><th>Evento</th><th class="w-24">Canal</th><th>Template</th><th>Destinatário</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">N01</td><td class="mono">nova_operacao_criada</td><td><span class="pill pill-slack">Slack</span></td><td class="mono">slk.operacao_criada</td><td class="dim">canal #operacoes-novas</td></tr>
+        <tr><td class="mono">N02</td><td class="mono">formulario_dados_enviado</td><td><span class="pill pill-wa">WhatsApp</span></td><td class="mono">wa.form_dados_link</td><td class="dim">telefone do cliente</td></tr>
+        <tr><td class="mono">N03</td><td class="mono">formulario_dados_preenchido</td><td><span class="pill pill-slack">Slack</span></td><td class="mono">slk.form_preenchido</td><td class="dim">canal da operação</td></tr>
+        <tr><td class="mono">N04</td><td class="mono">nova_proposta_disponivel</td><td><span class="pill pill-slack">Slack</span></td><td class="mono">slk.nova_proposta</td><td class="dim">canal da operação</td></tr>
+        <tr><td class="mono">N05</td><td class="mono">propostas_resumo_enviado</td><td><span class="pill pill-wa">WhatsApp</span></td><td class="mono">wa.propostas_resumo</td><td class="dim">telefone do cliente</td></tr>
+        <tr><td class="mono">N06</td><td class="mono">cliente_escolheu_banco</td><td><span class="pill pill-slack">Slack</span></td><td class="mono">slk.banco_escolhido</td><td class="dim">canal da operação</td></tr>
+        <tr><td class="mono">N07</td><td class="mono">imovel_informado</td><td><span class="pill pill-slack">Slack</span></td><td class="mono">slk.imovel_informado</td><td class="dim">canal da operação</td></tr>
+        <tr><td class="mono">N08</td><td class="mono">formulario_doc_enviado</td><td><span class="pill pill-wa">WhatsApp</span></td><td class="mono">wa.form_docs_link</td><td class="dim">telefone do cliente</td></tr>
+        <tr><td class="mono">N09</td><td class="mono">documento_recebido</td><td><span class="pill pill-slack">Slack</span></td><td class="mono">slk.doc_recebido</td><td class="dim">canal da operação</td></tr>
+        <tr><td class="mono">N10</td><td class="mono">documentacao_completa</td><td><span class="pill pill-slack">Slack</span></td><td class="mono">slk.docs_completa</td><td class="dim">canal da operação</td></tr>
+      </tbody>
+    </table>
+
+    <h3 class="text-base font-semibold text-ink-900 mb-3">Estrutura de template Slack (Block Kit)</h3>
+    <pre class="code mb-6">{
+  <span class="k">"blocks"</span>: [
+    {
+      <span class="k">"type"</span>: <span class="s">"section"</span>,
+      <span class="k">"text"</span>: {
+        <span class="k">"type"</span>: <span class="s">"mrkdwn"</span>,
+        <span class="k">"text"</span>: <span class="s">"*Formulário preenchido* · Op `{{operation_id}}` ({{client_name}})"</span>
+      }
+    },
+    {
+      <span class="k">"type"</span>: <span class="s">"context"</span>,
+      <span class="k">"elements"</span>: [{ <span class="k">"type"</span>: <span class="s">"mrkdwn"</span>, <span class="k">"text"</span>: <span class="s">"Coleta → pronto para análise de crédito"</span> }]
+    },
+    {
+      <span class="k">"type"</span>: <span class="s">"actions"</span>,
+      <span class="k">"elements"</span>: [
+        { <span class="k">"type"</span>: <span class="s">"button"</span>, <span class="k">"text"</span>: <span class="s">"Abrir operação"</span>, <span class="k">"url"</span>: <span class="s">"https://app.hubfi.com/op/{{operation_id}}"</span> },
+        { <span class="k">"type"</span>: <span class="s">"button"</span>, <span class="k">"text"</span>: <span class="s">"Atribuir a mim"</span>, <span class="k">"action_id"</span>: <span class="s">"assign_to_me"</span>, <span class="k">"value"</span>: <span class="s">"{{operation_id}}"</span> }
+      ]
+    }
+  ]
+}</pre>
+
+    <h3 class="text-base font-semibold text-ink-900 mb-3">Estrutura de template WhatsApp HSM</h3>
+    <p class="text-sm text-ink-600 mb-3">
+      Todos os templates devem ser submetidos e aprovados pela Meta antes do uso. Categoria recomendada: <code class="inline">UTILITY</code>. Variáveis em <code class="inline">{{1}}</code>, <code class="inline">{{2}}</code>... ordenadas posicionalmente.
+    </p>
+    <pre class="code mb-4">{
+  <span class="k">"name"</span>: <span class="s">"wa_propostas_resumo"</span>,
+  <span class="k">"category"</span>: <span class="s">"UTILITY"</span>,
+  <span class="k">"language"</span>: <span class="s">"pt_BR"</span>,
+  <span class="k">"components"</span>: [
+    {
+      <span class="k">"type"</span>: <span class="s">"BODY"</span>,
+      <span class="k">"text"</span>: <span class="s">"Oi {{1}}! Aqui é a Hubfi, a plataforma crédito imobiliário. Já temos {{2}} propostas aprovadas pro seu financiamento. Toque no link abaixo pra comparar e escolher:"</span>
+    },
+    {
+      <span class="k">"type"</span>: <span class="s">"BUTTONS"</span>,
+      <span class="k">"buttons"</span>: [{ <span class="k">"type"</span>: <span class="s">"URL"</span>, <span class="k">"text"</span>: <span class="s">"Ver propostas"</span>, <span class="k">"url"</span>: <span class="s">"https://hubfi.app/escolha/{{3}}"</span> }]
+    }
+  ]
+}</pre>
+  </section>
+
+  <!-- 06 Regras de follow-up -->
+  <section id="s6" class="mb-16">
+    <div class="flex items-baseline gap-3 mb-6">
+      <span class="font-mono text-sm text-teal-600 font-bold">06</span>
+      <h2 class="text-2xl font-bold tracking-tight text-ink-900">Regras de follow-up</h2>
+    </div>
+
+    <p class="text-ink-700 mb-6 leading-relaxed">
+      Cada follow-up tem um evento de gatilho (que agenda o timer), um SLA (tempo até estourar), e um ou mais eventos de cancelamento (que matam o timer antes do estouro). Quando o SLA estoura sem cancelamento, dispara a mensagem configurada.
+    </p>
+
+    <table class="spec mb-8" style="font-size:12px;">
+      <thead><tr><th class="w-12">#</th><th>Gatilho</th><th class="w-16">SLA</th><th>Cancela com</th><th class="w-20">Canal</th><th>Template</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">F01</td><td class="mono">nova_operacao_criada</td><td class="mono">10 min</td><td class="mono dim">operacao_atribuida</td><td><span class="pill pill-slack">Slack</span></td><td class="mono">slk.fu_atribuir_op</td></tr>
+        <tr><td class="mono">F02</td><td class="mono">formulario_dados_enviado</td><td class="mono">8 h</td><td class="mono dim">formulario_dados_preenchido</td><td><span class="pill pill-wa">WhatsApp</span></td><td class="mono">wa.fu_form_dados</td></tr>
+        <tr><td class="mono">F03</td><td class="mono">analise_credito_iniciada</td><td class="mono">1 h</td><td class="mono dim">nova_proposta_disponivel</td><td><span class="pill pill-slack">Slack</span></td><td class="mono">slk.fu_cotar_propostas</td></tr>
+        <tr><td class="mono">F04</td><td class="mono">propostas_resumo_enviado</td><td class="mono">1 h</td><td class="mono dim">link_escolha_aberto, cliente_escolheu_banco</td><td><span class="pill pill-wa">WhatsApp</span></td><td class="mono">wa.fu_ver_propostas</td></tr>
+        <tr><td class="mono">F05</td><td class="mono">link_escolha_aberto</td><td class="mono">1 h</td><td class="mono dim">cliente_escolheu_banco</td><td><span class="pill pill-slack">Slack</span></td><td class="mono">slk.fu_cliente_indeciso</td></tr>
+        <tr><td class="mono">F06</td><td class="mono">cliente_escolheu_banco</td><td class="mono">1 h</td><td class="mono dim">imovel_informado</td><td><span class="pill pill-wa">WhatsApp</span></td><td class="mono">wa.fu_informar_imovel</td></tr>
+        <tr><td class="mono">F07</td><td class="mono">cliente_escolheu_banco</td><td class="mono">1 h</td><td class="mono dim">imovel_informado</td><td><span class="pill pill-slack">Slack</span></td><td class="mono">slk.fu_imovel_pendente</td></tr>
+        <tr><td class="mono">F08</td><td class="mono">formulario_doc_enviado</td><td class="mono">1 h</td><td class="mono dim">documento_recebido</td><td><span class="pill pill-slack">Slack</span></td><td class="mono">slk.fu_doc_enviado</td></tr>
+        <tr><td class="mono">F09</td><td class="mono">formulario_doc_enviado</td><td class="mono">1 h</td><td class="mono dim">documento_recebido</td><td><span class="pill pill-wa">WhatsApp</span></td><td class="mono">wa.fu_doc_cliente</td></tr>
+      </tbody>
+    </table>
+
+    <h3 class="text-base font-semibold text-ink-900 mb-3">Política de escalação</h3>
+    <p class="text-sm text-ink-700 mb-4 leading-relaxed">
+      Quando um follow-up dispara e o evento de cancelamento ainda não chegou, o sistema reagenda uma nova tentativa. Cada follow-up tem <code class="inline">max_attempts</code> (padrão 3). Após esgotar tentativas, o caso vai para a regra de escalação (<code class="inline">escalation_rule_id</code>), que tipicamente notifica o gestor da operação ou cria um ticket de atendimento manual.
+    </p>
+    <p class="text-sm text-ink-700 mb-2 leading-relaxed"><strong>Intervalo entre tentativas (sugestão padrão):</strong></p>
+    <ul class="text-sm text-ink-700 mb-4 space-y-1">
+      <li>· Tentativa 1: no SLA original.</li>
+      <li>· Tentativa 2: 24h depois.</li>
+      <li>· Tentativa 3: 72h depois.</li>
+      <li>· Após 3: escala (cria ticket + notifica gestor).</li>
+    </ul>
+  </section>
+
+  <!-- 07 Mapa visual da operação -->
+  <section id="s7" class="mb-16">
+    <div class="flex items-baseline gap-3 mb-6">
+      <span class="font-mono text-sm text-teal-600 font-bold">07</span>
+      <h2 class="text-2xl font-bold tracking-tight text-ink-900">Mapa visual da operação</h2>
+    </div>
+
+    <p class="text-ink-700 mb-6 leading-relaxed">
+      Distribuição das notificações (<code class="inline">N01–N09</code>) e follow-ups (<code class="inline">F01–F09</code>) ao longo das 11 etapas. Cada card referencia o ID definido nas seções 05 e 06 use como mapa rápido durante a implementação. Etapas 06–11 entram em sprints posteriores conforme o roadmap.
+    </p>
+
+    <!-- Legenda -->
+    <div class="flex flex-wrap items-center gap-3 mb-5 text-xs">
+      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded border border-paper-200 bg-white text-ink-700">
+        <span class="w-2 h-2 rounded-sm bg-[#4a154b]"></span>Slack · time interno
+      </span>
+      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded border border-paper-200 bg-white text-ink-700">
+        <span class="w-2 h-2 rounded-sm bg-[#25d366]"></span>WhatsApp · cliente
+      </span>
+      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded border border-paper-200 bg-white text-ink-700">
+        <span class="font-mono text-[10px] px-1 rounded bg-amber-100 text-amber-700">SLA</span>tempo até o follow-up disparar
+      </span>
+      <span class="ml-auto text-ink-400 flex lg:hidden items-center gap-1.5">arraste pra ver mais →</span>
+    </div>
+
+    <!-- Container com break-out até 1280px -->
+    <div class="relative">
+      <div class="overflow-x-auto rounded-lg border border-paper-200 bg-white">
+        <div style="display: grid; grid-template-columns: repeat(11, minmax(0, 1fr)); min-width: 1232px;">
+
+          <!-- HEADER: 11 etapas -->
+          <div class="px-2.5 py-3 bg-ink-900 border-r border-ink-800">
+            <div class="text-[10px] font-mono text-accent-400 mb-1">01</div>
+            <div class="text-[12px] font-semibold text-white leading-tight">Coleta de dados</div>
+          </div>
+          <div class="px-2.5 py-3 bg-ink-900 border-r border-ink-800">
+            <div class="text-[10px] font-mono text-accent-400 mb-1">02</div>
+            <div class="text-[12px] font-semibold text-white leading-tight">Análise de crédito</div>
+          </div>
+          <div class="px-2.5 py-3 bg-ink-900 border-r border-ink-800">
+            <div class="text-[10px] font-mono text-accent-400 mb-1">03</div>
+            <div class="text-[12px] font-semibold text-white leading-tight">Escolha da instituição</div>
+          </div>
+          <div class="px-2.5 py-3 bg-ink-900 border-r border-ink-800">
+            <div class="text-[10px] font-mono text-accent-400 mb-1">04</div>
+            <div class="text-[12px] font-semibold text-white leading-tight">Escolha do imóvel</div>
+          </div>
+          <div class="px-2.5 py-3 bg-ink-900 border-r border-ink-800">
+            <div class="text-[10px] font-mono text-accent-400 mb-1">05</div>
+            <div class="text-[12px] font-semibold text-white leading-tight">Doc. das partes</div>
+          </div>
+          <div class="px-2.5 py-3 bg-ink-900 border-r border-ink-800">
+            <div class="text-[10px] font-mono text-accent-400 mb-1">06</div>
+            <div class="text-[12px] font-semibold text-white leading-tight">Avaliação do imóvel</div>
+          </div>
+          <div class="px-2.5 py-3 bg-ink-900 border-r border-ink-800">
+            <div class="text-[10px] font-mono text-accent-400 mb-1">07</div>
+            <div class="text-[12px] font-semibold text-white leading-tight">Análise jurídica</div>
+          </div>
+          <div class="px-2.5 py-3 bg-ink-900 border-r border-ink-800">
+            <div class="text-[10px] font-mono text-accent-400 mb-1">08</div>
+            <div class="text-[12px] font-semibold text-white leading-tight">Elaboração contrato</div>
+          </div>
+          <div class="px-2.5 py-3 bg-ink-900 border-r border-ink-800">
+            <div class="text-[10px] font-mono text-accent-400 mb-1">09</div>
+            <div class="text-[12px] font-semibold text-white leading-tight">Ass. contrato</div>
+          </div>
+          <div class="px-2.5 py-3 bg-ink-900 border-r border-ink-800">
+            <div class="text-[10px] font-mono text-accent-400 mb-1">10</div>
+            <div class="text-[12px] font-semibold text-white leading-tight">Registro cartório</div>
+          </div>
+          <div class="px-2.5 py-3 bg-ink-900">
+            <div class="text-[10px] font-mono text-accent-400 mb-1">11</div>
+            <div class="text-[12px] font-semibold text-white leading-tight">Liberação recurso</div>
+          </div>
+
+          <!-- BANDA: NOTIFICAÇÕES -->
+          <div class="col-span-11 px-4 py-2 bg-teal-50 border-y border-teal-100" style="grid-column: span 11;">
+            <div class="flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-teal-600"></span>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700">Notificações</span>
+              <span class="text-[11px] text-teal-700/70">— disparadas em resposta a um evento</span>
+            </div>
+          </div>
+
+          <!-- LINHA: Cards de notificação por etapa -->
+          <!-- Etapa 01 -->
+          <div class="p-1.5 border-r border-paper-200 space-y-1.5 bg-white">
+            <div class="border border-paper-200 rounded p-2 bg-white">
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="font-mono text-[9px] font-bold text-ink-500">N01</span>
+                <span class="w-1.5 h-1.5 rounded-sm bg-[#4a154b]"></span>
+              </div>
+              <div class="text-[11px] font-mono text-teal-700 event-name">nova_operacao_criada</div>
+            </div>
+            <div class="border border-paper-200 rounded p-2 bg-white">
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="font-mono text-[9px] font-bold text-ink-500">N02</span>
+                <span class="w-1.5 h-1.5 rounded-sm bg-[#25d366]"></span>
+              </div>
+              <div class="text-[11px] font-mono text-teal-700 event-name">formulario_dados_enviado</div>
+            </div>
+            <div class="border border-paper-200 rounded p-2 bg-white">
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="font-mono text-[9px] font-bold text-ink-500">N03</span>
+                <span class="w-1.5 h-1.5 rounded-sm bg-[#4a154b]"></span>
+              </div>
+              <div class="text-[11px] font-mono text-teal-700 event-name">formulario_dados_preenchido</div>
+            </div>
+          </div>
+          <!-- Etapa 02 -->
+          <div class="p-1.5 border-r border-paper-200 space-y-1.5 bg-white">
+            <div class="border border-paper-200 rounded p-2 bg-white">
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="font-mono text-[9px] font-bold text-ink-500">OPERADOR</span>
+                <span class="w-1.5 h-1.5 rounded-sm bg-[#4a154b]"></span>
+              </div>
+              <div class="text-[11px] font-mono text-teal-700 event-name">Cadastra proposta na plataforma</div>
+            </div>
+          </div>
+          <!-- Etapa 03 -->
+          <div class="p-1.5 border-r border-paper-200 space-y-1.5 bg-white">
+            <div class="border border-paper-200 rounded p-2 bg-white">
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="font-mono text-[9px] font-bold text-ink-500">N05</span>
+                <span class="w-1.5 h-1.5 rounded-sm bg-[#25d366]"></span>
+              </div>
+              <div class="text-[11px] font-mono text-teal-700 event-name">propostas_resumo_enviado</div>
+            </div>
+            <div class="border border-paper-200 rounded p-2 bg-white">
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="font-mono text-[9px] font-bold text-ink-500">N06</span>
+                <span class="w-1.5 h-1.5 rounded-sm bg-[#4a154b]"></span>
+              </div>
+              <div class="text-[11px] font-mono text-teal-700 event-name">cliente_escolheu_banco</div>
+            </div>
+          </div>
+          <!-- Etapa 04 -->
+          <div class="p-1.5 border-r border-paper-200 space-y-1.5 bg-white">
+            <div class="border border-paper-200 rounded p-2 bg-white">
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="font-mono text-[9px] font-bold text-ink-500">N07</span>
+                <span class="w-1.5 h-1.5 rounded-sm bg-[#4a154b]"></span>
+              </div>
+              <div class="text-[11px] font-mono text-teal-700 event-name">imovel_informado</div>
+            </div>
+          </div>
+          <!-- Etapa 05 -->
+          <div class="p-1.5 border-r border-paper-200 space-y-1.5 bg-white">
+            <div class="border border-paper-200 rounded p-2 bg-white">
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="font-mono text-[9px] font-bold text-ink-500">N08</span>
+                <span class="w-1.5 h-1.5 rounded-sm bg-[#25d366]"></span>
+              </div>
+              <div class="text-[11px] font-mono text-teal-700 event-name">formulario_doc_enviado</div>
+            </div>
+            <div class="border border-paper-200 rounded p-2 bg-white">
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="font-mono text-[9px] font-bold text-ink-500">N09</span>
+                <span class="w-1.5 h-1.5 rounded-sm bg-[#4a154b]"></span>
+              </div>
+              <div class="text-[11px] font-mono text-teal-700 event-name">documento_recebido</div>
+            </div>
+            <div class="border border-paper-200 rounded p-2 bg-white">
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="font-mono text-[9px] font-bold text-ink-500">N10</span>
+                <span class="w-1.5 h-1.5 rounded-sm bg-[#4a154b]"></span>
+              </div>
+              <div class="text-[11px] font-mono text-teal-700 event-name">documentacao_completa</div>
+            </div>
+          </div>
+          <!-- Etapas 06-11: a definir -->
+          <div class="p-1.5 border-r border-paper-200 flex items-center justify-center bg-paper-50">
+            <div class="border border-dashed border-paper-300 rounded px-2 py-3 text-center w-full">
+              <div class="text-[9px] font-mono uppercase text-ink-400 tracking-wider">a definir</div>
+            </div>
+          </div>
+          <div class="p-1.5 border-r border-paper-200 flex items-center justify-center bg-paper-50">
+            <div class="border border-dashed border-paper-300 rounded px-2 py-3 text-center w-full">
+              <div class="text-[9px] font-mono uppercase text-ink-400 tracking-wider">a definir</div>
+            </div>
+          </div>
+          <div class="p-1.5 border-r border-paper-200 flex items-center justify-center bg-paper-50">
+            <div class="border border-dashed border-paper-300 rounded px-2 py-3 text-center w-full">
+              <div class="text-[9px] font-mono uppercase text-ink-400 tracking-wider">a definir</div>
+            </div>
+          </div>
+          <div class="p-1.5 border-r border-paper-200 flex items-center justify-center bg-paper-50">
+            <div class="border border-dashed border-paper-300 rounded px-2 py-3 text-center w-full">
+              <div class="text-[9px] font-mono uppercase text-ink-400 tracking-wider">a definir</div>
+            </div>
+          </div>
+          <div class="p-1.5 border-r border-paper-200 flex items-center justify-center bg-paper-50">
+            <div class="border border-dashed border-paper-300 rounded px-2 py-3 text-center w-full">
+              <div class="text-[9px] font-mono uppercase text-ink-400 tracking-wider">a definir</div>
+            </div>
+          </div>
+          <div class="p-1.5 flex items-center justify-center bg-paper-50">
+            <div class="border border-dashed border-paper-300 rounded px-2 py-3 text-center w-full">
+              <div class="text-[9px] font-mono uppercase text-ink-400 tracking-wider">a definir</div>
+            </div>
+          </div>
+
+          <!-- BANDA: FOLLOW-UPS -->
+          <div class="col-span-11 px-4 py-2 bg-amber-50 border-y border-amber-100" style="grid-column: span 11;">
+            <div class="flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-amber-700">Follow-ups</span>
+              <span class="text-[11px] text-amber-700/70">— disparados quando o SLA estoura</span>
+            </div>
+          </div>
+
+          <!-- LINHA: Cards de follow-up por etapa -->
+          <!-- Etapa 01 -->
+          <div class="p-1.5 border-r border-paper-200 space-y-1.5 bg-white">
+            <div class="border border-paper-200 rounded p-2 bg-white">
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="font-mono text-[9px] font-bold text-ink-500">F01</span>
+                <div class="flex items-center gap-1">
+                  <span class="font-mono text-[9px] font-bold px-1 py-px rounded bg-amber-100 text-amber-700">10m</span>
+                  <span class="w-1.5 h-1.5 rounded-sm bg-[#4a154b]"></span>
+                </div>
+              </div>
+              <div class="text-[11px] font-mono text-teal-700 event-name">fu_atribuir_op</div>
+            </div>
+            <div class="border border-paper-200 rounded p-2 bg-white">
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="font-mono text-[9px] font-bold text-ink-500">F02</span>
+                <div class="flex items-center gap-1">
+                  <span class="font-mono text-[9px] font-bold px-1 py-px rounded bg-amber-100 text-amber-700">8h</span>
+                  <span class="w-1.5 h-1.5 rounded-sm bg-[#25d366]"></span>
+                </div>
+              </div>
+              <div class="text-[11px] font-mono text-teal-700 event-name">fu_form_dados</div>
+            </div>
+          </div>
+          <!-- Etapa 02 -->
+          <div class="p-1.5 border-r border-paper-200 space-y-1.5 bg-white">
+            <div class="border border-paper-200 rounded p-2 bg-white">
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="font-mono text-[9px] font-bold text-ink-500">F03</span>
+                <div class="flex items-center gap-1">
+                  <span class="font-mono text-[9px] font-bold px-1 py-px rounded bg-amber-100 text-amber-700">1h</span>
+                  <span class="w-1.5 h-1.5 rounded-sm bg-[#4a154b]"></span>
+                </div>
+              </div>
+              <div class="text-[11px] font-mono text-teal-700 event-name">fu_cotar_propostas</div>
+            </div>
+          </div>
+          <!-- Etapa 03 -->
+          <div class="p-1.5 border-r border-paper-200 space-y-1.5 bg-white">
+            <div class="border border-paper-200 rounded p-2 bg-white">
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="font-mono text-[9px] font-bold text-ink-500">F04</span>
+                <div class="flex items-center gap-1">
+                  <span class="font-mono text-[9px] font-bold px-1 py-px rounded bg-amber-100 text-amber-700">1h</span>
+                  <span class="w-1.5 h-1.5 rounded-sm bg-[#25d366]"></span>
+                </div>
+              </div>
+              <div class="text-[11px] font-mono text-teal-700 event-name">fu_ver_propostas</div>
+            </div>
+            <div class="border border-paper-200 rounded p-2 bg-white">
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="font-mono text-[9px] font-bold text-ink-500">F05</span>
+                <div class="flex items-center gap-1">
+                  <span class="font-mono text-[9px] font-bold px-1 py-px rounded bg-amber-100 text-amber-700">1h</span>
+                  <span class="w-1.5 h-1.5 rounded-sm bg-[#4a154b]"></span>
+                </div>
+              </div>
+              <div class="text-[11px] font-mono text-teal-700 event-name">fu_cliente_indeciso</div>
+            </div>
+          </div>
+          <!-- Etapa 04 -->
+          <div class="p-1.5 border-r border-paper-200 space-y-1.5 bg-white">
+            <div class="border border-paper-200 rounded p-2 bg-white">
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="font-mono text-[9px] font-bold text-ink-500">F06</span>
+                <div class="flex items-center gap-1">
+                  <span class="font-mono text-[9px] font-bold px-1 py-px rounded bg-amber-100 text-amber-700">1h</span>
+                  <span class="w-1.5 h-1.5 rounded-sm bg-[#25d366]"></span>
+                </div>
+              </div>
+              <div class="text-[11px] font-mono text-teal-700 event-name">fu_informar_imovel</div>
+            </div>
+            <div class="border border-paper-200 rounded p-2 bg-white">
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="font-mono text-[9px] font-bold text-ink-500">F07</span>
+                <div class="flex items-center gap-1">
+                  <span class="font-mono text-[9px] font-bold px-1 py-px rounded bg-amber-100 text-amber-700">1h</span>
+                  <span class="w-1.5 h-1.5 rounded-sm bg-[#4a154b]"></span>
+                </div>
+              </div>
+              <div class="text-[11px] font-mono text-teal-700 event-name">fu_imovel_pendente</div>
+            </div>
+          </div>
+          <!-- Etapa 05 -->
+          <div class="p-1.5 border-r border-paper-200 space-y-1.5 bg-white">
+            <div class="border border-paper-200 rounded p-2 bg-white">
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="font-mono text-[9px] font-bold text-ink-500">F08</span>
+                <div class="flex items-center gap-1">
+                  <span class="font-mono text-[9px] font-bold px-1 py-px rounded bg-amber-100 text-amber-700">1h</span>
+                  <span class="w-1.5 h-1.5 rounded-sm bg-[#4a154b]"></span>
+                </div>
+              </div>
+              <div class="text-[11px] font-mono text-teal-700 event-name">fu_doc_enviado</div>
+            </div>
+            <div class="border border-paper-200 rounded p-2 bg-white">
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="font-mono text-[9px] font-bold text-ink-500">F09</span>
+                <div class="flex items-center gap-1">
+                  <span class="font-mono text-[9px] font-bold px-1 py-px rounded bg-amber-100 text-amber-700">1h</span>
+                  <span class="w-1.5 h-1.5 rounded-sm bg-[#25d366]"></span>
+                </div>
+              </div>
+              <div class="text-[11px] font-mono text-teal-700 event-name">fu_doc_cliente</div>
+            </div>
+          </div>
+          <!-- Etapas 06-11: a definir -->
+          <div class="p-1.5 border-r border-paper-200 flex items-center justify-center bg-paper-50">
+            <div class="border border-dashed border-paper-300 rounded px-2 py-3 text-center w-full">
+              <div class="text-[9px] font-mono uppercase text-ink-400 tracking-wider">a definir</div>
+            </div>
+          </div>
+          <div class="p-1.5 border-r border-paper-200 flex items-center justify-center bg-paper-50">
+            <div class="border border-dashed border-paper-300 rounded px-2 py-3 text-center w-full">
+              <div class="text-[9px] font-mono uppercase text-ink-400 tracking-wider">a definir</div>
+            </div>
+          </div>
+          <div class="p-1.5 border-r border-paper-200 flex items-center justify-center bg-paper-50">
+            <div class="border border-dashed border-paper-300 rounded px-2 py-3 text-center w-full">
+              <div class="text-[9px] font-mono uppercase text-ink-400 tracking-wider">a definir</div>
+            </div>
+          </div>
+          <div class="p-1.5 border-r border-paper-200 flex items-center justify-center bg-paper-50">
+            <div class="border border-dashed border-paper-300 rounded px-2 py-3 text-center w-full">
+              <div class="text-[9px] font-mono uppercase text-ink-400 tracking-wider">a definir</div>
+            </div>
+          </div>
+          <div class="p-1.5 border-r border-paper-200 flex items-center justify-center bg-paper-50">
+            <div class="border border-dashed border-paper-300 rounded px-2 py-3 text-center w-full">
+              <div class="text-[9px] font-mono uppercase text-ink-400 tracking-wider">a definir</div>
+            </div>
+          </div>
+          <div class="p-1.5 flex items-center justify-center bg-paper-50">
+            <div class="border border-dashed border-paper-300 rounded px-2 py-3 text-center w-full">
+              <div class="text-[9px] font-mono uppercase text-ink-400 tracking-wider">a definir</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <p class="text-xs text-ink-500 mt-4 italic">
+      As etapas 06–11 seguem o mesmo motor basta adicionar entradas em <code class="inline">events_catalog</code>, <code class="inline">notification_rules</code> e <code class="inline">followup_rules</code>. Nenhuma mudança de código necessária.
+    </p>
+  </section>
+
+  <!-- 08 Templates de mensagem -->
+  <section id="s8" class="mb-16">
+    <div class="flex items-baseline gap-3 mb-6">
+      <span class="font-mono text-sm text-teal-600 font-bold">08</span>
+      <h2 class="text-2xl font-bold tracking-tight text-ink-900">Templates de mensagem</h2>
+    </div>
+
+    <p class="text-ink-700 mb-6 leading-relaxed max-w-3xl">
+      Copy completa, preview visual e variáveis disponíveis de cada um dos 19 templates, organizados pela etapa da operação. Notificações à esquerda (em resposta a evento), follow-ups à direita (disparados por SLA estourado). Templates Slack usam Block Kit com botões interativos; templates WhatsApp são HSM <code class="inline">UTILITY</code> e devem ser submetidos à Meta antes do go-live.
+    </p>
+
+    <h3 class="text-base font-semibold text-ink-900 mb-3">Convenções de copy</h3>
+    <ul class="space-y-2 text-sm text-ink-700 mb-10 max-w-3xl">
+      <li class="flex gap-2"><span class="text-teal-600 font-mono font-bold flex-shrink-0">·</span><span><strong class="text-ink-900">Slack:</strong> tom direto e operacional. Primeira linha é o título do evento; corpo entrega o contexto que o time precisa pra agir. Sempre inclui CTA primário e secundário em botão.</span></li>
+      <li class="flex gap-2"><span class="text-teal-600 font-mono font-bold flex-shrink-0">·</span><span><strong class="text-ink-900">WhatsApp:</strong> tom caloroso mas profissional. Sempre se identifica como "Hubfi" (intermediadora) para evitar confusão com o banco. Texto na primeira pessoa, sempre com link claro e quick reply pra falar com consultor.</span></li>
+      <li class="flex gap-2"><span class="text-teal-600 font-mono font-bold flex-shrink-0">·</span><span><strong class="text-ink-900">Variáveis:</strong> em <code class="inline">{snake_case}</code>, substituídas em runtime pelo Notification Engine a partir do payload do evento e dos dados da operação.</span></li>
+      <li class="flex gap-2"><span class="text-teal-600 font-mono font-bold flex-shrink-0">·</span><span><strong class="text-ink-900">Bold no Slack/WhatsApp:</strong> usa <code class="inline">*texto*</code> conforme convenção dos canais o adapter converte para o formato apropriado.</span></li>
+    </ul>
+
+    <div class="mb-12">
+      <div class="flex items-baseline gap-3 mb-2">
+        <span class="font-mono text-xs text-teal-600 font-bold">ETAPA 01</span>
+        <h3 class="text-xl font-semibold text-ink-900">Coleta de dados</h3>
+      </div>
+      <p class="text-sm text-ink-600 mb-5 max-w-2xl">Cliente preenche o formulário inicial com dados pessoais, profissionais e financeiros.</p>
+
+      <div class="grid grid-cols-2 gap-5">
+        <!-- Notificações -->
+        <div>
+          <div class="flex items-center gap-2 mb-3 pb-2 border-b border-teal-200">
+            <span class="w-1.5 h-1.5 rounded-full bg-teal-600"></span>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700">Notificações</span>
+            <span class="text-[11px] text-ink-500">· 3 templates</span>
+          </div>
+          
+      <div class="rounded-lg border border-paper-200 bg-white mb-3 overflow-hidden">
+        <div class="px-4 py-2.5 border-b border-paper-200 bg-paper-50 flex items-center gap-2 flex-wrap">
+          <span class="font-mono text-[11px] font-bold text-ink-700 bg-white border border-paper-200 px-1.5 py-0.5 rounded">N01</span>
+          <span class="font-mono text-[12px] text-teal-700 font-medium">slk.operacao_criada</span>
+          <span class="pill pill-slack">Slack</span>
+          
+        </div>
+        <div class="p-4">
+          <div class="slack-frame">
+        <div class="slack-channel"># operacoes-novas</div>
+        <div class="slack-msg">
+          <div class="slack-bot"><span class="slack-bot-icon">h</span>Hubfi Bot<span class="slack-tag">APP</span></div>
+          <div>Nova operação criada<br><strong>Op #{operation_id}</strong> · {client_name}<br>Produto: {product} · Valor pretendido: R$ {target_amount}<br>Origem: {channel_origin}</div>
+          <div style="margin-top: 8px;"><span class="slack-btn slack-btn-primary">Atribuir a mim</span><span class="slack-btn slack-btn-secondary">Abrir operação</span></div>
+        </div>
+      </div>
+          <div class="grid grid-cols-[100px_1fr] gap-x-3 gap-y-1 text-[11.5px] mt-4 pt-3 border-t border-paper-100">
+            <div class="text-ink-500 font-medium">Disparado por:</div><div class="font-mono text-ink-700 break-all">nova_operacao_criada</div>
+            <div class="text-ink-500 font-medium">Destinatário:</div><div class="text-ink-700">canal #operacoes-novas</div>
+            <div class="text-ink-500 font-medium">Variáveis:</div><div class="font-mono text-[11px] text-ink-700 break-all">{operation_id, client_name, product, target_amount, channel_origin}</div>
+          </div>
+        </div>
+      </div>
+      <div class="rounded-lg border border-paper-200 bg-white mb-3 overflow-hidden">
+        <div class="px-4 py-2.5 border-b border-paper-200 bg-paper-50 flex items-center gap-2 flex-wrap">
+          <span class="font-mono text-[11px] font-bold text-ink-700 bg-white border border-paper-200 px-1.5 py-0.5 rounded">N02</span>
+          <span class="font-mono text-[12px] text-teal-700 font-medium">wa.form_dados_link</span>
+          <span class="pill pill-wa">WhatsApp</span>
+          
+        </div>
+        <div class="p-4">
+          <div class="wa-frame">
+        <div class="wa-bubble">Oi {client_name}! 👋<br><br>Aqui é a Hubfi, a plataforma crédito imobiliário. Pra dar o primeiro passo no seu financiamento, preciso que você preencha um formulário rápido com seus dados.<br><br>Leva uns 10 min pode parar e voltar quando quiser:<br><br>👉 <span class="wa-link">{link_form}</span><br><br>Qualquer dúvida, é só responder por aqui.</div>
+        <div style="margin-top: 6px;"><span class="wa-quickreply">Preencher agora</span><span class="wa-quickreply">Falar com consultor</span></div>
+      </div>
+          <div class="grid grid-cols-[100px_1fr] gap-x-3 gap-y-1 text-[11.5px] mt-4 pt-3 border-t border-paper-100">
+            <div class="text-ink-500 font-medium">Disparado por:</div><div class="font-mono text-ink-700 break-all">formulario_dados_enviado</div>
+            <div class="text-ink-500 font-medium">Destinatário:</div><div class="text-ink-700">telefone do cliente</div>
+            <div class="text-ink-500 font-medium">Variáveis:</div><div class="font-mono text-[11px] text-ink-700 break-all">{client_name, link_form}</div>
+          </div>
+        </div>
+      </div>
+      <div class="rounded-lg border border-paper-200 bg-white mb-3 overflow-hidden">
+        <div class="px-4 py-2.5 border-b border-paper-200 bg-paper-50 flex items-center gap-2 flex-wrap">
+          <span class="font-mono text-[11px] font-bold text-ink-700 bg-white border border-paper-200 px-1.5 py-0.5 rounded">N03</span>
+          <span class="font-mono text-[12px] text-teal-700 font-medium">slk.form_preenchido</span>
+          <span class="pill pill-slack">Slack</span>
+          
+        </div>
+        <div class="p-4">
+          <div class="slack-frame">
+        <div class="slack-channel"># operacoes-em-andamento</div>
+        <div class="slack-msg">
+          <div class="slack-bot"><span class="slack-bot-icon">h</span>Hubfi Bot<span class="slack-tag">APP</span></div>
+          <div>Formulário preenchido<br><strong>Op #{operation_id}</strong> · {client_name}<br>Coleta de dados → pronto para análise de crédito<br>Tempo de preenchimento: {completed_in_min} min</div>
+          <div style="margin-top: 8px;"><span class="slack-btn slack-btn-primary">Iniciar análise</span><span class="slack-btn slack-btn-secondary">Abrir operação</span></div>
+        </div>
+      </div>
+          <div class="grid grid-cols-[100px_1fr] gap-x-3 gap-y-1 text-[11.5px] mt-4 pt-3 border-t border-paper-100">
+            <div class="text-ink-500 font-medium">Disparado por:</div><div class="font-mono text-ink-700 break-all">formulario_dados_preenchido</div>
+            <div class="text-ink-500 font-medium">Destinatário:</div><div class="text-ink-700">canal #operacoes-em-andamento</div>
+            <div class="text-ink-500 font-medium">Variáveis:</div><div class="font-mono text-[11px] text-ink-700 break-all">{operation_id, client_name, completed_in_min}</div>
+          </div>
+        </div>
+      </div>
+        </div>
+
+        <!-- Follow-ups -->
+        <div>
+          <div class="flex items-center gap-2 mb-3 pb-2 border-b border-amber-200">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-amber-700">Follow-ups</span>
+            <span class="text-[11px] text-ink-500">· 2 templates</span>
+          </div>
+          
+      <div class="rounded-lg border border-paper-200 bg-white mb-3 overflow-hidden">
+        <div class="px-4 py-2.5 border-b border-paper-200 bg-paper-50 flex items-center gap-2 flex-wrap">
+          <span class="font-mono text-[11px] font-bold text-ink-700 bg-white border border-paper-200 px-1.5 py-0.5 rounded">F01</span>
+          <span class="font-mono text-[12px] text-teal-700 font-medium">slk.fu_atribuir_op</span>
+          <span class="pill pill-slack">Slack</span>
+          <span class="pill pill-amber">SLA 10 min</span>
+        </div>
+        <div class="p-4">
+          <div class="slack-frame">
+        <div class="slack-channel"># operacoes-novas</div>
+        <div class="slack-msg">
+          <div class="slack-bot"><span class="slack-bot-icon">h</span>Hubfi Bot<span class="slack-tag">APP</span></div>
+          <div>⚠️ Operação sem atribuição há 10 min<br><strong>Op #{operation_id}</strong> · {client_name}<br>Criada às {created_at_time}<br>Por favor, atribua um Personal Finance.</div>
+          <div style="margin-top: 8px;"><span class="slack-btn slack-btn-primary">Atribuir a mim</span><span class="slack-btn slack-btn-secondary">Ver operação</span></div>
+        </div>
+      </div>
+          <div class="grid grid-cols-[100px_1fr] gap-x-3 gap-y-1 text-[11.5px] mt-4 pt-3 border-t border-paper-100">
+            <div class="text-ink-500 font-medium">Agendado por:</div><div class="font-mono text-ink-700 break-all">nova_operacao_criada</div>
+            <div class="text-ink-500 font-medium">Destinatário:</div><div class="text-ink-700">canal #operacoes-novas</div>
+            <div class="text-ink-500 font-medium">Variáveis:</div><div class="font-mono text-[11px] text-ink-700 break-all">{operation_id, client_name, created_at_time}</div>
+          </div>
+        </div>
+      </div>
+      <div class="rounded-lg border border-paper-200 bg-white mb-3 overflow-hidden">
+        <div class="px-4 py-2.5 border-b border-paper-200 bg-paper-50 flex items-center gap-2 flex-wrap">
+          <span class="font-mono text-[11px] font-bold text-ink-700 bg-white border border-paper-200 px-1.5 py-0.5 rounded">F02</span>
+          <span class="font-mono text-[12px] text-teal-700 font-medium">wa.fu_form_dados</span>
+          <span class="pill pill-wa">WhatsApp</span>
+          <span class="pill pill-amber">SLA 8 h</span>
+        </div>
+        <div class="p-4">
+          <div class="wa-frame">
+        <div class="wa-bubble">Oi {client_name}! 👋<br><br>Vi que você ainda não preencheu o formulário de cadastro. Sem ele, não consigo dar continuidade ao seu financiamento.<br><br>Leva uns 10 min e pode parar e voltar quando quiser:<br><br>👉 <span class="wa-link">{link_form}</span><br><br>Tá com alguma dúvida ou dificuldade? Me chama por aqui.</div>
+        <div style="margin-top: 6px;"><span class="wa-quickreply">Continuar formulário</span><span class="wa-quickreply">Falar com consultor</span></div>
+      </div>
+          <div class="grid grid-cols-[100px_1fr] gap-x-3 gap-y-1 text-[11.5px] mt-4 pt-3 border-t border-paper-100">
+            <div class="text-ink-500 font-medium">Agendado por:</div><div class="font-mono text-ink-700 break-all">formulario_dados_enviado</div>
+            <div class="text-ink-500 font-medium">Destinatário:</div><div class="text-ink-700">telefone do cliente</div>
+            <div class="text-ink-500 font-medium">Variáveis:</div><div class="font-mono text-[11px] text-ink-700 break-all">{client_name, link_form}</div>
+          </div>
+        </div>
+      </div>
+        </div>
+      </div>
+    </div>
+    <div class="mb-12">
+      <div class="flex items-baseline gap-3 mb-2">
+        <span class="font-mono text-xs text-teal-600 font-bold">ETAPA 02</span>
+        <h3 class="text-xl font-semibold text-ink-900">Análise de crédito</h3>
+      </div>
+      <p class="text-sm text-ink-600 mb-5 max-w-2xl">Operação é enviada para cotação nos bancos parceiros e propostas começam a chegar.</p>
+
+      <div class="grid grid-cols-2 gap-5">
+        <!-- Notificações -->
+        <div>
+          <div class="flex items-center gap-2 mb-3 pb-2 border-b border-teal-200">
+            <span class="w-1.5 h-1.5 rounded-full bg-teal-600"></span>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700">Notificações</span>
+            <span class="text-[11px] text-ink-500">· 1 template</span>
+          </div>
+          
+      <div class="rounded-lg border border-paper-200 bg-white mb-3 overflow-hidden">
+        <div class="px-4 py-2.5 border-b border-paper-200 bg-paper-50 flex items-center gap-2 flex-wrap">
+          <span class="font-mono text-[11px] font-bold text-ink-700 bg-white border border-paper-200 px-1.5 py-0.5 rounded">N04</span>
+          <span class="font-mono text-[12px] text-teal-700 font-medium">slk.nova_proposta</span>
+          <span class="pill pill-slack">Slack</span>
+          
+        </div>
+       
+      </div>
+        </div>
+
+        <!-- Follow-ups -->
+        <div>
+          <div class="flex items-center gap-2 mb-3 pb-2 border-b border-amber-200">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-amber-700">Follow-ups</span>
+            <span class="text-[11px] text-ink-500">· 1 template</span>
+          </div>
+          
+      <div class="rounded-lg border border-paper-200 bg-white mb-3 overflow-hidden">
+        <div class="px-4 py-2.5 border-b border-paper-200 bg-paper-50 flex items-center gap-2 flex-wrap">
+          <span class="font-mono text-[11px] font-bold text-ink-700 bg-white border border-paper-200 px-1.5 py-0.5 rounded">F03</span>
+          <span class="font-mono text-[12px] text-teal-700 font-medium">slk.fu_cotar_propostas</span>
+          <span class="pill pill-slack">Slack</span>
+          <span class="pill pill-amber">SLA 1 h</span>
+        </div>
+        <div class="p-4">
+          <div class="slack-frame">
+        <div class="slack-channel"># operacoes-em-andamento</div>
+        <div class="slack-msg">
+          <div class="slack-bot"><span class="slack-bot-icon">h</span>Hubfi Bot<span class="slack-tag">APP</span></div>
+          <div>⏰ Aguardando solicitar cotação dos bancos<br><strong>Op #{operation_id}</strong> · {client_name}<br>Coloque a operação na fila de cotação dos bancos parceiros.</div>
+          <div style="margin-top: 8px;"><span class="slack-btn slack-btn-primary">Cotar agora</span><span class="slack-btn slack-btn-secondary">Abrir operação</span></div>
+        </div>
+      </div>
+          <div class="grid grid-cols-[100px_1fr] gap-x-3 gap-y-1 text-[11.5px] mt-4 pt-3 border-t border-paper-100">
+            <div class="text-ink-500 font-medium">Agendado por:</div><div class="font-mono text-ink-700 break-all">analise_credito_iniciada</div>
+            <div class="text-ink-500 font-medium">Destinatário:</div><div class="text-ink-700">canal #operacoes-em-andamento</div>
+            <div class="text-ink-500 font-medium">Variáveis:</div><div class="font-mono text-[11px] text-ink-700 break-all">{operation_id, client_name}</div>
+          </div>
+        </div>
+      </div>
+        </div>
+      </div>
+    </div>
+    <div class="mb-12">
+      <div class="flex items-baseline gap-3 mb-2">
+        <span class="font-mono text-xs text-teal-600 font-bold">ETAPA 03</span>
+        <h3 class="text-xl font-semibold text-ink-900">Escolha da instituição</h3>
+      </div>
+      <p class="text-sm text-ink-600 mb-5 max-w-2xl">Time interno cadastra as propostas e envia o resumo à cliente, que escolhe o banco.</p>
+
+      <div class="grid grid-cols-2 gap-5">
+        <!-- Notificações -->
+        <div>
+          <div class="flex items-center gap-2 mb-3 pb-2 border-b border-teal-200">
+            <span class="w-1.5 h-1.5 rounded-full bg-teal-600"></span>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700">Notificações</span>
+            <span class="text-[11px] text-ink-500">· 2 templates</span>
+          </div>
+          
+      <div class="rounded-lg border border-paper-200 bg-white mb-3 overflow-hidden">
+        <div class="px-4 py-2.5 border-b border-paper-200 bg-paper-50 flex items-center gap-2 flex-wrap">
+          <span class="font-mono text-[11px] font-bold text-ink-700 bg-white border border-paper-200 px-1.5 py-0.5 rounded">N05</span>
+          <span class="font-mono text-[12px] text-teal-700 font-medium">wa.propostas_resumo</span>
+          <span class="pill pill-wa">WhatsApp</span>
+          
+        </div>
+        <div class="p-4">
+          <div class="wa-frame">
+        <div class="wa-bubble">Oi {client_name}! 👋<br><br>Aqui é a Hubfi, a plataforma crédito imobiliário a gente cuidou de comparar bancos pra você.<br><br>Boa notícia: já temos <strong>{n_propostas} propostas aprovadas</strong> pro seu financiamento. 🎉<br><br>Toque no link abaixo pra comparar e escolher a melhor pra você:<br><br>👉 <span class="wa-link">{link_propostas}</span><br><br>O link é pessoal e expira em 7 dias.</div>
+        <div style="margin-top: 6px;"><span class="wa-quickreply">Ver propostas</span><span class="wa-quickreply">Falar com consultor</span></div>
+      </div>
+          <div class="grid grid-cols-[100px_1fr] gap-x-3 gap-y-1 text-[11.5px] mt-4 pt-3 border-t border-paper-100">
+            <div class="text-ink-500 font-medium">Disparado por:</div><div class="font-mono text-ink-700 break-all">propostas_resumo_enviado</div>
+            <div class="text-ink-500 font-medium">Destinatário:</div><div class="text-ink-700">telefone do cliente</div>
+            <div class="text-ink-500 font-medium">Variáveis:</div><div class="font-mono text-[11px] text-ink-700 break-all">{client_name, n_propostas, link_propostas}</div>
+          </div>
+        </div>
+      </div>
+      <div class="rounded-lg border border-paper-200 bg-white mb-3 overflow-hidden">
+        <div class="px-4 py-2.5 border-b border-paper-200 bg-paper-50 flex items-center gap-2 flex-wrap">
+          <span class="font-mono text-[11px] font-bold text-ink-700 bg-white border border-paper-200 px-1.5 py-0.5 rounded">N06</span>
+          <span class="font-mono text-[12px] text-teal-700 font-medium">slk.banco_escolhido</span>
+          <span class="pill pill-slack">Slack</span>
+          
+        </div>
+        <div class="p-4">
+          <div class="slack-frame">
+        <div class="slack-channel"># operacoes-em-andamento</div>
+        <div class="slack-msg">
+          <div class="slack-bot"><span class="slack-bot-icon">h</span>Hubfi Bot<span class="slack-tag">APP</span></div>
+          <div>Cliente escolheu banco<br><strong>{bank_name}</strong> · Op #{operation_id} ({client_name})<br>Escolhido por: {chosen_by_label}<br>1ª parcela: R$ {primeira_parcela}</div>
+          <div style="margin-top: 8px;"><span class="slack-btn slack-btn-primary">Solicitar imóvel</span><span class="slack-btn slack-btn-secondary">Abrir operação</span></div>
+        </div>
+      </div>
+          <div class="grid grid-cols-[100px_1fr] gap-x-3 gap-y-1 text-[11.5px] mt-4 pt-3 border-t border-paper-100">
+            <div class="text-ink-500 font-medium">Disparado por:</div><div class="font-mono text-ink-700 break-all">cliente_escolheu_banco</div>
+            <div class="text-ink-500 font-medium">Destinatário:</div><div class="text-ink-700">canal #operacoes-em-andamento</div>
+            <div class="text-ink-500 font-medium">Variáveis:</div><div class="font-mono text-[11px] text-ink-700 break-all">{bank_name, operation_id, client_name, chosen_by_label, primeira_parcela}</div>
+          </div>
+        </div>
+      </div>
+        </div>
+
+        <!-- Follow-ups -->
+        <div>
+          <div class="flex items-center gap-2 mb-3 pb-2 border-b border-amber-200">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-amber-700">Follow-ups</span>
+            <span class="text-[11px] text-ink-500">· 2 templates</span>
+          </div>
+          
+      <div class="rounded-lg border border-paper-200 bg-white mb-3 overflow-hidden">
+        <div class="px-4 py-2.5 border-b border-paper-200 bg-paper-50 flex items-center gap-2 flex-wrap">
+          <span class="font-mono text-[11px] font-bold text-ink-700 bg-white border border-paper-200 px-1.5 py-0.5 rounded">F04</span>
+          <span class="font-mono text-[12px] text-teal-700 font-medium">wa.fu_ver_propostas</span>
+          <span class="pill pill-wa">WhatsApp</span>
+          <span class="pill pill-amber">SLA 1 h</span>
+        </div>
+        <div class="p-4">
+          <div class="wa-frame">
+        <div class="wa-bubble">Oi {client_name}! 👋<br><br>Suas {n_propostas} propostas estão te esperando. Vale a pena dar uma olhada com calma escolher o banco certo faz diferença lá na frente.<br><br>👉 <span class="wa-link">{link_propostas}</span><br><br>Qualquer dúvida, me chama por aqui.</div>
+        <div style="margin-top: 6px;"><span class="wa-quickreply">Ver propostas</span><span class="wa-quickreply">Falar com consultor</span></div>
+      </div>
+          <div class="grid grid-cols-[100px_1fr] gap-x-3 gap-y-1 text-[11.5px] mt-4 pt-3 border-t border-paper-100">
+            <div class="text-ink-500 font-medium">Agendado por:</div><div class="font-mono text-ink-700 break-all">propostas_resumo_enviado</div>
+            <div class="text-ink-500 font-medium">Destinatário:</div><div class="text-ink-700">telefone do cliente</div>
+            <div class="text-ink-500 font-medium">Variáveis:</div><div class="font-mono text-[11px] text-ink-700 break-all">{client_name, n_propostas, link_propostas}</div>
+          </div>
+        </div>
+      </div>
+      <div class="rounded-lg border border-paper-200 bg-white mb-3 overflow-hidden">
+        <div class="px-4 py-2.5 border-b border-paper-200 bg-paper-50 flex items-center gap-2 flex-wrap">
+          <span class="font-mono text-[11px] font-bold text-ink-700 bg-white border border-paper-200 px-1.5 py-0.5 rounded">F05</span>
+          <span class="font-mono text-[12px] text-teal-700 font-medium">slk.fu_cliente_indeciso</span>
+          <span class="pill pill-slack">Slack</span>
+          <span class="pill pill-amber">SLA 1 h</span>
+        </div>
+        <div class="p-4">
+          <div class="slack-frame">
+        <div class="slack-channel"># operacoes-em-andamento</div>
+        <div class="slack-msg">
+          <div class="slack-bot"><span class="slack-bot-icon">h</span>Hubfi Bot<span class="slack-tag">APP</span></div>
+          <div>⏰ Cliente abriu propostas há 1h mas ainda não escolheu<br><strong>Op #{operation_id}</strong> · {client_name}<br>{opens_count} acessos · último em {last_opened_at}<br>Talvez seja bom entrar em contato direto.</div>
+          <div style="margin-top: 8px;"><span class="slack-btn slack-btn-primary">Ligar agora</span><span class="slack-btn slack-btn-secondary">Abrir operação</span></div>
+        </div>
+      </div>
+          <div class="grid grid-cols-[100px_1fr] gap-x-3 gap-y-1 text-[11.5px] mt-4 pt-3 border-t border-paper-100">
+            <div class="text-ink-500 font-medium">Agendado por:</div><div class="font-mono text-ink-700 break-all">link_escolha_aberto</div>
+            <div class="text-ink-500 font-medium">Destinatário:</div><div class="text-ink-700">canal #operacoes-em-andamento</div>
+            <div class="text-ink-500 font-medium">Variáveis:</div><div class="font-mono text-[11px] text-ink-700 break-all">{operation_id, client_name, opens_count, last_opened_at}</div>
+          </div>
+        </div>
+      </div>
+        </div>
+      </div>
+    </div>
+    <div class="mb-12">
+      <div class="flex items-baseline gap-3 mb-2">
+        <span class="font-mono text-xs text-teal-600 font-bold">ETAPA 04</span>
+        <h3 class="text-xl font-semibold text-ink-900">Escolha do imóvel</h3>
+      </div>
+      <p class="text-sm text-ink-600 mb-5 max-w-2xl">Cliente informa qual imóvel pretende comprar para dar sequência ao financiamento.</p>
+
+      <div class="grid grid-cols-2 gap-5">
+        <!-- Notificações -->
+        <div>
+          <div class="flex items-center gap-2 mb-3 pb-2 border-b border-teal-200">
+            <span class="w-1.5 h-1.5 rounded-full bg-teal-600"></span>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700">Notificações</span>
+            <span class="text-[11px] text-ink-500">· 1 template</span>
+          </div>
+          
+      <div class="rounded-lg border border-paper-200 bg-white mb-3 overflow-hidden">
+        <div class="px-4 py-2.5 border-b border-paper-200 bg-paper-50 flex items-center gap-2 flex-wrap">
+          <span class="font-mono text-[11px] font-bold text-ink-700 bg-white border border-paper-200 px-1.5 py-0.5 rounded">N07</span>
+          <span class="font-mono text-[12px] text-teal-700 font-medium">slk.imovel_informado</span>
+          <span class="pill pill-slack">Slack</span>
+          
+        </div>
+        <div class="p-4">
+          <div class="slack-frame">
+        <div class="slack-channel"># operacoes-em-andamento</div>
+        <div class="slack-msg">
+          <div class="slack-bot"><span class="slack-bot-icon">h</span>Hubfi Bot<span class="slack-tag">APP</span></div>
+          <div>Imóvel informado<br>Op #{operation_id} · {client_name}<br>{endereco_imovel}<br>Valor: R$ {valor_imovel}</div>
+          <div style="margin-top: 8px;"><span class="slack-btn slack-btn-primary">Iniciar documentação</span><span class="slack-btn slack-btn-secondary">Abrir operação</span></div>
+        </div>
+      </div>
+          <div class="grid grid-cols-[100px_1fr] gap-x-3 gap-y-1 text-[11.5px] mt-4 pt-3 border-t border-paper-100">
+            <div class="text-ink-500 font-medium">Disparado por:</div><div class="font-mono text-ink-700 break-all">imovel_informado</div>
+            <div class="text-ink-500 font-medium">Destinatário:</div><div class="text-ink-700">canal #operacoes-em-andamento</div>
+            <div class="text-ink-500 font-medium">Variáveis:</div><div class="font-mono text-[11px] text-ink-700 break-all">{operation_id, client_name, endereco_imovel, valor_imovel}</div>
+          </div>
+        </div>
+      </div>
+        </div>
+
+        <!-- Follow-ups -->
+        <div>
+          <div class="flex items-center gap-2 mb-3 pb-2 border-b border-amber-200">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-amber-700">Follow-ups</span>
+            <span class="text-[11px] text-ink-500">· 2 templates</span>
+          </div>
+          
+      <div class="rounded-lg border border-paper-200 bg-white mb-3 overflow-hidden">
+        <div class="px-4 py-2.5 border-b border-paper-200 bg-paper-50 flex items-center gap-2 flex-wrap">
+          <span class="font-mono text-[11px] font-bold text-ink-700 bg-white border border-paper-200 px-1.5 py-0.5 rounded">F06</span>
+          <span class="font-mono text-[12px] text-teal-700 font-medium">wa.fu_informar_imovel</span>
+          <span class="pill pill-wa">WhatsApp</span>
+          <span class="pill pill-amber">SLA 1 h</span>
+        </div>
+        <div class="p-4">
+          <div class="wa-frame">
+        <div class="wa-bubble">Oi {client_name}! 👋<br><br>Pra dar sequência ao financiamento com o {bank_name}, preciso saber qual imóvel você pretende comprar.<br><br>Você pode informar pelo link abaixo (leva uns 2 min):<br><br>👉 <span class="wa-link">{link_imovel}</span><br><br>Se ainda tá pesquisando, sem pressa me avisa por aqui quando decidir.</div>
+        <div style="margin-top: 6px;"><span class="wa-quickreply">Informar imóvel</span><span class="wa-quickreply">Ainda estou pesquisando</span></div>
+      </div>
+          <div class="grid grid-cols-[100px_1fr] gap-x-3 gap-y-1 text-[11.5px] mt-4 pt-3 border-t border-paper-100">
+            <div class="text-ink-500 font-medium">Agendado por:</div><div class="font-mono text-ink-700 break-all">cliente_escolheu_banco</div>
+            <div class="text-ink-500 font-medium">Destinatário:</div><div class="text-ink-700">telefone do cliente</div>
+            <div class="text-ink-500 font-medium">Variáveis:</div><div class="font-mono text-[11px] text-ink-700 break-all">{client_name, bank_name, link_imovel}</div>
+          </div>
+        </div>
+      </div>
+      <div class="rounded-lg border border-paper-200 bg-white mb-3 overflow-hidden">
+        <div class="px-4 py-2.5 border-b border-paper-200 bg-paper-50 flex items-center gap-2 flex-wrap">
+          <span class="font-mono text-[11px] font-bold text-ink-700 bg-white border border-paper-200 px-1.5 py-0.5 rounded">F07</span>
+          <span class="font-mono text-[12px] text-teal-700 font-medium">slk.fu_imovel_pendente</span>
+          <span class="pill pill-slack">Slack</span>
+          <span class="pill pill-amber">SLA 1 h</span>
+        </div>
+        <div class="p-4">
+          <div class="slack-frame">
+        <div class="slack-channel"># operacoes-em-andamento</div>
+        <div class="slack-msg">
+          <div class="slack-bot"><span class="slack-bot-icon">h</span>Hubfi Bot<span class="slack-tag">APP</span></div>
+          <div>⏰ Banco escolhido mas imóvel ainda não informado<br><strong>Op #{operation_id}</strong> · {client_name}<br>Banco: {bank_name} (escolhido há 1h)</div>
+          <div style="margin-top: 8px;"><span class="slack-btn slack-btn-primary">Ligar para cliente</span><span class="slack-btn slack-btn-secondary">Abrir operação</span></div>
+        </div>
+      </div>
+          <div class="grid grid-cols-[100px_1fr] gap-x-3 gap-y-1 text-[11.5px] mt-4 pt-3 border-t border-paper-100">
+            <div class="text-ink-500 font-medium">Agendado por:</div><div class="font-mono text-ink-700 break-all">cliente_escolheu_banco</div>
+            <div class="text-ink-500 font-medium">Destinatário:</div><div class="text-ink-700">canal #operacoes-em-andamento</div>
+            <div class="text-ink-500 font-medium">Variáveis:</div><div class="font-mono text-[11px] text-ink-700 break-all">{operation_id, client_name, bank_name}</div>
+          </div>
+        </div>
+      </div>
+        </div>
+      </div>
+    </div>
+    <div class="mb-12">
+      <div class="flex items-baseline gap-3 mb-2">
+        <span class="font-mono text-xs text-teal-600 font-bold">ETAPA 05</span>
+        <h3 class="text-xl font-semibold text-ink-900">Documentação das partes</h3>
+      </div>
+      <p class="text-sm text-ink-600 mb-5 max-w-2xl">Cliente faz upload dos documentos pessoais, do cônjuge, do vendedor e do imóvel.</p>
+
+      <div class="grid grid-cols-2 gap-5">
+        <!-- Notificações -->
+        <div>
+          <div class="flex items-center gap-2 mb-3 pb-2 border-b border-teal-200">
+            <span class="w-1.5 h-1.5 rounded-full bg-teal-600"></span>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700">Notificações</span>
+            <span class="text-[11px] text-ink-500">· 3 templates</span>
+          </div>
+          
+      <div class="rounded-lg border border-paper-200 bg-white mb-3 overflow-hidden">
+        <div class="px-4 py-2.5 border-b border-paper-200 bg-paper-50 flex items-center gap-2 flex-wrap">
+          <span class="font-mono text-[11px] font-bold text-ink-700 bg-white border border-paper-200 px-1.5 py-0.5 rounded">N08</span>
+          <span class="font-mono text-[12px] text-teal-700 font-medium">wa.form_docs_link</span>
+          <span class="pill pill-wa">WhatsApp</span>
+          
+        </div>
+        <div class="p-4">
+          <div class="wa-frame">
+        <div class="wa-bubble">Oi {client_name}! 👋<br><br>Hora de juntar os documentos! Pra dar continuidade ao seu financiamento com o {bank_name}, vou precisar de:<br><br>• Seus documentos pessoais e do cônjuge (se aplicável)<br>• Documentos do vendedor<br>• Documentos do imóvel<br><br>Você pode enviar aos poucos, pelo link abaixo:<br><br>👉 <span class="wa-link">{link_docs}</span><br><br>Se algum documento estiver difícil de localizar, me avisa por aqui.</div>
+        <div style="margin-top: 6px;"><span class="wa-quickreply">Enviar documentos</span><span class="wa-quickreply">Falar com consultor</span></div>
+      </div>
+          <div class="grid grid-cols-[100px_1fr] gap-x-3 gap-y-1 text-[11.5px] mt-4 pt-3 border-t border-paper-100">
+            <div class="text-ink-500 font-medium">Disparado por:</div><div class="font-mono text-ink-700 break-all">formulario_doc_enviado</div>
+            <div class="text-ink-500 font-medium">Destinatário:</div><div class="text-ink-700">telefone do cliente</div>
+            <div class="text-ink-500 font-medium">Variáveis:</div><div class="font-mono text-[11px] text-ink-700 break-all">{client_name, bank_name, link_docs}</div>
+          </div>
+        </div>
+      </div>
+      <div class="rounded-lg border border-paper-200 bg-white mb-3 overflow-hidden">
+        <div class="px-4 py-2.5 border-b border-paper-200 bg-paper-50 flex items-center gap-2 flex-wrap">
+          <span class="font-mono text-[11px] font-bold text-ink-700 bg-white border border-paper-200 px-1.5 py-0.5 rounded">N09</span>
+          <span class="font-mono text-[12px] text-teal-700 font-medium">slk.doc_recebido</span>
+          <span class="pill pill-slack">Slack</span>
+          
+        </div>
+        <div class="p-4">
+          <div class="slack-frame">
+        <div class="slack-channel"># operacoes-em-andamento</div>
+        <div class="slack-msg">
+          <div class="slack-bot"><span class="slack-bot-icon">h</span>Hubfi Bot<span class="slack-tag">APP</span></div>
+          <div>Documento recebido<br><strong>{document_type}</strong> ({party_label}) · Op #{operation_id}<br>Progresso: {docs_received} de {docs_total} documentos</div>
+          <div style="margin-top: 8px;"><span class="slack-btn slack-btn-primary">Validar documento</span><span class="slack-btn slack-btn-secondary">Ver operação</span></div>
+        </div>
+      </div>
+          <div class="grid grid-cols-[100px_1fr] gap-x-3 gap-y-1 text-[11.5px] mt-4 pt-3 border-t border-paper-100">
+            <div class="text-ink-500 font-medium">Disparado por:</div><div class="font-mono text-ink-700 break-all">documento_recebido</div>
+            <div class="text-ink-500 font-medium">Destinatário:</div><div class="text-ink-700">canal #operacoes-em-andamento</div>
+            <div class="text-ink-500 font-medium">Variáveis:</div><div class="font-mono text-[11px] text-ink-700 break-all">{document_type, party_label, operation_id, docs_received, docs_total}</div>
+          </div>
+        </div>
+      </div>
+      <div class="rounded-lg border border-paper-200 bg-white mb-3 overflow-hidden">
+        <div class="px-4 py-2.5 border-b border-paper-200 bg-paper-50 flex items-center gap-2 flex-wrap">
+          <span class="font-mono text-[11px] font-bold text-ink-700 bg-white border border-paper-200 px-1.5 py-0.5 rounded">N10</span>
+          <span class="font-mono text-[12px] text-teal-700 font-medium">slk.docs_completa</span>
+          <span class="pill pill-slack">Slack</span>
+          
+        </div>
+        <div class="p-4">
+          <div class="slack-frame">
+        <div class="slack-channel"># operacoes-em-andamento</div>
+        <div class="slack-msg">
+          <div class="slack-bot"><span class="slack-bot-icon">h</span>Hubfi Bot<span class="slack-tag">APP</span></div>
+          <div>✅ Documentação completa<br>Op #{operation_id} · {client_name}<br>Todos os {docs_total} documentos validados.<br>Próximo passo: avaliação do imóvel.</div>
+          <div style="margin-top: 8px;"><span class="slack-btn slack-btn-primary">Agendar avaliação</span><span class="slack-btn slack-btn-secondary">Abrir operação</span></div>
+        </div>
+      </div>
+          <div class="grid grid-cols-[100px_1fr] gap-x-3 gap-y-1 text-[11.5px] mt-4 pt-3 border-t border-paper-100">
+            <div class="text-ink-500 font-medium">Disparado por:</div><div class="font-mono text-ink-700 break-all">documentacao_completa</div>
+            <div class="text-ink-500 font-medium">Destinatário:</div><div class="text-ink-700">canal #operacoes-em-andamento</div>
+            <div class="text-ink-500 font-medium">Variáveis:</div><div class="font-mono text-[11px] text-ink-700 break-all">{operation_id, client_name, docs_total}</div>
+          </div>
+        </div>
+      </div>
+        </div>
+
+        <!-- Follow-ups -->
+        <div>
+          <div class="flex items-center gap-2 mb-3 pb-2 border-b border-amber-200">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-amber-700">Follow-ups</span>
+            <span class="text-[11px] text-ink-500">· 2 templates</span>
+          </div>
+          
+      <div class="rounded-lg border border-paper-200 bg-white mb-3 overflow-hidden">
+        <div class="px-4 py-2.5 border-b border-paper-200 bg-paper-50 flex items-center gap-2 flex-wrap">
+          <span class="font-mono text-[11px] font-bold text-ink-700 bg-white border border-paper-200 px-1.5 py-0.5 rounded">F08</span>
+          <span class="font-mono text-[12px] text-teal-700 font-medium">slk.fu_doc_enviado</span>
+          <span class="pill pill-slack">Slack</span>
+          <span class="pill pill-amber">SLA 1 h</span>
+        </div>
+        <div class="p-4">
+          <div class="slack-frame">
+        <div class="slack-channel"># operacoes-em-andamento</div>
+        <div class="slack-msg">
+          <div class="slack-bot"><span class="slack-bot-icon">h</span>Hubfi Bot<span class="slack-tag">APP</span></div>
+          <div>⏰ Cliente não iniciou envio de documentos<br><strong>Op #{operation_id}</strong> · {client_name}<br>Formulário aberto há 1h sem upload.<br>Considere acompanhar o cliente.</div>
+          <div style="margin-top: 8px;"><span class="slack-btn slack-btn-primary">Falar com cliente</span><span class="slack-btn slack-btn-secondary">Abrir operação</span></div>
+        </div>
+      </div>
+          <div class="grid grid-cols-[100px_1fr] gap-x-3 gap-y-1 text-[11.5px] mt-4 pt-3 border-t border-paper-100">
+            <div class="text-ink-500 font-medium">Agendado por:</div><div class="font-mono text-ink-700 break-all">formulario_doc_enviado</div>
+            <div class="text-ink-500 font-medium">Destinatário:</div><div class="text-ink-700">canal #operacoes-em-andamento</div>
+            <div class="text-ink-500 font-medium">Variáveis:</div><div class="font-mono text-[11px] text-ink-700 break-all">{operation_id, client_name}</div>
+          </div>
+        </div>
+      </div>
+      <div class="rounded-lg border border-paper-200 bg-white mb-3 overflow-hidden">
+        <div class="px-4 py-2.5 border-b border-paper-200 bg-paper-50 flex items-center gap-2 flex-wrap">
+          <span class="font-mono text-[11px] font-bold text-ink-700 bg-white border border-paper-200 px-1.5 py-0.5 rounded">F09</span>
+          <span class="font-mono text-[12px] text-teal-700 font-medium">wa.fu_doc_cliente</span>
+          <span class="pill pill-wa">WhatsApp</span>
+          <span class="pill pill-amber">SLA 1 h</span>
+        </div>
+        <div class="p-4">
+          <div class="wa-frame">
+        <div class="wa-bubble">Oi {client_name}! 👋<br><br>Só passando pra lembrar: o formulário de documentos está aberto. Você pode enviar os documentos aos poucos, conforme tiver tempo:<br><br>👉 <span class="wa-link">{link_docs}</span><br><br>Se algum documento estiver difícil de localizar, me avisa que eu te ajudo a resolver.</div>
+        <div style="margin-top: 6px;"><span class="wa-quickreply">Enviar documentos</span><span class="wa-quickreply">Tenho dúvida</span></div>
+      </div>
+          <div class="grid grid-cols-[100px_1fr] gap-x-3 gap-y-1 text-[11.5px] mt-4 pt-3 border-t border-paper-100">
+            <div class="text-ink-500 font-medium">Agendado por:</div><div class="font-mono text-ink-700 break-all">formulario_doc_enviado</div>
+            <div class="text-ink-500 font-medium">Destinatário:</div><div class="text-ink-700">telefone do cliente</div>
+            <div class="text-ink-500 font-medium">Variáveis:</div><div class="font-mono text-[11px] text-ink-700 break-all">{client_name, link_docs}</div>
+          </div>
+        </div>
+      </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  
+
+  <!-- 08 Integrações externas -->
+  <section id="s10" class="mb-16">
+    <div class="flex items-baseline gap-3 mb-6">
+      <span class="font-mono text-sm text-teal-600 font-bold">10</span>
+      <h2 class="text-2xl font-bold tracking-tight text-ink-900">Integrações externas</h2>
+    </div>
+
+    <h3 class="font-semibold text-ink-900 mb-2">Slack</h3>
+    <table class="spec mb-6">
+      <tbody>
+        <tr><td class="mono w-40">Tipo de app</td><td>Slack App distribuída no workspace Hubfi.</td></tr>
+        <tr><td class="mono">SDK</td><td><code class="inline">@slack/bolt</code> + <code class="inline">@slack/web-api</code>.</td></tr>
+        <tr><td class="mono">Scopes</td><td><code class="inline">chat:write</code>, <code class="inline">chat:write.public</code>, <code class="inline">channels:read</code>, <code class="inline">commands</code>, <code class="inline">users:read</code>.</td></tr>
+        <tr><td class="mono">Endpoint principal</td><td><code class="inline">chat.postMessage</code> com blocks (Block Kit).</td></tr>
+        <tr><td class="mono">Interatividade</td><td>Webhook em <code class="inline">/integrations/slack/interactions</code> para receber cliques em botões (assign_to_me, abrir operação, marcar como feito).</td></tr>
+        <tr><td class="mono">Rate limit</td><td>~1 msg/segundo por canal. Adapter implementa retry exponencial em <code class="inline">429</code>.</td></tr>
+        <tr><td class="mono">Estratégia de canal</td><td>Um canal por operação (<code class="inline">#op-{{id}}</code>) criado on-demand pelo bot. Notificações sumárias vão para canais globais por tipo de evento (<code class="inline">#operacoes-novas</code>, <code class="inline">#alertas-juridico</code>, etc).</td></tr>
+      </tbody>
+    </table>
+
+    <h3 class="font-semibold text-ink-900 mb-2">WhatsApp Business Cloud API</h3>
+    <table class="spec mb-6">
+      <tbody>
+        <tr><td class="mono w-40">Provedor</td><td>Meta Cloud API (não BSP de terceiro). Conta de WhatsApp Business verificada.</td></tr>
+        <tr><td class="mono">Endpoint</td><td><code class="inline">POST graph.facebook.com/v18.0/{{phone_number_id}}/messages</code>.</td></tr>
+        <tr><td class="mono">Webhook</td><td><code class="inline">POST /integrations/whatsapp/webhook</code> recebe status de entrega (sent, delivered, read, failed) e respostas do usuário.</td></tr>
+        <tr><td class="mono">Templates</td><td>HSM aprovados em conta business. Todos os templates desta spec devem ser submetidos e aprovados antes do go-live (prazo Meta: 24–72h).</td></tr>
+        <tr><td class="mono">Janela 24h</td><td>Após resposta do cliente, abre janela "livre" de 24h em que mensagens não-template podem ser enviadas. Adapter detecta janela aberta e usa mensagem livre quando possível; fora dela, força HSM.</td></tr>
+        <tr><td class="mono">Custo</td><td>Faturamento por conversa (24h). Categoria <code class="inline">UTILITY</code> tem preço diferente de <code class="inline">MARKETING</code>. Adapter registra <code class="inline">cost_cents</code> no log para controle de custo.</td></tr>
+        <tr><td class="mono">Opt-in</td><td>Cliente deve ter consentido explicitamente em receber mensagens (na criação da operação). Bloquear envio se opt-in não registrado.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 09 Regras críticas -->
+  <section id="s11" class="mb-16">
+    <div class="flex items-baseline gap-3 mb-6">
+      <span class="font-mono text-sm text-teal-600 font-bold">11</span>
+      <h2 class="text-2xl font-bold tracking-tight text-ink-900">Regras críticas</h2>
+    </div>
+
+    <p class="text-ink-700 mb-8 leading-relaxed">
+      Esta seção lista regras que <strong class="text-ink-900">não podem ser violadas</strong> pela implementação. Cada uma tem rationale, comportamento esperado, e estratégia de teste.
+    </p>
+
+    <div class="space-y-6">
+      <!-- Idempotência -->
+      <div class="border-l-2 border-teal-600 pl-5">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="pill pill-critical">Crítico</span>
+          <h3 class="font-semibold text-ink-900">R1 · Idempotência por evento</h3>
+        </div>
+        <p class="text-sm text-ink-700 leading-relaxed mb-2">O mesmo <code class="inline">event_id</code> (ULID) entrando no listener mais de uma vez (replay, retry do bus) <strong>nunca</strong> deve gerar notificações duplicadas. Implementar via tabela de deduplicação consultada antes de qualquer side-effect.</p>
+        <p class="text-xs text-ink-500"><strong>Teste:</strong> emitir o mesmo evento duas vezes e validar que <code class="inline">notification_log</code> só tem uma entrada por regra aplicável.</p>
+      </div>
+
+      <!-- Janela horária -->
+      <div class="border-l-2 border-teal-600 pl-5">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="pill pill-critical">Crítico</span>
+          <h3 class="font-semibold text-ink-900">R2 · Janela horária para o cliente</h3>
+        </div>
+        <p class="text-sm text-ink-700 leading-relaxed mb-2">Mensagens para o cliente (WhatsApp) só podem ser enviadas entre <strong>08:00 e 21:00</strong> no fuso horário do cliente. Follow-ups que vencem fora desta janela são reagendados para o próximo horário permitido. Notificações Slack para o time interno seguem outra regra (24/7 OK).</p>
+        <p class="text-xs text-ink-500"><strong>Teste:</strong> simular SLA vencendo às 23h; validar que <code class="inline">scheduled_for</code> é atualizado para 08:00 do dia seguinte.</p>
+      </div>
+
+      <!-- Cancelamento -->
+      <div class="border-l-2 border-teal-600 pl-5">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="pill pill-critical">Crítico</span>
+          <h3 class="font-semibold text-ink-900">R3 · Cancelamento automático de follow-ups</h3>
+        </div>
+        <p class="text-sm text-ink-700 leading-relaxed mb-2">Antes de disparar um follow-up vencido, o pipeline <strong>obriga</strong> uma verificação em tempo real do estado da operação (não apenas inspeção do log). Caso o evento de cancelamento tenha sido emitido (mesmo que ainda não processado), o follow-up é cancelado. Pior cenário a evitar: cobrar cliente por algo que ele já resolveu.</p>
+        <p class="text-xs text-ink-500"><strong>Teste:</strong> agendar follow-up de 60s, emitir evento de cancelamento aos 59s, validar que mensagem não é enviada.</p>
+      </div>
+
+      <!-- Rate limit -->
+      <div class="border-l-2 border-amber-500 pl-5">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="pill pill-amber">Importante</span>
+          <h3 class="font-semibold text-ink-900">R4 · Rate limit por destinatário</h3>
+        </div>
+        <p class="text-sm text-ink-700 leading-relaxed mb-2">Um cliente não pode receber mais de <strong>3 mensagens WhatsApp em 24h</strong>. Um canal Slack não recebe mais de <strong>10 mensagens em 5 min</strong>. Acima desses limites, agrupar em uma mensagem consolidada com link "ver detalhes". Configurável por destinatário no painel admin.</p>
+        <p class="text-xs text-ink-500"><strong>Teste:</strong> simular 5 follow-ups consecutivos para o mesmo cliente; validar agrupamento.</p>
+      </div>
+
+      <!-- Escalação -->
+      <div class="border-l-2 border-amber-500 pl-5">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="pill pill-amber">Importante</span>
+          <h3 class="font-semibold text-ink-900">R5 · Escalação após N tentativas</h3>
+        </div>
+        <p class="text-sm text-ink-700 leading-relaxed mb-2">Após <code class="inline">max_attempts</code> tentativas de follow-up sem sucesso, criar ticket manual e notificar o gestor da operação. Não tentar mais via WhatsApp/Slack pelo mesmo canal automatizado. Default: 3 tentativas.</p>
+        <p class="text-xs text-ink-500"><strong>Teste:</strong> validar criação de ticket no terceiro retry vencido sem cancelamento.</p>
+      </div>
+
+      <!-- Opt-in -->
+      <div class="border-l-2 border-amber-500 pl-5">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="pill pill-amber">Importante</span>
+          <h3 class="font-semibold text-ink-900">R6 · Opt-in obrigatório (WhatsApp)</h3>
+        </div>
+        <p class="text-sm text-ink-700 leading-relaxed mb-2">Adapter WhatsApp consulta o registro de opt-in antes de enviar. Sem opt-in registrado → <code class="inline">delivery_status: failed</code> com motivo claro. Opt-in é capturado na criação da operação e exposto em endpoint próprio.</p>
+        <p class="text-xs text-ink-500"><strong>Teste:</strong> tentar enviar para cliente sem opt-in; validar bloqueio.</p>
+      </div>
+
+      <!-- Auditoria -->
+      <div class="border-l-2 border-paper-300 pl-5">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="pill pill-info">Padrão</span>
+          <h3 class="font-semibold text-ink-900">R7 · Auditoria imutável de mudanças na matriz</h3>
+        </div>
+        <p class="text-sm text-ink-700 leading-relaxed">Toda mudança em <code class="inline">notification_rules</code> ou <code class="inline">followup_rules</code> gera entrada em <code class="inline">audit_log</code> com snapshot before/after. Permite rollback e investigação de incidentes.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 Observabilidade -->
+  <section id="s12" class="mb-16">
+    <div class="flex items-baseline gap-3 mb-6">
+      <span class="font-mono text-sm text-teal-600 font-bold">12</span>
+      <h2 class="text-2xl font-bold tracking-tight text-ink-900">Observabilidade</h2>
+    </div>
+
+    <h3 class="font-semibold text-ink-900 mb-3">Métricas a expor (Prometheus / Datadog)</h3>
+    <table class="spec mb-6">
+      <thead><tr><th>Métrica</th><th>Tipo</th><th>Labels</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">hubfi_notif_sent_total</td><td>counter</td><td><code class="inline">channel</code>, <code class="inline">rule_id</code>, <code class="inline">status</code></td></tr>
+        <tr><td class="mono">hubfi_notif_latency_seconds</td><td>histogram</td><td><code class="inline">channel</code></td></tr>
+        <tr><td class="mono">hubfi_followup_fired_total</td><td>counter</td><td><code class="inline">rule_id</code>, <code class="inline">attempt</code></td></tr>
+        <tr><td class="mono">hubfi_followup_canceled_total</td><td>counter</td><td><code class="inline">rule_id</code>, <code class="inline">canceled_by</code></td></tr>
+        <tr><td class="mono">hubfi_sla_hit_rate</td><td>gauge</td><td><code class="inline">rule_id</code></td></tr>
+        <tr><td class="mono">hubfi_message_cost_cents_total</td><td>counter</td><td><code class="inline">channel</code>, <code class="inline">template_id</code></td></tr>
+        <tr><td class="mono">hubfi_event_dedup_hits_total</td><td>counter</td><td><code class="inline">event_name</code></td></tr>
+      </tbody>
+    </table>
+
+    <h3 class="font-semibold text-ink-900 mb-3">Logs estruturados</h3>
+    <p class="text-sm text-ink-700 mb-3 leading-relaxed">JSON em stdout com campos: <code class="inline">timestamp</code>, <code class="inline">level</code>, <code class="inline">trace_id</code>, <code class="inline">operation_id</code>, <code class="inline">event_id</code>, <code class="inline">rule_id</code>, <code class="inline">action</code>, <code class="inline">message</code>. Trace ID propaga do evento original até o adapter para correlação completa.</p>
+
+    <h3 class="font-semibold text-ink-900 mb-3">Alertas operacionais</h3>
+    <ul class="space-y-2 text-sm text-ink-700 mb-2">
+      <li class="flex gap-2"><span class="text-teal-600 font-mono font-bold flex-shrink-0">·</span><span>Taxa de erro do adapter Slack ou WhatsApp acima de <strong>2%</strong> nos últimos 15 min → alerta no #infra-alerts.</span></li>
+      <li class="flex gap-2"><span class="text-teal-600 font-mono font-bold flex-shrink-0">·</span><span>Backlog do scheduler maior que <strong>1000 jobs</strong> pending com <code class="inline">scheduled_for</code> no passado → page on-call.</span></li>
+      <li class="flex gap-2"><span class="text-teal-600 font-mono font-bold flex-shrink-0">·</span><span>Custo diário do WhatsApp acima do <strong>budget configurável</strong> → alerta no #financeiro.</span></li>
+      <li class="flex gap-2"><span class="text-teal-600 font-mono font-bold flex-shrink-0">·</span><span>SLA hit rate de qualquer regra abaixo de <strong>70%</strong> por 24h consecutivas → alerta no #produto.</span></li>
+    </ul>
+  </section>
+
+  <!-- 11 Roadmap -->
+  <section id="s13" class="mb-16">
+    <div class="flex items-baseline gap-3 mb-6">
+      <span class="font-mono text-sm text-teal-600 font-bold">13</span>
+      <h2 class="text-2xl font-bold tracking-tight text-ink-900">Roadmap de entrega</h2>
+    </div>
+
+    <p class="text-ink-700 mb-8 leading-relaxed">
+      Sugestão de divisão em 5 semanas, partindo do zero. As fases podem ser paralelizadas se houver mais de uma frente. Ao final da fase 5 o sistema está pronto para go-live com as etapas 01–05.
+    </p>
+
+    <div class="space-y-6 mb-8">
+      <div class="grid md:grid-cols-[200px_1fr] gap-5 pb-6 border-b border-paper-200">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="w-7 h-7 rounded-full bg-teal-600 text-white text-sm font-bold flex items-center justify-center">1</span>
+            <span class="text-xs font-semibold text-ink-500 uppercase tracking-wide">Sem 1–2</span>
+          </div>
+          <h3 class="font-semibold text-ink-900">Event bus + matriz</h3>
+        </div>
+        <div>
+          <ul class="space-y-1.5 text-sm text-ink-700 mb-3">
+            <li>· Setup do event bus (Redis Streams ou Kafka).</li>
+            <li>· Tabelas <code class="inline">events_catalog</code>, <code class="inline">notification_rules</code>, <code class="inline">followup_rules</code>, <code class="inline">audit_log</code>.</li>
+            <li>· API admin de CRUD da matriz.</li>
+            <li>· Instrumentação inicial da plataforma para os eventos das etapas 01–02.</li>
+          </ul>
+          <p class="text-xs text-ink-500"><strong>Saída:</strong> eventos circulando, regras editáveis.</p>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-[200px_1fr] gap-5 pb-6 border-b border-paper-200">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="w-7 h-7 rounded-full bg-teal-500 text-white text-sm font-bold flex items-center justify-center">2</span>
+            <span class="text-xs font-semibold text-ink-500 uppercase tracking-wide">Sem 2–3</span>
+          </div>
+          <h3 class="font-semibold text-ink-900">SLA engine</h3>
+        </div>
+        <div>
+          <ul class="space-y-1.5 text-sm text-ink-700 mb-3">
+            <li>· Scheduler com worker rodando a cada minuto (BullMQ ou equivalente).</li>
+            <li>· Tabela <code class="inline">followup_jobs</code> + índices.</li>
+            <li>· Lógica de agendamento, cancelamento e disparo.</li>
+            <li>· Regra de horário e escalação.</li>
+            <li>· Suite de testes cobrindo R1–R3.</li>
+          </ul>
+          <p class="text-xs text-ink-500"><strong>Saída:</strong> follow-ups funcionando end-to-end com dados de teste.</p>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-[200px_1fr] gap-5 pb-6 border-b border-paper-200">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="w-7 h-7 rounded-full bg-accent-500 text-white text-sm font-bold flex items-center justify-center">3</span>
+            <span class="text-xs font-semibold text-ink-500 uppercase tracking-wide">Sem 3–4</span>
+          </div>
+          <h3 class="font-semibold text-ink-900">Adapters de canal</h3>
+        </div>
+        <div>
+          <ul class="space-y-1.5 text-sm text-ink-700 mb-3">
+            <li>· Slack Bolt app + scopes + bot user.</li>
+            <li>· WhatsApp Cloud API + submissão de templates HSM à Meta.</li>
+            <li>· Webhooks de status (ambos os canais).</li>
+            <li>· Retry exponencial e rate limit.</li>
+            <li>· Tabela <code class="inline">notification_log</code> + integração.</li>
+          </ul>
+          <p class="text-xs text-ink-500"><strong>Saída:</strong> mensagens reais chegando nos canais reais.</p>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-[200px_1fr] gap-5 pb-6 border-b border-paper-200">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="w-7 h-7 rounded-full bg-accent-400 text-white text-sm font-bold flex items-center justify-center">4</span>
+            <span class="text-xs font-semibold text-ink-500 uppercase tracking-wide">Sem 4</span>
+          </div>
+          <h3 class="font-semibold text-ink-900">Painel admin + observabilidade</h3>
+        </div>
+        <div>
+          <ul class="space-y-1.5 text-sm text-ink-700 mb-3">
+            <li>· UI do admin para editar matriz com preview de mensagem.</li>
+            <li>· Histórico por operação (linha do tempo das mensagens enviadas).</li>
+            <li>· Dashboard com métricas operacionais.</li>
+            <li>· Alertas no monitoring.</li>
+          </ul>
+          <p class="text-xs text-ink-500"><strong>Saída:</strong> operável e observável.</p>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-[200px_1fr] gap-5">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="w-7 h-7 rounded-full bg-paper-300 text-ink-700 text-sm font-bold flex items-center justify-center">5</span>
+            <span class="text-xs font-semibold text-ink-500 uppercase tracking-wide">Sem 5</span>
+          </div>
+          <h3 class="font-semibold text-ink-900">Hardening + go-live</h3>
+        </div>
+        <div>
+          <ul class="space-y-1.5 text-sm text-ink-700 mb-3">
+            <li>· Testes de carga (1000 eventos/min simulados).</li>
+            <li>· Disaster recovery: replay do event bus.</li>
+            <li>· Documentação de runbook on-call.</li>
+            <li>· Rollout gradual: 10% das operações → 50% → 100%.</li>
+          </ul>
+          <p class="text-xs text-ink-500"><strong>Saída:</strong> sistema em produção com 100% do tráfego.</p>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="text-base font-semibold text-ink-900 mb-3">Etapas 06–11 (entrega posterior)</h3>
+    <p class="text-sm text-ink-700 leading-relaxed">
+      Após o go-live com as primeiras 5 etapas, as etapas Avaliação do imóvel, Análise jurídica, Elaboração do contrato, Assinatura, Registro e Liberação do recurso entram em iterações de uma sprint cada. O motor não muda; apenas adicionamos eventos ao catálogo e regras na matriz.
+    </p>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-t border-paper-200 pt-8 text-sm text-ink-500">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div class="flex flex-wrap items-center gap-x-5 gap-y-1">
+        <span>Spec técnica · Hubfi</span>
+        <span>v0.1 draft</span>
+      </div>
+      <div>Owner: Lucas Augusto · Produto</div>
+    </div>
+    <div class="mt-3 text-xs text-ink-400">
+      Comentários e dúvidas: thread no Slack #produto-eng ou direto com o owner.
+    </div>
+  </footer>
+
+</article>
+
+<script>
+  // Insere <wbr> após cada underscore em nomes de eventos do mapa visual,
+  // pra que o browser quebre preferencialmente nos underscores.
+  document.querySelectorAll('.event-name').forEach(el => {
+    el.innerHTML = el.textContent.replace(/_/g, '_<wbr>');
+  });
+</script>
+</body>
+</html>

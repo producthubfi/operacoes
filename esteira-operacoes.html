@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel da Operacao - HubFi</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Outfit',sans-serif}
+  ::-webkit-scrollbar{width:5px;height:5px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:#ddd;border-radius:99px}
+  input::placeholder,textarea::placeholder{color:#a8a8a8;font-family:'Outfit',sans-serif}
+  button{font-family:'Outfit',sans-serif}
+  input,select,textarea{font-family:'Outfit',sans-serif}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState} = React;
+
+/* ====== ICONS ====== */
+const Ic = ({d,size=16,color="#808080",strokeWidth=2,fill="none",style={}}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,...style}}><path d={d}/></svg>
+);
+const ChevronDown=p=><Ic d="M6 9l6 6 6-6" {...p}/>;
+const ChevronUp=p=><Ic d="M18 15l-6-6-6 6" {...p}/>;
+const ChevronRight=p=><Ic d="M9 18l6-6-6-6" {...p}/>;
+const ArrowLeft=p=><Ic d="M19 12H5M12 19l-7-7 7-7" {...p}/>;
+const Info=p=><Ic d="M12 2a10 10 0 100 20 10 10 0 000-20zM12 16v-4M12 8h.01" {...p}/>;
+const X_=p=><Ic d="M18 6L6 18M6 6l12 12" {...p}/>;
+const Check=p=><Ic d="M20 6L9 17l-5-5" {...p}/>;
+const Plus_=p=><Ic d="M12 5v14M5 12h14" {...p}/>;
+const Star_=({size=18,color="#e3e3e3",fill="none"})=><svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0}}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>;
+const Circle_=p=><Ic d="M12 2a10 10 0 100 20 10 10 0 000-20z" {...p}/>;
+const Clock_=p=><Ic d="M12 2a10 10 0 100 20 10 10 0 000-20zM12 6v6l4 2" {...p}/>;
+const CheckCircle2=p=><Ic d="M12 2a10 10 0 100 20 10 10 0 000-20zM9 12l2 2 4-4" {...p}/>;
+const Eye_=p=><Ic d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8zM12 9a3 3 0 100 6 3 3 0 000-6z" {...p}/>;
+const Upload_=p=><Ic d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" {...p}/>;
+const Paperclip_=p=><Ic d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.49" {...p}/>;
+const MapPin_=p=><Ic d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0zM12 7a3 3 0 100 6 3 3 0 000-6z" {...p}/>;
+const User_=p=><Ic d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 3a4 4 0 100 8 4 4 0 000-8z" {...p}/>;
+const Building_=p=><Ic d="M6 22V4a2 2 0 012-2h8a2 2 0 012 2v18zM6 12H4a2 2 0 00-2 2v6a2 2 0 002 2h2M18 9h2a2 2 0 012 2v9a2 2 0 01-2 2h-2" {...p}/>;
+const Phone_=p=><Ic d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" {...p}/>;
+const MsgSq=p=><Ic d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" {...p}/>;
+const FileText_=p=><Ic d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8" {...p}/>;
+const CreditCard_=p=><Ic d="M1 10h22M1 4h22v16H1zM1 4a2 2 0 012-2h18a2 2 0 012 2" {...p}/>;
+const Scale_=p=><Ic d="M12 3v18M1 12h22M5 6l7-3 7 3M4 15l4-9 4 9M16 15l4-9-4-9" {...p}/>;
+const Home_=p=><Ic d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2zM9 22V12h6v10" {...p}/>;
+const Shield_=p=><Ic d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" {...p}/>;
+const PenTool_=p=><Ic d="M12 19l7-7 3 3-7 7zM18 13l-1.5-7.5L2 2l3.5 14.5L13 18zM2 2l7.586 7.586M11 13a2 2 0 100-4 2 2 0 000 4z" {...p}/>;
+const BookOpen_=p=><Ic d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2zM22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" {...p}/>;
+const Landmark_=p=><Ic d="M3 22h18M6 18v-7M10 18v-7M14 18v-7M18 18v-7M12 2L2 8h20z" {...p}/>;
+const DollarSign_=p=><Ic d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" {...p}/>;
+const FileCheck_=p=><Ic d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M9 15l2 2 4-4" {...p}/>;
+const Package_=p=><Ic d="M16.5 9.4l-9-5.19M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16zM3.27 6.96L12 12.01l8.73-5.05M12 22.08V12" {...p}/>;
+const LayoutGrid_=p=><Ic d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z" {...p}/>;
+const FolderOpen_=p=><Ic d="M2 19a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2h-7.93a2 2 0 01-1.66-.9l-.82-1.2A2 2 0 007.93 4H4a2 2 0 00-2 2z" {...p}/>;
+const Settings_=p=><Ic d="M12.22 2h-.44a2 2 0 00-2 2v.18a2 2 0 01-1 1.73l-.43.25a2 2 0 01-2 0l-.15-.08a2 2 0 00-2.73.73l-.22.38a2 2 0 00.73 2.73l.15.1a2 2 0 011 1.72v.51a2 2 0 01-1 1.74l-.15.09a2 2 0 00-.73 2.73l.22.38a2 2 0 002.73.73l.15-.08a2 2 0 012 0l.43.25a2 2 0 011 1.73V20a2 2 0 002 2h.44a2 2 0 002-2v-.18a2 2 0 011-1.73l.43-.25a2 2 0 012 0l.15.08a2 2 0 002.73-.73l.22-.39a2 2 0 00-.73-2.73l-.15-.08a2 2 0 01-1-1.74v-.5a2 2 0 011-1.74l.15-.09a2 2 0 00.73-2.73l-.22-.38a2 2 0 00-2.73-.73l-.15.08a2 2 0 01-2 0l-.43-.25a2 2 0 01-1-1.73V4a2 2 0 00-2-2z" {...p}/>;
+const Users_=p=><Ic d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 3a4 4 0 100 8 4 4 0 000-8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" {...p}/>;
+const Send_=p=><Ic d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" {...p}/>;
+const Trash_=p=><Ic d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" {...p}/>;
+const Edit_=p=><Ic d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z" {...p}/>;
+const Whatsapp_=p=><Ic d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" {...p}/>;
+const AlertTri=p=><Ic d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9v4M12 17h.01" {...p}/>;
+const FileSignature_=p=><Ic d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M9 18l2-2 1 1 2-2 3 3" {...p}/>;
+const Calendar_=p=><Ic d="M19 4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2zM16 2v4M8 2v4M3 10h18" {...p}/>;
+const Camera_=p=><Ic d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2zM12 17a4 4 0 100-8 4 4 0 000 8z" {...p}/>;
+const TrendUp_=p=><Ic d="M23 6l-9.5 9.5-5-5L1 18M17 6h6v6" {...p}/>;
+const Receipt_=p=><Ic d="M21 22V5l-3-3H6L3 5v17l3-2 3 2 3-2 3 2 3-2 3 2zM8 7h8M8 11h8M8 15h6" {...p}/>;
+
+const font = "'Outfit', sans-serif";
+const C = {bg:"#fcfcfc",accent:"#0daf9f",dark:"#191a1a",muted:"rgba(25,26,26,0.7)",gray:"#808080",gl:"#e3e3e3",gbg:"#eaecec",gs:"#f5f5f7",grBg:"#ecfdf5",gr:"#059669",grB:"#a7f3d0",blBg:"#eff6ff",bl:"#2563eb",blB:"#bfdbfe",orBg:"#fff7ed",or:"#ea580c",orB:"#fed7aa",rdBg:"#fef2f2",rd:"#ef4444",rdB:"#fecaca"};
+
+/* ====== SIDEBAR ====== */
+const Sidebar=()=>{
+  const navs=[{t:"Rotina",items:[{ic:Plus_,l:"Nova Operacao"},{ic:FolderOpen_,l:"Operacoes",a:true},{ic:LayoutGrid_,l:"Painel de Produtos"}]},{t:"Gestao",items:[{ic:Users_,l:"Clientes"},{ic:User_,l:"Usuarios",c:true}]},{t:"Administracao Interna",items:[{ic:Settings_,l:"Backoffice",c:true},{ic:Package_,l:"Gestao de Produtos",c:true},{ic:Building_,l:"Empresas"}]}];
+  return(
+    <div style={{width:256,minHeight:"100vh",background:C.bg,display:"flex",flexDirection:"column",fontFamily:font}}>
+      <div style={{padding:"20px 16px 0"}}><div style={{display:"flex",alignItems:"center",gap:8}}><div style={{width:36,height:36,borderRadius:10,background:C.accent,display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{color:"#fff",fontWeight:700,fontSize:16}}>H</span></div><span style={{fontSize:22,fontWeight:700,color:C.dark}}>hubfi</span></div></div>
+      <div style={{padding:"12px 8px 0"}}><div style={{display:"flex",alignItems:"center",gap:8,padding:8}}><div style={{width:36,height:36,borderRadius:8,background:C.dark,display:"flex",alignItems:"center",justifyContent:"center"}}><Package_ size={18} color="#fff"/></div><div style={{flex:1}}><div style={{fontSize:12,color:C.dark}}>Contexto da Empresa</div><div style={{fontSize:14,fontWeight:600,color:C.accent}}>Todas as empresas</div></div><ChevronDown size={16} color={C.gray}/></div></div>
+      <nav style={{flex:1,overflow:"auto",padding:"0 8px"}}>
+        {navs.map(s=><div key={s.t} style={{padding:"8px 0"}}><div style={{padding:"7px 8px",fontSize:12,fontWeight:500,color:C.muted}}>{s.t}</div>{s.items.map(it=>{const I=it.ic;return<div key={it.l} style={{display:"flex",alignItems:"center",gap:8,padding:8,borderRadius:8,background:it.a?C.gbg:"transparent",cursor:"pointer"}}><I size={18} color={C.dark}/><span style={{fontSize:14,color:C.dark,flex:1,fontWeight:it.a?500:400}}>{it.l}</span>{it.c&&<ChevronRight size={16} color={C.gray}/>}</div>;})}</div>)}
+        <div style={{margin:"4px 8px 8px",borderRadius:8,background:"linear-gradient(90deg,#191a1a 20%,#0daf9f)",padding:"20px 16px"}}><div style={{fontSize:14,fontWeight:700,color:"#fff"}}>Portal do</div><div style={{fontSize:14,fontWeight:700,color:"#fff"}}>Personal Finance</div></div>
+      </nav>
+      <div style={{padding:8}}><div style={{display:"flex",alignItems:"center",gap:8,padding:8}}><div style={{width:32,height:32,borderRadius:99,background:C.bg,border:"2px solid "+C.accent,display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{fontSize:14,color:C.dark}}>LA</span></div><div style={{flex:1,minWidth:0}}><div style={{fontSize:14,fontWeight:600,color:C.dark}}>Lucas Augusto</div><div style={{fontSize:12,color:C.dark,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>lucasaugusto@hubfi.com.br</div></div></div></div>
+    </div>
+  );
+};
+
+/* ====== SHARED ====== */
+const RF=({l,v,accent})=><div style={{flex:"1 1 180px",minWidth:0,background:C.gs,borderRadius:8,padding:"10px 12px",border:"1px solid #efefef"}}><div style={{fontSize:10,color:C.gray,fontWeight:500,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:3}}>{l}</div><div style={{fontSize:13,fontWeight:500,color:accent?C.accent:C.dark,wordBreak:"break-word"}}>{v}</div></div>;
+const FR=({children})=><div style={{display:"flex",gap:10,flexWrap:"wrap"}}>{children}</div>;
+const SL=({children})=><div style={{fontSize:10,fontWeight:600,color:C.dark,textTransform:"uppercase",letterSpacing:"0.08em",padding:"4px 0 2px"}}>{children}</div>;
+const Btn=({children,primary,danger,disabled,onClick,small})=><button onClick={disabled?undefined:onClick} disabled={disabled} style={{padding:small?"6px 12px":"8px 16px",fontSize:small?11:12,fontWeight:600,borderRadius:8,border:primary||danger?"none":"1px solid "+C.gl,background:disabled?"#f0f0f0":primary?C.accent:danger?C.rd:"#fff",color:disabled?"#bbb":primary||danger?"#fff":C.dark,cursor:disabled?"not-allowed":"pointer",display:"flex",alignItems:"center",gap:6,opacity:disabled?0.6:1}}>{children}</button>;
+const DocRow=({name,status,date})=>{const m={ok:{bg:C.grBg,c:C.gr,b:C.grB,l:"Enviado"},pending:{bg:"#fffbeb",c:"#d97706",b:"#fde68a",l:"Em analise"},missing:{bg:"#fef2f2",c:"#ef4444",b:"#fecaca",l:"Pendente"},rejected:{bg:"#fef2f2",c:"#ef4444",b:"#fecaca",l:"Rejeitado"}}[status];return<div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"8px 12px",borderRadius:8,background:"#fff",border:"1px solid #f0f0f2",gap:8,flexWrap:"wrap"}}><div style={{display:"flex",alignItems:"center",gap:8,flex:1,minWidth:0}}><Paperclip_ size={13} color={C.gray}/><div style={{minWidth:0}}><div style={{fontSize:13,fontWeight:500,color:C.dark,wordBreak:"break-word"}}>{name}</div>{date&&<div style={{fontSize:10,color:C.gray}}>{date}</div>}</div></div><span style={{fontSize:10,fontWeight:600,padding:"2px 8px",borderRadius:99,background:m.bg,color:m.c,border:"1px solid "+m.b}}>{m.l}</span></div>;};
+const AlertBox=({color,bg,border,title,desc,icon})=>{const Ico=icon||Info;return<div style={{padding:12,borderRadius:8,background:bg,border:"1px solid "+border,display:"flex",gap:8,alignItems:"flex-start"}}><Ico size={14} color={color} style={{marginTop:1,flexShrink:0}}/><div>{title&&<div style={{fontSize:12,fontWeight:600,color,marginBottom:2}}>{title}</div>}<div style={{fontSize:11,color,lineHeight:"16px"}}>{desc}</div></div></div>;};
+const Tooltip=({children,content})=>{const[show,setShow]=useState(false);return<div style={{position:"relative",display:"inline-flex"}} onMouseEnter={()=>setShow(true)} onMouseLeave={()=>setShow(false)}>{children}{show&&<div style={{position:"absolute",bottom:"calc(100% + 8px)",left:"50%",transform:"translateX(-50%)",background:C.dark,color:"#fff",padding:"8px 12px",borderRadius:8,fontSize:12,whiteSpace:"nowrap",zIndex:100,boxShadow:"0 4px 12px rgba(0,0,0,0.15)"}}><div style={{display:"flex",alignItems:"center",gap:6}}><Phone_ size={12} color="#fff"/>{content}</div><div style={{position:"absolute",top:"100%",left:"50%",marginLeft:-6,width:0,height:0,borderLeft:"6px solid transparent",borderRight:"6px solid transparent",borderTop:"6px solid "+C.dark}}/></div>}</div>;};
+const StageNotes=()=>{const[open,setOpen]=useState(false);const[val,setVal]=useState("");return<div style={{marginTop:12,borderTop:"1px solid #f0f0f2",paddingTop:12}}>{!open?<button onClick={()=>setOpen(true)} style={{display:"flex",alignItems:"center",gap:6,padding:"7px 14px",borderRadius:8,border:"1px solid "+C.gl,background:"#fff",fontSize:12,fontWeight:500,color:C.gray,cursor:"pointer"}}><MsgSq size={13} color={C.gray}/>Adicionar anotacao</button>:<div><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}><div style={{fontSize:11,fontWeight:600,color:C.gray,textTransform:"uppercase",letterSpacing:"0.06em"}}>Anotacoes</div><button onClick={()=>setOpen(false)} style={{fontSize:11,color:C.gray,background:"none",border:"none",cursor:"pointer"}}>Fechar</button></div><div style={{position:"relative"}}><textarea value={val} onChange={e=>setVal(e.target.value)} placeholder="Escreva uma observacao sobre esta etapa..." rows={3} autoFocus style={{width:"100%",padding:"10px 12px",borderRadius:8,border:"1px solid "+C.gl,fontSize:13,fontFamily:font,resize:"vertical",outline:"none",boxSizing:"border-box",background:"#fff"}}/>{val.trim()&&<button style={{position:"absolute",right:8,bottom:12,padding:"4px 12px",borderRadius:6,border:"none",background:C.accent,color:"#fff",fontSize:11,fontWeight:600,cursor:"pointer"}}>Salvar</button>}</div></div>}</div>;};
+
+/* ====== INPUT COMPONENTS (para formulario de cadastro de proposta) ====== */
+const Field=({label,children,hint,required,full})=><div style={{flex:full?"1 1 100%":"1 1 calc(50% - 5px)",minWidth:0,display:"flex",flexDirection:"column",gap:4}}><label style={{fontSize:11,fontWeight:600,color:C.dark,textTransform:"uppercase",letterSpacing:"0.06em"}}>{label}{required&&<span style={{color:C.rd,marginLeft:3}}>*</span>}</label>{children}{hint&&<div style={{fontSize:10,color:C.gray}}>{hint}</div>}</div>;
+const Input=({value,onChange,placeholder,prefix,suffix,type="text"})=><div style={{display:"flex",alignItems:"center",border:"1px solid "+C.gl,borderRadius:8,background:"#fff",overflow:"hidden"}}>{prefix&&<span style={{padding:"0 10px",fontSize:13,color:C.gray,background:"#fafafa",borderRight:"1px solid #f0f0f2",alignSelf:"stretch",display:"flex",alignItems:"center"}}>{prefix}</span>}<input type={type} value={value||""} onChange={e=>onChange&&onChange(e.target.value)} placeholder={placeholder} style={{flex:1,padding:"9px 11px",fontSize:13,border:"none",outline:"none",background:"transparent",minWidth:0,fontFamily:font,color:C.dark}}/>{suffix&&<span style={{padding:"0 10px",fontSize:12,color:C.gray,background:"#fafafa",borderLeft:"1px solid #f0f0f2",alignSelf:"stretch",display:"flex",alignItems:"center"}}>{suffix}</span>}</div>;
+const Select=({value,onChange,options,placeholder})=><select value={value||""} onChange={e=>onChange&&onChange(e.target.value)} style={{padding:"9px 11px",fontSize:13,border:"1px solid "+C.gl,borderRadius:8,outline:"none",background:"#fff",fontFamily:font,color:value?C.dark:C.gray,cursor:"pointer",appearance:"none",backgroundImage:"url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23808080' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>\")",backgroundRepeat:"no-repeat",backgroundPosition:"right 10px center",paddingRight:30}}>{placeholder&&<option value="">{placeholder}</option>}{options.map(o=><option key={o.value} value={o.value}>{o.label}</option>)}</select>;
+const Radio=({value,onChange,options})=><div style={{display:"flex",gap:8,flexWrap:"wrap"}}>{options.map(o=>{const sel=value===o.value;return<button key={o.value} onClick={()=>onChange&&onChange(o.value)} style={{padding:"7px 14px",borderRadius:8,border:"1.5px solid "+(sel?C.accent:C.gl),background:sel?"rgba(13,175,159,0.06)":"#fff",fontSize:12,fontWeight:sel?600:500,color:sel?C.accent:C.dark,cursor:"pointer",display:"flex",alignItems:"center",gap:6,transition:"all .15s"}}>{sel&&<div style={{width:6,height:6,borderRadius:99,background:C.accent}}/>}{o.label}</button>;})}</div>;
+const TextArea=({value,onChange,placeholder,rows=3})=><textarea value={value||""} onChange={e=>onChange&&onChange(e.target.value)} placeholder={placeholder} rows={rows} style={{padding:"9px 11px",fontSize:13,border:"1px solid "+C.gl,borderRadius:8,outline:"none",resize:"vertical",fontFamily:font,color:C.dark,background:"#fff"}}/>;
+
+/* ====== BANCO LOGO ====== */
+const BankLogo=({bank,size=32})=>{const b={CEF:{bg:"#005ca9",l:"CEF"},Itau:{bg:"#ec7000",l:"Itau"},Bradesco:{bg:"#cc092f",l:"Brad"},Santander:{bg:"#ea1d25",l:"Sant"},Inter:{bg:"#ff7a00",l:"Inter"},Nubank:{bg:"#820ad1",l:"Nu"}}[bank]||{bg:"#888",l:"?"};return<div style={{width:size,height:size,borderRadius:8,background:b.bg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:size<=24?8:10,fontWeight:700,color:"#fff",flexShrink:0}}>{b.l}</div>;};
+
+/* ====== MODAL: CADASTRO DE PROPOSTA (rapido) ====== */
+const PropostaModal=({open,onClose,onSave,proposta})=>{
+  const[form,setForm]=useState(proposta||{banco:"",taxa:"",cet:"",prazo:"360",sistema:"SAC",indexador:"fixa",primeira:"",ultima:"",seguro:"",rendaMin:"",compMax:"30",observacoes:""});
+  const set=(k,v)=>setForm(p=>({...p,[k]:v}));
+  if(!open)return null;
+  const valid=form.banco&&form.taxa&&form.cet&&form.prazo&&form.primeira;
+  return<div style={{position:"fixed",inset:0,zIndex:80,display:"flex",alignItems:"center",justifyContent:"center"}}>
+    <div style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.4)"}} onClick={onClose}/>
+    <div style={{position:"relative",background:"#fff",borderRadius:16,boxShadow:"0 8px 32px rgba(0,0,0,0.16)",width:"100%",maxWidth:600,maxHeight:"92vh",overflow:"hidden",margin:16,display:"flex",flexDirection:"column"}}>
+      {/* Header */}
+      <div style={{padding:"14px 22px",borderBottom:"1px solid #f0f0f2",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+        <div style={{display:"flex",alignItems:"center",gap:10}}>
+          {form.banco?<BankLogo bank={form.banco} size={32}/>:<div style={{width:32,height:32,borderRadius:8,background:C.gs,border:"1px dashed "+C.gl,display:"flex",alignItems:"center",justifyContent:"center"}}><FileText_ size={14} color={C.gray}/></div>}
+          <div>
+            <div style={{fontSize:15,fontWeight:600,color:C.dark}}>{proposta?"Editar proposta":"Cadastrar proposta"}</div>
+            <div style={{fontSize:11,color:C.gray}}>OP-000001 - Maria Silva Santos</div>
+          </div>
+        </div>
+        <button onClick={onClose} style={{width:30,height:30,borderRadius:8,border:"none",background:"#f5f5f5",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><X_ size={14} color={C.gray}/></button>
+      </div>
+
+      {/* Body */}
+      <div style={{flex:1,overflowY:"auto",padding:"16px 22px",display:"flex",flexDirection:"column",gap:14}}>
+        {/* Linha 1: banco + PDF */}
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+          <Field label="Instituicao" required>
+            <Select value={form.banco} onChange={v=>set("banco",v)} placeholder="Selecione" options={[{value:"CEF",label:"Caixa Economica Federal"},{value:"Itau",label:"Itau Unibanco"},{value:"Bradesco",label:"Bradesco"},{value:"Santander",label:"Santander"},{value:"Inter",label:"Banco Inter"}]}/>
+          </Field>
+          <Field label="PDF da proposta" required>
+            <div style={{border:"1px dashed "+C.gl,borderRadius:8,padding:"7px 11px",background:"#fafbfc",display:"flex",alignItems:"center",gap:8,cursor:"pointer",height:38}} onMouseOver={e=>{e.currentTarget.style.borderColor=C.accent;}} onMouseOut={e=>{e.currentTarget.style.borderColor=C.gl;}}>
+              <Upload_ size={14} color={C.accent}/>
+              <span style={{fontSize:12.5,color:C.dark,flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>Anexar PDF do banco</span>
+            </div>
+          </Field>
+        </div>
+
+        {/* Separador: visivel a cliente */}
+        <div style={{display:"flex",alignItems:"center",gap:8,marginTop:4,padding:"6px 10px",borderRadius:8,background:"rgba(13,175,159,0.06)",border:"1px solid rgba(13,175,159,0.18)"}}>
+          <Eye_ size={13} color={C.accent}/>
+          <span style={{fontSize:11,fontWeight:600,color:C.accent,textTransform:"uppercase",letterSpacing:"0.06em"}}>Informacoes que sua cliente vai ver</span>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>
+          <Field label="Taxa juros (a.a.)" required><Input value={form.taxa} onChange={v=>set("taxa",v)} placeholder="9,49" suffix="%"/></Field>
+          <Field label="CET (a.a.)" required><Input value={form.cet} onChange={v=>set("cet",v)} placeholder="10,82" suffix="%"/></Field>
+          <Field label="Prazo" required><Input value={form.prazo} onChange={v=>set("prazo",v)} placeholder="360" suffix="m"/></Field>
+          <Field label="Primeira parcela" required><Input value={form.primeira} onChange={v=>set("primeira",v)} placeholder="3.245" prefix="R$"/></Field>
+          <Field label="Sistema">
+            <Select value={form.sistema} onChange={v=>set("sistema",v)} options={[{value:"SAC",label:"SAC"},{value:"Price",label:"Price"}]}/>
+          </Field>
+          <Field label="Tipo de taxa">
+            <Select value={form.indexador} onChange={v=>set("indexador",v)} options={[{value:"fixa",label:"Fixa"},{value:"tr",label:"TR + juros"},{value:"poupanca",label:"Poupanca + juros"},{value:"ipca",label:"IPCA + juros"}]}/>
+          </Field>
+        </div>
+
+        {/* Separador: uso interno */}
+        <div style={{display:"flex",alignItems:"center",gap:8,marginTop:4,padding:"6px 10px",borderRadius:8,background:"#f5f5f7",border:"1px solid #ececef"}}>
+          <Shield_ size={13} color={C.gray}/>
+          <span style={{fontSize:11,fontWeight:600,color:C.gray,textTransform:"uppercase",letterSpacing:"0.06em"}}>Uso interno - nao vai pra cliente</span>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:10}}>
+          <Field label="Ultima parcela"><Input value={form.ultima} onChange={v=>set("ultima",v)} placeholder="1.120" prefix="R$"/></Field>
+          <Field label="Seguro mensal"><Input value={form.seguro} onChange={v=>set("seguro",v)} placeholder="180" prefix="R$"/></Field>
+          <Field label="Renda minima"><Input value={form.rendaMin} onChange={v=>set("rendaMin",v)} placeholder="10.800" prefix="R$"/></Field>
+          <Field label="Comp. max"><Input value={form.compMax} onChange={v=>set("compMax",v)} placeholder="30" suffix="%"/></Field>
+        </div>
+        <Field label="Observacoes (opcional)" full>
+          <TextArea value={form.observacoes} onChange={v=>set("observacoes",v)} placeholder="Ex: gerente Carla pediu confirmacao por email ate 18h." rows={2}/>
+        </Field>
+      </div>
+
+      {/* Footer */}
+      <div style={{padding:"12px 22px",borderTop:"1px solid #f0f0f2",background:"#fafafa",display:"flex",justifyContent:"flex-end",gap:8}}>
+        <Btn onClick={onClose}>Cancelar</Btn>
+        <Btn primary disabled={!valid} onClick={()=>{onSave&&onSave(form);onClose();}}>{proposta?"Salvar alteracoes":"Salvar proposta"}</Btn>
+      </div>
+    </div>
+  </div>;
+};
+
+/* ====== MODALS DE INFO ====== */
+const DetailModal=({open,onClose})=>{if(!open)return null;return<div style={{position:"fixed",inset:0,zIndex:60,display:"flex",alignItems:"center",justifyContent:"center"}}><div style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.4)"}} onClick={onClose}/><div style={{position:"relative",background:"#fff",borderRadius:16,boxShadow:"0 8px 32px rgba(0,0,0,0.16)",width:"100%",maxWidth:720,maxHeight:"85vh",overflow:"hidden",margin:16}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"16px 24px",borderBottom:"1px solid #f0f0f2"}}><div><div style={{fontSize:18,fontWeight:600,color:C.dark}}>Dados completos da operacao</div><div style={{fontSize:13,color:C.gray}}>Informacoes coletadas</div></div><button onClick={onClose} style={{width:32,height:32,borderRadius:8,border:"none",background:"#f5f5f5",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><X_ size={16} color={C.gray}/></button></div><div style={{overflowY:"auto",padding:24,maxHeight:"calc(85vh - 120px)",display:"flex",flexDirection:"column",gap:14}}><SL>Dados Pessoais</SL><FR><RF l="Nome" v="Maria Silva Santos"/><RF l="CPF" v="123.456.789-00"/></FR><FR><RF l="Nascimento" v="15/03/1988"/><RF l="Estado civil" v="Casada"/></FR><div style={{height:1,background:"#f0f0f2"}}/><SL>Contato</SL><FR><RF l="Telefone" v="(62) 99876-5432"/><RF l="E-mail" v="maria.santos@email.com"/></FR><FR><RF l="WhatsApp" v="(62) 99876-5432" accent/><RF l="Tel. secundario" v="(62) 3333-4444"/></FR><div style={{height:1,background:"#f0f0f2"}}/><SL>Financeiro</SL><FR><RF l="Renda bruta" v="R$ 12.500" accent/><RF l="Renda liquida" v="R$ 9.800"/></FR><FR><RF l="FGTS" v="R$ 45.000" accent/><RF l="Restricoes" v="Nenhuma"/></FR><div style={{height:1,background:"#f0f0f2"}}/><SL>Imovel</SL><FR><RF l="Valor" v="R$ 490.000" accent/><RF l="Entrada" v="R$ 147.000 (30%)"/></FR><RF l="Localizacao" v="Rua das Flores, 120 - Setor Bueno, Goiania/GO"/></div><div style={{display:"flex",justifyContent:"flex-end",gap:8,padding:"14px 24px",borderTop:"1px solid #f0f0f2",background:"#fafafa"}}><button onClick={onClose} style={{padding:"8px 16px",borderRadius:8,border:"none",background:"transparent",fontSize:13,fontWeight:500,color:C.gray,cursor:"pointer"}}>Fechar</button><Btn primary>Editar dados</Btn></div></div></div>;};
+const InfoModal=({open,onClose})=>{if(!open)return null;return<div style={{position:"fixed",inset:0,zIndex:50,display:"flex",alignItems:"center",justifyContent:"center"}}><div style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.4)"}} onClick={onClose}/><div style={{position:"relative",background:"#fff",borderRadius:16,boxShadow:"0 8px 32px rgba(0,0,0,0.16)",width:"100%",maxWidth:620,maxHeight:"85vh",overflow:"hidden",margin:16}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"16px 24px",borderBottom:"1px solid #f0f0f2"}}><div><div style={{fontSize:18,fontWeight:600,color:C.dark}}>Informacoes da Operacao</div><div style={{fontSize:13,color:C.gray}}>OP-000001</div></div><button onClick={onClose} style={{width:32,height:32,borderRadius:8,border:"none",background:"#f5f5f5",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><X_ size={16} color={C.gray}/></button></div><div style={{overflowY:"auto",padding:24,maxHeight:"calc(85vh - 120px)",display:"flex",flexDirection:"column",gap:14}}><SL>Resumo</SL><FR><RF l="Produto" v="Financ. Imobiliario - Aquisicao"/><RF l="Valor" v="R$ 490.000" accent/></FR><FR><RF l="Status" v="Cadastrando propostas"/><RF l="SLA" v="2 dias"/></FR></div><div style={{display:"flex",justifyContent:"flex-end",gap:8,padding:"14px 24px",borderTop:"1px solid #f0f0f2",background:"#fafafa"}}><button onClick={onClose} style={{padding:"8px 16px",borderRadius:8,border:"none",background:"transparent",fontSize:13,fontWeight:500,color:C.gray,cursor:"pointer"}}>Fechar</button><Btn primary>Editar</Btn></div></div></div>;};
+
+/* ====== STAGES ====== */
+
+/* S1 - Coleta de dados */
+const S1=({onDetail})=><div style={{display:"flex",flexDirection:"column",gap:10}}><FR><RF l="Nome" v="Maria Silva Santos"/><RF l="CPF" v="123.456.789-00"/></FR><FR><RF l="Renda" v="R$ 12.500"/><RF l="Valor imovel" v="R$ 490.000" accent/></FR><FR><RF l="Entrada" v="R$ 147.000 (30%)"/><RF l="FGTS" v="Sim - R$ 45.000" accent/></FR><button onClick={onDetail} style={{display:"flex",alignItems:"center",gap:6,padding:"8px 14px",borderRadius:8,border:"1px solid "+C.gl,background:"#fff",fontSize:12,fontWeight:500,color:C.accent,cursor:"pointer",width:"fit-content",marginTop:4}}><Eye_ size={14} color={C.accent}/>Ver todos os dados</button><StageNotes/></div>;
+
+/* S2 - Analise de credito */
+const S2=()=><div style={{display:"flex",flexDirection:"column",gap:10}}><FR><RF l="Score" v="782 - Bom" accent/><RF l="Comprometimento" v="28,5%"/></FR><FR><RF l="Capacidade pgto" v="R$ 3.562/mes"/><RF l="Parcela teorica" v="R$ 2.890/mes" accent/></FR><FR><RF l="Restricoes" v="Nenhuma" accent/><RF l="Idade + prazo" v="68 anos - OK"/></FR><AlertBox bg={C.grBg} border={C.grB} color={C.gr} icon={CheckCircle2} title="Credito pre-aprovado" desc="Perfil aprovado para enviar a 5 bancos parceiros. Aguardando propostas formais."/><StageNotes/></div>;
+
+/* S3 - CADASTRO DE PROPOSTAS */
+const S3=()=>{
+  const[propostas,setPropostas]=useState([
+    {id:1,banco:"Itau",financiado:"343000",prazo:"360",sistema:"SAC",indexador:"fixa",taxa:"9,49",cet:"10,82",primeira:"3245",ultima:"1120",seguro:"180",rendaMin:"10800",compMax:"30",pros:["Esteira fast - aprovacao em 3 dias","Aceita FGTS na entrada","Sem necessidade de conta no banco"],cons:["Renda comprometida proxima do limite"]},
+    {id:2,banco:"CEF",financiado:"343000",prazo:"360",sistema:"SAC",indexador:"tr",taxa:"8,99",cet:"10,12",primeira:"3180",ultima:"1050",seguro:"165",rendaMin:"10600",compMax:"30",pros:["Menor taxa entre os 5 bancos","Aceita FGTS na entrada","Programa Casa Verde Amarela disponivel"],cons:["Exige abertura de conta CEF"]},
+    {id:3,banco:"Bradesco",financiado:"343000",prazo:"360",sistema:"SAC",indexador:"fixa",taxa:"9,99",cet:"11,15",primeira:"3380",ultima:"1180",seguro:"195",rendaMin:"11200",compMax:"25",pros:["Possibilidade de portabilidade futura","Atendimento gerente dedicado"],cons:["Exige relacionamento previo - 6 meses","Comprometimento maximo mais restrito (25%)"]},
+    {id:4,banco:"Santander",financiado:"343000",prazo:"300",sistema:"SAC",indexador:"fixa",taxa:"10,20",cet:"11,45",primeira:"3410",ultima:"1200",seguro:"210",rendaMin:"11500",compMax:"30",pros:["Prazo menor reduz juros totais","Renegociacao flexivel apos 12 meses"],cons:["Primeira parcela mais alta do grupo"]},
+    
+  ]);
+  const[modal,setModal]=useState(false);
+  const[editing,setEditing]=useState(null);
+  const[envioStatus,setEnvioStatus]=useState("pending"); // pending | sent
+  const[envioModal,setEnvioModal]=useState(false);
+
+  const banks=["CEF","Itau","Bradesco","Santander","Inter"];
+  const banksJaCad=propostas.map(p=>p.banco);
+  const faltam=banks.filter(b=>!banksJaCad.includes(b));
+  const bankName=b=>({CEF:"Caixa Economica Federal",Itau:"Itau Unibanco",Bradesco:"Bradesco",Santander:"Santander",Inter:"Banco Inter"})[b];
+  const indexadorLabel=i=>({fixa:"Fixa",tr:"TR + juros",poupanca:"Poupanca + juros",ipca:"IPCA + juros"})[i]||"-";
+  const fmtBRL=v=>v?`R$ ${parseInt(String(v).replace(/\D/g,"")).toLocaleString("pt-BR")}`:"-";
+
+  return<div style={{display:"flex",flexDirection:"column",gap:12}}>
+    {/* Header explicativo */}
+    <div style={{padding:"14px 16px",borderRadius:10,background:"rgba(13,175,159,0.05)",border:"1px solid rgba(13,175,159,0.2)",display:"flex",alignItems:"flex-start",gap:10}}>
+      <div style={{width:32,height:32,borderRadius:8,background:"#fff",border:"1px solid "+C.grB,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><FileText_ size={15} color={C.accent}/></div>
+      <div style={{flex:1}}>
+        <div style={{fontSize:13,fontWeight:600,color:C.dark}}>Cadastro de propostas recebidas dos bancos</div>
+        <div style={{fontSize:12,color:C.muted,lineHeight:"18px",marginTop:2}}>Anexe o PDF e preencha os dados estruturados de cada proposta recebida. Quando todas as propostas estiverem cadastradas, envie o resumo a cliente — ela escolhe na proxima etapa.</div>
+      </div>
+    </div>
+
+    
+    {/* Header de lista */}
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:4}}>
+      <SL>Propostas cadastradas ({propostas.length})</SL>
+      <Btn small onClick={()=>{setEditing(null);setModal(true);}}><Plus_ size={12} color={C.dark}/>Nova proposta</Btn>
+    </div>
+
+    {/* Lista horizontal de propostas — lado a lado para comparacao visual */}
+    <div style={{display:"flex",flexDirection:"row",gap:10,overflowX:"auto",paddingBottom:6,marginLeft:-2,marginRight:-2,paddingLeft:2,paddingRight:2}}>
+      {propostas.map(p=><div key={p.id} style={{background:"#fff",border:"1px solid #f0f0f2",borderRadius:12,overflow:"hidden",minWidth:280,maxWidth:280,flexShrink:0,display:"flex",flexDirection:"column"}}>
+        {/* Header do card */}
+        <div style={{padding:"12px 14px",borderBottom:"1px solid #f6f6f7"}}>
+          <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:8}}>
+            <BankLogo bank={p.banco} size={32}/>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontSize:13,fontWeight:600,color:C.dark,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{bankName(p.banco)}</div>
+            </div>
+          </div>
+          <div style={{display:"flex",alignItems:"center",gap:6}}>
+            <div style={{flex:1,minWidth:0,display:"flex",alignItems:"center",gap:5,padding:"4px 8px",borderRadius:6,background:C.gs,border:"1px solid #efefef"}}>
+              <Paperclip_ size={10} color={C.gray}/>
+              <span style={{fontSize:10,color:C.gray,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>proposta-{p.banco.toLowerCase()}.pdf</span>
+            </div>
+            <button title="Visualizar PDF" style={{width:26,height:26,borderRadius:6,border:"1px solid #f0f0f2",background:"#fff",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><Eye_ size={12} color={C.gray}/></button>
+            <button title="Editar" onClick={()=>{setEditing(p);setModal(true);}} style={{width:26,height:26,borderRadius:6,border:"1px solid #f0f0f2",background:"#fff",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><Edit_ size={12} color={C.gray}/></button>
+            <button title="Excluir" onClick={()=>setPropostas(prev=>prev.filter(x=>x.id!==p.id))} style={{width:26,height:26,borderRadius:6,border:"1px solid #f0f0f2",background:"#fff",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><Trash_ size={12} color="#bbb"/></button>
+          </div>
+        </div>
+
+        {/* Conteudo VERTICAL: linhas empilhadas, label esquerda + valor direita */}
+        <div style={{padding:"4px 16px 12px"}}>
+          {/* Header de secao: visivel a cliente */}
+          <div style={{display:"flex",alignItems:"center",gap:6,padding:"10px 0 6px"}}>
+            <Eye_ size={11} color={C.accent}/>
+            <span style={{fontSize:10,fontWeight:600,color:C.accent,textTransform:"uppercase",letterSpacing:"0.06em"}}>Visivel a cliente</span>
+          </div>
+          {[
+            ["Taxa de juros",p.taxa+"% a.a."],
+            ["CET",p.cet+"% a.a."],
+            ["Prazo",p.prazo+" meses"],
+            ["Sistema",p.sistema],
+            ["Tipo de taxa",indexadorLabel(p.indexador)],
+            ["Primeira parcela","R$ "+parseInt(p.primeira).toLocaleString("pt-BR"),true],
+          ].map(([l,v,ac])=><div key={l} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"7px 0",borderBottom:"1px solid #f5f5f7",gap:12}}>
+            <span style={{fontSize:12,color:C.muted}}>{l}</span>
+            <span style={{fontSize:13,fontWeight:500,color:ac?C.accent:C.dark,textAlign:"right"}}>{v}</span>
+          </div>)}
+
+          {/* Header de secao: uso interno */}
+          <div style={{display:"flex",alignItems:"center",gap:6,padding:"14px 0 6px"}}>
+            <Shield_ size={11} color={C.gray}/>
+            <span style={{fontSize:10,fontWeight:600,color:C.gray,textTransform:"uppercase",letterSpacing:"0.06em"}}>Uso interno</span>
+          </div>
+          {[
+            ["Valor financiado",fmtBRL(p.financiado)],
+            ["Ultima parcela","R$ "+parseInt(p.ultima).toLocaleString("pt-BR")],
+            ["Seguro mensal","R$ "+parseInt(p.seguro).toLocaleString("pt-BR")],
+            ["Renda minima","R$ "+parseInt(p.rendaMin).toLocaleString("pt-BR")],
+            ["Compromet. max",p.compMax+"%"],
+          ].map(([l,v])=><div key={l} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"7px 0",borderBottom:"1px solid #f5f5f7",gap:12}}>
+            <span style={{fontSize:12,color:C.muted}}>{l}</span>
+            <span style={{fontSize:13,fontWeight:500,color:C.dark,textAlign:"right"}}>{v}</span>
+          </div>)}
+        </div>
+      </div>)}
+
+      {/* Bancos faltantes */}
+      {faltam.length>0&&<div style={{padding:"12px 14px",borderRadius:10,background:"#fafbfc",border:"1px dashed #e3e4e6"}}>
+        <div style={{fontSize:11,fontWeight:600,color:C.gray,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:8}}>Aguardando proposta de</div>
+        <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+          {faltam.map(b=><div key={b} style={{display:"flex",alignItems:"center",gap:6,padding:"5px 10px 5px 5px",borderRadius:99,background:"#fff",border:"1px solid #f0f0f2"}}><BankLogo bank={b} size={22}/><span style={{fontSize:11,fontWeight:500,color:C.gray}}>{bankName(b)}</span></div>)}
+        </div>
+      </div>}
+    </div>
+
+    {/* Acao final: enviar resumo a cliente */}
+    {envioStatus==="pending"?<div style={{padding:"14px 16px",borderRadius:10,background:"linear-gradient(90deg,rgba(13,175,159,0.08),rgba(13,175,159,0.02))",border:"1px solid rgba(13,175,159,0.18)",display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,flexWrap:"wrap"}}>
+      <div style={{display:"flex",alignItems:"center",gap:10}}>
+        <Whatsapp_ size={18} color={C.accent}/>
+        <div>
+          <div style={{fontSize:13,fontWeight:600,color:C.dark}}>Enviar resumo das {propostas.length} propostas a cliente</div>
+          <div style={{fontSize:11,color:C.muted}}>Ela vai receber um link via WhatsApp com as propostas resumidas pra escolher</div>
+        </div>
+      </div>
+      <Btn primary onClick={()=>setEnvioModal(true)} disabled={propostas.length<2}><Send_ size={12} color="#fff"/>Enviar resumo a cliente</Btn>
+    </div>:<AlertBox color={C.gr} bg={C.grBg} border={C.grB} icon={CheckCircle2} title="Resumo enviado a cliente" desc={"Link de escolha enviado via WhatsApp em "+new Date().toLocaleDateString("pt-BR")+". Aguardando decisao na proxima etapa."}/>}
+
+    <PropostaModal open={modal} onClose={()=>setModal(false)} proposta={editing} onSave={data=>{if(editing){setPropostas(prev=>prev.map(p=>p.id===editing.id?{...p,...data}:p));}else{setPropostas(prev=>[...prev,{id:Date.now(),...data}]);}}}/>
+
+    <EnvioModal open={envioModal} onClose={()=>setEnvioModal(false)} propostas={propostas} onConfirm={()=>{setEnvioStatus("sent");setEnvioModal(false);}}/>
+
+    <StageNotes/>
+  </div>;
+};
+
+/* MODAL: confirmacao de envio do resumo a cliente */
+const EnvioModal=({open,onClose,onConfirm,propostas})=>{
+  if(!open)return null;
+  const bankName=b=>({CEF:"Caixa Economica Federal",Itau:"Itau Unibanco",Bradesco:"Bradesco",Santander:"Santander",Inter:"Banco Inter"})[b];
+  return<div style={{position:"fixed",inset:0,zIndex:80,display:"flex",alignItems:"center",justifyContent:"center"}}>
+    <div style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.4)"}} onClick={onClose}/>
+    <div style={{position:"relative",background:"#fff",borderRadius:16,boxShadow:"0 8px 32px rgba(0,0,0,0.16)",width:"100%",maxWidth:560,maxHeight:"90vh",overflow:"hidden",margin:16,display:"flex",flexDirection:"column"}}>
+      <div style={{padding:"16px 24px",borderBottom:"1px solid #f0f0f2",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+        <div style={{display:"flex",alignItems:"center",gap:10}}><Whatsapp_ size={18} color={C.accent}/><div><div style={{fontSize:16,fontWeight:600,color:C.dark}}>Enviar resumo a cliente</div><div style={{fontSize:12,color:C.gray}}>Maria Silva Santos - (62) 99876-5432</div></div></div>
+        <button onClick={onClose} style={{width:32,height:32,borderRadius:8,border:"none",background:"#f5f5f5",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><X_ size={16} color={C.gray}/></button>
+      </div>
+      <div style={{flex:1,overflowY:"auto",padding:24,display:"flex",flexDirection:"column",gap:14}}>
+        <AlertBox color={C.bl} bg={C.blBg} border={C.blB} title="Pre-visualizacao da mensagem" desc="Esta e a mensagem que sera enviada via WhatsApp. Cliente recebe um link unico com todas as propostas pra escolher."/>
+        <div style={{background:"#efeae2",borderRadius:12,padding:14}}>
+          <div style={{background:"#fff",borderRadius:8,padding:"10px 14px",fontSize:13,lineHeight:1.55,color:"#111b21"}}>
+            <div style={{fontWeight:600,marginBottom:4}}>Oi Maria! 👋</div>
+            <div>Aqui e a <b>Hubfi</b>, sua plataforma de intermediacao de credito imobiliario - a gente cuidou de comparar bancos pra voce.</div>
+            <div style={{marginTop:6}}>Boa noticia: ja temos <b>{propostas.length} propostas aprovadas</b> pro seu financiamento. 🎉</div>
+            <div style={{marginTop:6}}>Toque no link abaixo pra comparar e escolher a melhor pra voce:</div>
+            <div style={{marginTop:8,padding:"8px 10px",borderRadius:6,background:"#f0f4f7",fontSize:12.5,color:C.bl,wordBreak:"break-all"}}>https://hubfi.app/escolha/op000001/k3xs9p</div>
+            <div style={{marginTop:6,fontSize:11.5,color:"#888"}}>O link é pessoal ,qualquer duvida, e só responder por aqui.</div>
+          </div>
+        </div>
+        <SL>Propostas que serao enviadas</SL>
+        <div style={{display:"flex",flexDirection:"column",gap:6}}>
+          {propostas.map(p=><div key={p.id} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 12px",borderRadius:8,border:"1px solid #f0f0f2",background:"#fff"}}>
+            <BankLogo bank={p.banco} size={28}/>
+            <div style={{flex:1,minWidth:0}}><div style={{fontSize:13,fontWeight:500,color:C.dark}}>{bankName(p.banco)}</div><div style={{fontSize:11,color:C.gray}}>1a parcela R$ {parseInt(p.primeira).toLocaleString("pt-BR")} - {p.taxa}% a.a. - {p.prazo}m {p.sistema}</div></div>
+            <Check size={14} color={C.gr} strokeWidth={3}/>
+          </div>)}
+        </div>
+      </div>
+      <div style={{padding:"14px 24px",borderTop:"1px solid #f0f0f2",background:"#fafafa",display:"flex",justifyContent:"flex-end",gap:8}}>
+        <Btn onClick={onClose}>Cancelar</Btn>
+        <Btn primary onClick={onConfirm}><Whatsapp_ size={12} color="#fff"/>Confirmar e enviar</Btn>
+      </div>
+    </div>
+  </div>;
+};
+
+/* S4 - ESCOLHA DA INSTITUICAO (cliente escolhe via link, ou operador escolhe por ela) */
+const S4=()=>{
+  const[escolhida,setEscolhida]=useState(null); // null = aguardando, ou banco id
+  const[confirmEsc,setConfirmEsc]=useState(null);
+  const[previewModal,setPreviewModal]=useState(false);
+  const propostas=[
+    {id:1,banco:"CEF",financiado:"343000",prazo:"360",sistema:"SAC",indexador:"tr",taxa:"8,99",cet:"10,12",primeira:"3180",ultima:"1050"},
+   
+    {id:3,banco:"Itau",financiado:"343000",prazo:"360",sistema:"SAC",indexador:"fixa",taxa:"9,49",cet:"10,82",primeira:"3245",ultima:"1120"},
+    {id:4,banco:"Bradesco",financiado:"343000",prazo:"360",sistema:"SAC",indexador:"fixa",taxa:"9,99",cet:"11,15",primeira:"3380",ultima:"1180"},
+    {id:5,banco:"Santander",financiado:"343000",prazo:"300",sistema:"SAC",indexador:"fixa",taxa:"10,20",cet:"11,45",primeira:"3410",ultima:"1200"},
+  ];
+  const bankName=b=>({CEF:"Caixa Economica Federal",Itau:"Itau Unibanco",Bradesco:"Bradesco",Santander:"Santander"})[b];
+  const indexadorLabel=i=>({fixa:"Fixa",tr:"TR + juros",poupanca:"Poupanca + juros",ipca:"IPCA + juros"})[i]||"-";
+
+  return<div style={{display:"flex",flexDirection:"column",gap:12}}>
+    {/* Status do link */}
+    {!escolhida?<div style={{padding:"14px 16px",borderRadius:10,background:"#fff",border:"1px solid "+C.gl}}>
+      <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
+        <div style={{width:36,height:36,borderRadius:8,background:"rgba(13,175,159,0.1)",display:"flex",alignItems:"center",justifyContent:"center"}}><Whatsapp_ size={16} color={C.accent}/></div>
+        <div style={{flex:1}}>
+          <div style={{fontSize:13,fontWeight:600,color:C.dark}}>Link de escolha enviado a cliente</div>
+          <div style={{fontSize:11,color:C.gray}}>Enviado em 11/04/2026 as 16:30 via WhatsApp - aguardando decisao</div>
+        </div>
+        <button onClick={()=>setPreviewModal(true)} style={{padding:"6px 12px",borderRadius:8,border:"1px solid "+C.gl,background:"#fff",fontSize:11,fontWeight:500,color:C.dark,cursor:"pointer",display:"flex",alignItems:"center",gap:5}}><Eye_ size={11} color={C.gray}/>Ver como cliente</button>
+      </div>
+      {/* Link copiavel */}
+      <div style={{display:"flex",alignItems:"center",gap:8,padding:"8px 12px",borderRadius:8,background:C.gs,border:"1px solid #efefef"}}>
+        <span style={{fontSize:12,color:C.bl,fontFamily:"monospace",flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>https://hubfi.app/escolha/op000001/k3xs9p</span>
+        <button style={{padding:"4px 10px",borderRadius:6,border:"1px solid "+C.gl,background:"#fff",fontSize:10,fontWeight:500,color:C.gray,cursor:"pointer"}}>Copiar</button>
+        <button style={{padding:"4px 10px",borderRadius:6,border:"1px solid "+C.gl,background:"#fff",fontSize:10,fontWeight:500,color:C.gray,cursor:"pointer"}}>Reenviar</button>
+      </div>
+      {/* Stats do link */}
+      <div style={{display:"flex",gap:18,marginTop:10,paddingTop:10,borderTop:"1px solid #f5f5f7",flexWrap:"wrap"}}>
+        <div><div style={{fontSize:10,color:C.gray,textTransform:"uppercase",letterSpacing:"0.06em"}}>Entregue</div><div style={{fontSize:12,fontWeight:600,color:C.gr,display:"flex",alignItems:"center",gap:3}}><Check size={11} color={C.gr} strokeWidth={3}/>16:30</div></div>
+        <div><div style={{fontSize:10,color:C.gray,textTransform:"uppercase",letterSpacing:"0.06em"}}>Lido</div><div style={{fontSize:12,fontWeight:600,color:C.gr,display:"flex",alignItems:"center",gap:3}}><Check size={11} color={C.gr} strokeWidth={3}/>16:42</div></div>
+        <div><div style={{fontSize:10,color:C.gray,textTransform:"uppercase",letterSpacing:"0.06em"}}>Link aberto</div><div style={{fontSize:12,fontWeight:600,color:C.accent}}>3 vezes</div></div>
+        <div><div style={{fontSize:10,color:C.gray,textTransform:"uppercase",letterSpacing:"0.06em"}}>Ultimo acesso</div><div style={{fontSize:12,fontWeight:600,color:C.dark}}>12/04 09:15</div></div>
+      </div>
+    </div>:<AlertBox color={C.gr} bg={C.grBg} border={C.grB} icon={CheckCircle2} title={"Cliente escolheu "+bankName(escolhida.banco)} desc={"Decisao confirmada em "+new Date().toLocaleDateString("pt-BR")+". Avancando para escolha do imovel."}/>}
+
+    {/* Propostas como cliente ve, com opcao do operador escolher por ela */}
+    <div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:6,marginBottom:8}}>
+        <SL>Propostas enviadas ({propostas.length})</SL>
+        <span style={{fontSize:11,color:C.gray}}>Se necessario, voce pode escolher em nome da cliente</span>
+      </div>
+      <div style={{display:"flex",flexDirection:"column",gap:8}}>
+        {propostas.map(p=>{const sel=escolhida&&escolhida.banco===p.banco;return<div key={p.id} style={{display:"flex",alignItems:"center",gap:12,padding:"14px 16px",borderRadius:10,background:sel?"rgba(13,175,159,0.05)":"#fff",border:sel?"2px solid "+C.accent:"1px solid "+C.gl,position:"relative"}}>
+          <BankLogo bank={p.banco} size={40}/>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontSize:13,fontWeight:600,color:C.dark}}>{bankName(p.banco)}</div>
+            <div style={{display:"flex",gap:8,flexWrap:"wrap",marginTop:4,fontSize:11,color:C.muted}}>
+              <span><b style={{color:C.dark}}>{p.taxa}%</b> a.a.</span>
+              <span>-</span>
+              <span>{p.prazo}m {p.sistema}</span>
+              <span>-</span>
+              <span>{indexadorLabel(p.indexador)}</span>
+              <span>-</span>
+              <span>CET <b style={{color:C.dark}}>{p.cet}%</b></span>
+            </div>
+          </div>
+          <div style={{textAlign:"right",flexShrink:0}}>
+            <div style={{fontSize:10,color:C.gray,textTransform:"uppercase",letterSpacing:"0.06em"}}>1a parcela</div>
+            <div style={{fontSize:18,fontWeight:700,color:sel?C.accent:C.dark}}>R$ {parseInt(p.primeira).toLocaleString("pt-BR")}</div>
+            <div style={{fontSize:11,color:C.gray}}>ultima R$ {parseInt(p.ultima).toLocaleString("pt-BR")}</div>
+          </div>
+          {!escolhida&&<button onClick={()=>setConfirmEsc(p)} style={{padding:"7px 12px",borderRadius:8,border:"1px solid "+C.gl,background:"#fff",fontSize:11,fontWeight:500,color:C.dark,cursor:"pointer",flexShrink:0}}>Escolher por ela</button>}
+          {sel&&<div style={{position:"absolute",top:-9,right:14,padding:"2px 10px",borderRadius:99,background:C.accent,color:"#fff",fontSize:10,fontWeight:600,display:"flex",alignItems:"center",gap:3}}><Check size={10} color="#fff" strokeWidth={3}/>{escolhida.por==="op"?"Selecionada pelo operador":"Escolhida pela cliente"}</div>}
+        </div>;})}
+      </div>
+    </div>
+
+    {/* Modal: confirmar escolha pelo operador */}
+    {confirmEsc&&<div style={{position:"fixed",inset:0,zIndex:80,display:"flex",alignItems:"center",justifyContent:"center"}}>
+      <div style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.4)"}} onClick={()=>setConfirmEsc(null)}/>
+      <div style={{position:"relative",background:"#fff",borderRadius:16,boxShadow:"0 8px 32px rgba(0,0,0,0.16)",width:"100%",maxWidth:460,overflow:"hidden",margin:16}}>
+        <div style={{padding:"18px 24px",borderBottom:"1px solid #f0f0f2"}}>
+          <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:4}}><AlertTri size={18} color="#d97706"/><div style={{fontSize:16,fontWeight:600,color:C.dark}}>Escolher em nome da cliente?</div></div>
+          <div style={{fontSize:12,color:C.gray}}>Use esta opcao apenas quando a cliente solicitou por voz ou texto. A acao sera registrada com seu usuario.</div>
+        </div>
+        <div style={{padding:"18px 24px",display:"flex",flexDirection:"column",gap:12}}>
+          <div style={{padding:"10px 14px",borderRadius:8,background:C.gs,border:"1px solid #efefef",display:"flex",alignItems:"center",gap:10}}><BankLogo bank={confirmEsc.banco} size={32}/><div><div style={{fontSize:13,fontWeight:600,color:C.dark}}>{bankName(confirmEsc.banco)}</div><div style={{fontSize:11,color:C.gray}}>{confirmEsc.taxa}% a.a. - 1a parcela R$ {parseInt(confirmEsc.primeira).toLocaleString("pt-BR")}</div></div></div>
+          <div style={{display:"flex",flexDirection:"column",gap:4}}>
+            <label style={{fontSize:11,fontWeight:600,color:C.dark,textTransform:"uppercase",letterSpacing:"0.06em"}}>Justificativa</label>
+            <TextArea placeholder="Ex: Cliente confirmou escolha por audio em ligacao as 14h30 de 12/04..." rows={2}/>
+          </div>
+        </div>
+        <div style={{padding:"12px 24px",borderTop:"1px solid #f0f0f2",background:"#fafafa",display:"flex",justifyContent:"flex-end",gap:8}}>
+          <Btn onClick={()=>setConfirmEsc(null)}>Cancelar</Btn>
+          <Btn primary onClick={()=>{setEscolhida({...confirmEsc,por:"op"});setConfirmEsc(null);}}>Confirmar escolha</Btn>
+        </div>
+      </div>
+    </div>}
+
+    {/* Modal: preview do que cliente ve */}
+    {previewModal&&<div style={{position:"fixed",inset:0,zIndex:80,display:"flex",alignItems:"center",justifyContent:"center"}}>
+      <div style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.5)"}} onClick={()=>setPreviewModal(false)}/>
+      <div style={{position:"relative",background:"#fff",borderRadius:16,boxShadow:"0 8px 32px rgba(0,0,0,0.16)",width:"100%",maxWidth:420,maxHeight:"90vh",overflow:"hidden",margin:16,display:"flex",flexDirection:"column"}}>
+        <div style={{padding:"14px 18px",borderBottom:"1px solid #f0f0f2",display:"flex",alignItems:"center",justifyContent:"space-between",background:"#fafafa"}}>
+          <div style={{display:"flex",alignItems:"center",gap:8}}><Phone_ size={14} color={C.gray}/><span style={{fontSize:13,fontWeight:500,color:C.dark}}>Preview mobile</span></div>
+          <button onClick={()=>setPreviewModal(false)} style={{width:28,height:28,borderRadius:6,border:"none",background:"#f0f0f0",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><X_ size={14} color={C.gray}/></button>
+        </div>
+        <div style={{flex:1,overflowY:"auto",padding:18,background:"#f5f7fa"}}>
+          <div style={{maxWidth:340,margin:"0 auto"}}>
+            <div style={{textAlign:"center",marginBottom:14}}>
+              <div style={{display:"inline-flex",alignItems:"center",gap:6,marginBottom:8}}><div style={{width:24,height:24,borderRadius:6,background:C.accent,display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{color:"#fff",fontWeight:700,fontSize:11}}>H</span></div><span style={{fontSize:15,fontWeight:700,color:C.dark}}>hubfi</span></div>
+              <div style={{fontSize:18,fontWeight:600,color:C.dark,lineHeight:1.2}}>Oi Maria,<br/>suas propostas chegaram!</div>
+              <div style={{fontSize:12,color:C.muted,marginTop:6}}>Comparamos {propostas.length} bancos pra voce. Escolha a que faz mais sentido.</div>
+            </div>
+            {propostas.map((p,i)=><div key={p.id} style={{background:"#fff",borderRadius:12,padding:14,marginBottom:8,border:i===0?"2px solid "+C.accent:"1px solid "+C.gl,position:"relative"}}>
+              {i===0&&<div style={{position:"absolute",top:-9,left:14,padding:"2px 10px",borderRadius:99,background:C.accent,color:"#fff",fontSize:10,fontWeight:600}}>Melhor taxa</div>}
+              <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}><BankLogo bank={p.banco} size={32}/><div style={{fontSize:13,fontWeight:600,color:C.dark}}>{bankName(p.banco)}</div></div>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:6}}>
+                <div><div style={{fontSize:10,color:C.gray,textTransform:"uppercase"}}>Primeira parcela</div><div style={{fontSize:20,fontWeight:700,color:C.dark}}>R$ {parseInt(p.primeira).toLocaleString("pt-BR")}</div></div>
+                <div style={{textAlign:"right"}}><div style={{fontSize:10,color:C.gray,textTransform:"uppercase"}}>Taxa</div><div style={{fontSize:14,fontWeight:600,color:C.accent}}>{p.taxa}% a.a.</div></div>
+              </div>
+              <div style={{padding:"8px 0",borderTop:"1px solid #f5f5f7",fontSize:11,color:C.muted,display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:4}}>
+                <span>CET <b style={{color:C.dark}}>{p.cet}%</b></span>
+                <span>{p.prazo}m {p.sistema}</span>
+                <span>{indexadorLabel(p.indexador)}</span>
+              </div>
+              <button style={{width:"100%",marginTop:8,padding:10,borderRadius:8,border:"none",background:C.accent,color:"#fff",fontSize:12,fontWeight:600,cursor:"pointer"}}>Escolher esta proposta</button>
+            </div>)}
+            <div style={{textAlign:"center",fontSize:11,color:C.gray,marginTop:14}}>Duvida? Responde a Hubfi no WhatsApp.</div>
+          </div>
+        </div>
+      </div>
+    </div>}
+
+    <StageNotes/>
+  </div>;
+};
+
+/* S5 - Escolha do Imovel */
+const S5=()=><div style={{display:"flex",flexDirection:"column",gap:10}}><SL>Imovel escolhido</SL><FR><RF l="Tipo" v="Apartamento"/><RF l="Area util" v="85 m2"/></FR><FR><RF l="Quartos" v="3 (1 suite)"/><RF l="Vagas" v="2"/></FR><FR><RF l="Valor de compra" v="R$ 490.000" accent/><RF l="Idade do imovel" v="6 anos"/></FR><div style={{padding:14,borderRadius:10,background:C.gs,border:"1px solid #efefef",display:"flex",gap:10}}><MapPin_ size={18} color={C.accent} style={{flexShrink:0,marginTop:2}}/><div><div style={{fontSize:13,fontWeight:600,color:C.dark}}>Rua das Flores, 120 - Apto 502</div><div style={{fontSize:11,color:C.gray}}>Edif. Vista Verde - Setor Bueno, Goiania/GO - 74230-010</div></div></div><SL>Vendedor</SL><FR><RF l="Nome" v="Carlos Eduardo Lima"/><RF l="CPF" v="234.567.890-11"/></FR><FR><RF l="Tipo" v="Pessoa fisica"/><RF l="Contato" v="(62) 99988-7766" accent/></FR><DocRow name="Foto fachada.jpg" status="ok" date="12/04/2026"/><DocRow name="Memorial descritivo.pdf" status="ok" date="12/04/2026"/><StageNotes/></div>;
+
+/* S6 - Documentacao das partes */
+const S6=()=>{
+  const totalDocs=20;
+  const enviados=12;
+  return<div style={{display:"flex",flexDirection:"column",gap:12}}>
+    {/* Link do formulario de upload — disparado automaticamente quando a etapa inicia */}
+    <div style={{padding:"14px 16px",borderRadius:10,background:"#fff",border:"1px solid "+C.gl}}>
+      <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
+        <div style={{width:36,height:36,borderRadius:8,background:"rgba(13,175,159,0.1)",display:"flex",alignItems:"center",justifyContent:"center"}}><Whatsapp_ size={16} color={C.accent}/></div>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{fontSize:13,fontWeight:600,color:C.dark}}>Link do formulario de upload enviado a cliente</div>
+          <div style={{fontSize:11,color:C.gray}}>Disparado automaticamente em 13/04/2026 as 09:15 via WhatsApp - aguardando documentos</div>
+        </div>
+        <button style={{padding:"6px 12px",borderRadius:8,border:"1px solid "+C.gl,background:"#fff",fontSize:11,fontWeight:500,color:C.dark,cursor:"pointer",display:"flex",alignItems:"center",gap:5}}><Eye_ size={11} color={C.gray}/>Ver formulario</button>
+      </div>
+      {/* Link copiavel */}
+      <div style={{display:"flex",alignItems:"center",gap:8,padding:"8px 12px",borderRadius:8,background:C.gs,border:"1px solid #efefef"}}>
+        <span style={{fontSize:12,color:C.bl,fontFamily:"monospace",flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>https://hubfi.app/docs/op000001/d8m2qf</span>
+        <button style={{padding:"4px 10px",borderRadius:6,border:"1px solid "+C.gl,background:"#fff",fontSize:10,fontWeight:500,color:C.gray,cursor:"pointer"}}>Copiar</button>
+        <button style={{padding:"4px 10px",borderRadius:6,border:"1px solid "+C.gl,background:"#fff",fontSize:10,fontWeight:500,color:C.gray,cursor:"pointer"}}>Reenviar</button>
+      </div>
+      {/* Stats */}
+      <div style={{display:"flex",gap:18,marginTop:10,paddingTop:10,borderTop:"1px solid #f5f5f7",flexWrap:"wrap"}}>
+        <div><div style={{fontSize:10,color:C.gray,textTransform:"uppercase",letterSpacing:"0.06em"}}>Entregue</div><div style={{fontSize:12,fontWeight:600,color:C.gr,display:"flex",alignItems:"center",gap:3}}><Check size={11} color={C.gr} strokeWidth={3}/>09:15</div></div>
+        <div><div style={{fontSize:10,color:C.gray,textTransform:"uppercase",letterSpacing:"0.06em"}}>Lido</div><div style={{fontSize:12,fontWeight:600,color:C.gr,display:"flex",alignItems:"center",gap:3}}><Check size={11} color={C.gr} strokeWidth={3}/>09:32</div></div>
+        <div><div style={{fontSize:10,color:C.gray,textTransform:"uppercase",letterSpacing:"0.06em"}}>Link aberto</div><div style={{fontSize:12,fontWeight:600,color:C.accent}}>5 vezes</div></div>
+        <div><div style={{fontSize:10,color:C.gray,textTransform:"uppercase",letterSpacing:"0.06em"}}>Ultimo upload</div><div style={{fontSize:12,fontWeight:600,color:C.dark}}>13/04 14:20</div></div>
+        <div><div style={{fontSize:10,color:C.gray,textTransform:"uppercase",letterSpacing:"0.06em"}}>Progresso</div><div style={{fontSize:12,fontWeight:600,color:C.dark}}>{enviados}/{totalDocs} docs</div></div>
+      </div>
+    </div>
+
+    {/* Checklist de documentos */}
+    <SL>Compradora - Maria Silva Santos</SL>
+    <DocRow name="RG/CNH (frente e verso)" status="ok" date="13/04/2026 09:35"/>
+    <DocRow name="CPF" status="ok" date="13/04/2026 09:35"/>
+    <DocRow name="Comprovante de residencia" status="ok" date="13/04/2026 09:42"/>
+    <DocRow name="Holerites (3 ultimos)" status="ok" date="13/04/2026 14:10"/>
+    <DocRow name="Declaracao de IR completa" status="pending" date="13/04/2026 14:20"/>
+    <DocRow name="Extrato FGTS" status="missing"/>
+    <SL>Conjuge - Joao Silva Santos</SL>
+    <DocRow name="RG/CNH" status="ok" date="13/04/2026 09:38"/>
+    <DocRow name="Certidao de casamento" status="ok" date="13/04/2026 09:38"/>
+    <DocRow name="Comprovante de renda" status="missing"/>
+    <SL>Vendedor - Carlos Eduardo Lima</SL>
+    <DocRow name="RG/CNH" status="ok" date="13/04/2026 11:05"/>
+    <DocRow name="CPF" status="ok" date="13/04/2026 11:05"/>
+    <DocRow name="Certidao de casamento/nascimento" status="pending" date="13/04/2026 11:20"/>
+    <DocRow name="Comprovante de residencia" status="missing"/>
+    <SL>Imovel</SL>
+    <DocRow name="Matricula atualizada (ate 30 dias)" status="missing"/>
+    <DocRow name="IPTU 2026 quitado" status="ok" date="13/04/2026 11:10"/>
+    <DocRow name="Habite-se" status="missing"/>
+    <DocRow name="Convencao de condominio" status="pending" date="13/04/2026 11:25"/>
+    <DocRow name="Decl. quitacao de condominio" status="missing"/>
+    <AlertBox bg="#fffbeb" border="#fde68a" color="#d97706" icon={AlertTri} title="6 documentos pendentes" desc="Cliente ja recebeu 2 lembretes automaticos via WhatsApp. Proximo follow-up em 14/04/2026 as 09:00."/>
+    <div style={{display:"flex",gap:8,flexWrap:"wrap"}}><Btn primary><Upload_ size={12} color="#fff"/>Upload manual</Btn><Btn><Whatsapp_ size={12} color={C.dark}/>Reenviar lembrete</Btn></div>
+    <StageNotes/>
+  </div>;
+};
+
+/* S7 - Avaliacao do Imovel */
+const S7=()=><div style={{display:"flex",flexDirection:"column",gap:10}}>
+  <SL>Engenheiro responsavel</SL>
+  <FR><RF l="Nome" v="Carlos Alberto Mendes"/><RF l="CREA" v="GO-12345/D"/></FR>
+  <FR><RF l="Empresa" v="CAM Avaliacoes"/><RF l="Telefone" v="(62) 99888-1234" accent/></FR>
+  <SL>Agendamento</SL>
+  <div style={{padding:14,borderRadius:10,background:"#fff",border:"1px solid "+C.gl,display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
+    <div style={{width:48,height:48,borderRadius:10,background:"rgba(13,175,159,0.08)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",border:"1px solid rgba(13,175,159,0.2)"}}><span style={{fontSize:9,fontWeight:600,color:C.accent,textTransform:"uppercase"}}>Abr</span><span style={{fontSize:18,fontWeight:700,color:C.accent,lineHeight:1}}>15</span></div>
+    <div style={{flex:1,minWidth:140}}><div style={{fontSize:13,fontWeight:600,color:C.dark}}>Sexta-feira, 15/04/2026</div><div style={{fontSize:11,color:C.gray}}>14h00 - duracao estimada de 1h30</div></div>
+    <div style={{padding:"3px 10px",borderRadius:99,background:C.blBg,color:C.bl,border:"1px solid "+C.blB,fontSize:10,fontWeight:600,display:"inline-flex",alignItems:"center",gap:4}}><Calendar_ size={10} color={C.bl}/>Confirmado</div>
+  </div>
+  <SL>Resultado da vistoria</SL>
+  <FR><RF l="Valor de avaliacao" v="R$ 485.000" accent/><RF l="Valor de compra" v="R$ 490.000"/></FR>
+  <FR><RF l="Base para financiamento" v="R$ 485.000 (menor valor)" accent/><RF l="Diferenca" v="-R$ 5.000 (-1,0%)"/></FR>
+  <FR><RF l="Estado de conservacao" v="Otimo" accent/><RF l="Padrao construtivo" v="Medio-alto"/></FR>
+  <DocRow name="Laudo_Avaliacao_OP000001.pdf" status="ok" date="15/04/2026"/>
+  <DocRow name="Album_Fotografico.pdf" status="ok" date="15/04/2026"/>
+  <AlertBox bg={C.orBg} border={C.orB} color={C.or} icon={AlertTri} title="Atencao - valor de avaliacao abaixo do compra" desc="A CEF financiara sobre R$ 485.000. Cliente precisara complementar entrada com R$ 5.000 ou renegociar valor com vendedor."/>
+  <div style={{display:"flex",gap:8}}><Btn primary>Confirmar avaliacao</Btn><Btn>Solicitar nova vistoria</Btn></div>
+  <StageNotes/>
+</div>;
+
+/* S8 - Analise Juridica */
+const S8=()=>{const itens=[["Matricula sem onus reais",true,"Sem hipoteca, alienacao ou penhora"],["Certidao negativa Justica Federal",true,"Sem acoes em andamento"],["Certidao negativa Justica Estadual",true,"Sem acoes civeis ou criminais"],["Certidao trabalhista (vendedor)",false,"Aguardando 2a via solicitada"],["Certidao quitacao tributos federais",false,"Em diligencia desde 16/04"],["Certidao quitacao IPTU e condominio",true,"Quitado e em dia"],["Habite-se valido",false,"Habite-se nao localizado - solicitado ao construtor"],["Pendencias do vendedor",true,"Vendedor sem restricoes no CPF"]];return<div style={{display:"flex",flexDirection:"column",gap:10}}><FR><RF l="Responsavel" v="Dra. Patricia Coelho"/><RF l="OAB" v="GO-45678"/></FR><FR><RF l="Inicio" v="16/04/2026"/><RF l="Prazo" v="5 dias uteis"/></FR><SL>Checklist juridico</SL>{itens.map(([t,d,obs])=><div key={t} style={{display:"flex",alignItems:"flex-start",gap:10,padding:"10px 12px",borderRadius:8,border:"1px solid #f0f0f2",background:"#fff"}}><div style={{width:22,height:22,borderRadius:99,background:d?C.grBg:"#fffbeb",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:1}}>{d?<Check size={12} color={C.gr} strokeWidth={3}/>:<Clock_ size={11} color="#d97706"/>}</div><div style={{flex:1,minWidth:0}}><div style={{fontSize:13,fontWeight:500,color:d?C.dark:"#777"}}>{t}</div><div style={{fontSize:11,color:C.gray,marginTop:1}}>{obs}</div></div></div>)}<AlertBox bg="#fffbeb" border="#fde68a" color="#d97706" icon={AlertTri} title="3 pendencias em diligencia" desc="Certidao trabalhista e tributos federais foram solicitadas. Habite-se sendo regularizado pelo vendedor."/><div style={{display:"flex",gap:8}}><Btn primary disabled>Aprovar analise</Btn><Btn>Solicitar saneamento</Btn></div><StageNotes/></div>;};
+
+/* S9 - Elaboracao do contrato */
+const S9=()=><div style={{display:"flex",flexDirection:"column",gap:10}}>
+  <FR><RF l="No do contrato" v="CEF-2026-00123456" accent/><RF l="Modelo" v="Padrao CEF SBPE - SAC"/></FR>
+  <FR><RF l="Cartorio" v="1o Oficio de Registro de Goiania"/><RF l="Comarca" v="Goiania/GO"/></FR>
+  <FR><RF l="Valor total da operacao" v="R$ 490.000" accent/><RF l="Valor financiado" v="R$ 343.000" accent/></FR>
+  <FR><RF l="ITBI estimado" v="R$ 14.700 (3%)"/><RF l="Custas + emolumentos" v="R$ 4.200"/></FR>
+  <SL>Versoes do contrato</SL>
+  <DocRow name="Minuta_v1_CEF_OP000001.pdf" status="ok" date="18/04/2026"/>
+  <DocRow name="Revisao_juridica_HubFi_v1.pdf" status="ok" date="19/04/2026"/>
+  <DocRow name="Minuta_v2_apos_ajustes.pdf" status="pending" date="20/04/2026"/>
+  <SL>Ajustes solicitados</SL>
+  <div style={{display:"flex",flexDirection:"column",gap:6}}>
+    {[["Clausula 12 - revisao da forma de reajuste","resolved"],["Clausula 18 - inclusao de seguradora alternativa","resolved"],["Anexo II - corrigir endereco do imovel","pending"]].map(([t,s])=><div key={t} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 12px",borderRadius:8,border:"1px solid #f0f0f2",background:"#fff"}}><div style={{width:18,height:18,borderRadius:99,background:s==="resolved"?C.grBg:"#fffbeb",display:"flex",alignItems:"center",justifyContent:"center"}}>{s==="resolved"?<Check size={10} color={C.gr} strokeWidth={3}/>:<Clock_ size={10} color="#d97706"/>}</div><span style={{fontSize:12.5,color:C.dark,flex:1}}>{t}</span><span style={{fontSize:10,color:s==="resolved"?C.gr:"#d97706",fontWeight:500}}>{s==="resolved"?"Resolvido":"Pendente"}</span></div>)}
+  </div>
+  <AlertBox bg={C.blBg} border={C.blB} color={C.bl} title="Aguardando minuta v2 do banco" desc="Solicitamos correcao do anexo II. Prazo de retorno: 1 dia util."/>
+  <div style={{display:"flex",gap:8}}><Btn primary disabled>Aprovar versao final</Btn><Btn>Solicitar nova revisao</Btn></div>
+  <StageNotes/>
+</div>;
+
+/* S10 - Assinatura do contrato */
+const S10=()=>{const partes=[{n:"Maria Silva Santos",r:"Compradora",cpf:"123.456.789-00",s:"signed",d:"22/04/2026 14:30"},{n:"Joao Silva Santos",r:"Conjuge - anuente",cpf:"987.654.321-00",s:"signed",d:"22/04/2026 14:35"},{n:"Carlos Eduardo Lima",r:"Vendedor",cpf:"234.567.890-11",s:"pending"},{n:"Caixa Economica Federal",r:"Credora",cpf:"00.360.305/0001-04",s:"pending"}];return<div style={{display:"flex",flexDirection:"column",gap:10}}>
+  <FR><RF l="Modalidade" v="Eletronica (ICP-Brasil)" accent/><RF l="Provedor" v="Clicksign"/></FR>
+  <FR><RF l="Documento" v="Contrato CEF-2026-00123456"/><RF l="Iniciada em" v="22/04/2026 14:00"/></FR>
+  <SL>Partes signatarias</SL>
+  {partes.map(p=>{const sgn=p.s==="signed";return<div key={p.cpf} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 12px",borderRadius:8,background:"#fff",border:"1px solid #f0f0f2"}}>
+    <div style={{width:36,height:36,borderRadius:99,background:sgn?C.grBg:C.gs,display:"flex",alignItems:"center",justifyContent:"center",border:sgn?"1px solid "+C.grB:"1px solid #f0f0f2"}}>{sgn?<Check size={15} color={C.gr} strokeWidth={3}/>:<User_ size={14} color={C.gray}/>}</div>
+    <div style={{flex:1,minWidth:0}}><div style={{fontSize:13,fontWeight:600,color:C.dark}}>{p.n}</div><div style={{fontSize:11,color:C.gray}}>{p.r} - CPF {p.cpf}</div></div>
+    {sgn?<div style={{textAlign:"right"}}><span style={{fontSize:11,fontWeight:600,padding:"3px 10px",borderRadius:99,background:C.grBg,color:C.gr,border:"1px solid "+C.grB,display:"inline-flex",alignItems:"center",gap:3}}><FileSignature_ size={10} color={C.gr}/>Assinado</span><div style={{fontSize:10,color:C.gray,marginTop:2}}>{p.d}</div></div>:<span style={{fontSize:11,fontWeight:600,padding:"3px 10px",borderRadius:99,background:"#f5f5f5",color:C.gray,border:"1px solid #e8e8e8"}}>Aguardando</span>}
+  </div>;})}
+  <AlertBox bg={C.blBg} border={C.blB} color={C.bl} desc="Vendedor e CEF receberam o link de assinatura. Prazo limite: 25/04/2026."/>
+  <div style={{display:"flex",gap:8}}><Btn primary>Reenviar lembrete</Btn><Btn>Acompanhar Clicksign</Btn></div>
+  <StageNotes/>
+</div>;};
+
+/* S11 - Registro no Cartorio */
+const S11=()=>{const passos=[["Protocolo de entrada no cartorio","done","23/04/2026"],["Analise pela escrevente","done","24/04/2026"],["Pagamento ITBI municipal","done","24/04/2026 - R$ 14.700"],["Pagamento de emolumentos","done","24/04/2026 - R$ 4.200"],["Conferencia de documentos","current","Em andamento"],["Lavratura do registro","pending","Aguardando"],["Emissao da matricula atualizada","pending","Aguardando"]];return<div style={{display:"flex",flexDirection:"column",gap:10}}>
+  <FR><RF l="Cartorio" v="1o Oficio de Registro de Imoveis"/><RF l="Matricula" v="45.678 - L4 Goiania" accent/></FR>
+  <FR><RF l="Protocolo" v="2026/04/23-7891"/><RF l="Prazo legal" v="30 dias (Lei 6015/73)"/></FR>
+  <SL>Etapas do registro</SL>
+  <div style={{position:"relative",paddingLeft:18}}>
+    <div style={{position:"absolute",left:7,top:6,bottom:6,width:2,background:"#f0f0f2"}}/>
+    {passos.map(([t,s,d])=><div key={t} style={{position:"relative",paddingBottom:10}}>
+      <div style={{position:"absolute",left:-18,top:0,width:16,height:16,borderRadius:99,background:s==="done"?C.accent:s==="current"?"#fff":"#fafafa",border:s==="current"?"2px solid "+C.accent:s==="pending"?"1.5px solid #e3e3e3":"none",display:"flex",alignItems:"center",justifyContent:"center"}}>{s==="done"&&<Check size={9} color="#fff" strokeWidth={3}/>}{s==="current"&&<div style={{width:6,height:6,borderRadius:99,background:C.accent}}/>}</div>
+      <div style={{fontSize:13,fontWeight:s==="pending"?400:500,color:s==="pending"?"#aaa":C.dark}}>{t}</div>
+      <div style={{fontSize:11,color:C.gray}}>{d}</div>
+    </div>)}
+  </div>
+  <SL>Comprovantes de pagamento</SL>
+  <DocRow name="DAM_ITBI_2026.pdf" status="ok" date="24/04/2026"/>
+  <DocRow name="Comprov_Emolumentos.pdf" status="ok" date="24/04/2026"/>
+  <AlertBox bg={C.blBg} border={C.blB} color={C.bl} icon={Clock_} title="Aguardando lavratura" desc="Documentos conferidos. Previsao de emissao da matricula: 28/04/2026."/>
+  <div style={{display:"flex",gap:8}}><Btn primary>Atualizar status</Btn><Btn>Acompanhar cartorio</Btn></div>
+  <StageNotes/>
+</div>;};
+
+/* S12 - Liberacao do Recurso */
+const S12=()=><div style={{display:"flex",flexDirection:"column",gap:10}}>
+  <div style={{padding:"16px 18px",borderRadius:12,background:"linear-gradient(135deg,rgba(13,175,159,0.08),rgba(13,175,159,0.02))",border:"1px solid rgba(13,175,159,0.2)"}}>
+    <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:8}}><div style={{width:36,height:36,borderRadius:8,background:C.accent,display:"flex",alignItems:"center",justifyContent:"center"}}><DollarSign_ size={18} color="#fff"/></div><div><div style={{fontSize:11,fontWeight:600,color:C.gray,textTransform:"uppercase",letterSpacing:"0.06em"}}>Valor a liberar</div><div style={{fontSize:24,fontWeight:700,color:C.accent,lineHeight:1.1}}>R$ 343.000,00</div></div></div>
+    <div style={{fontSize:11,color:C.muted}}>Valor financiado integral. Sera liberado direto na conta do vendedor mediante apresentacao do contrato registrado.</div>
+  </div>
+  <SL>Beneficiario</SL>
+  <FR><RF l="Nome" v="Carlos Eduardo Lima"/><RF l="CPF" v="234.567.890-11"/></FR>
+  <FR><RF l="Banco" v="Bradesco - 237"/><RF l="Agencia/Conta" v="1234 / 56789-0"/></FR>
+  <SL>Composicao da operacao</SL>
+  <div style={{display:"flex",gap:0,flexWrap:"wrap",borderRadius:10,overflow:"hidden",border:"1px solid #f0f0f2"}}>
+    {[["Entrada da cliente","R$ 102.000","direta ao vendedor"],["FGTS da cliente","R$ 45.000","via CEF"],["Financiamento CEF","R$ 343.000","via CEF",true]].map(([l,v,o,ac])=><div key={l} style={{flex:"1 1 140px",padding:"12px 14px",borderRight:"1px solid #f0f0f2",background:"#fff"}}><div style={{fontSize:10,color:C.gray,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:3}}>{l}</div><div style={{fontSize:15,fontWeight:700,color:ac?C.accent:C.dark}}>{v}</div><div style={{fontSize:10,color:C.gray,marginTop:2}}>{o}</div></div>)}
+  </div>
+  <SL>Checklist final</SL>
+  {[["Contrato registrado no cartorio",true],["Matricula com nova titularidade emitida",true],["ITBI quitado e comprovado",true],["Termo de quitacao do vendedor",false],["Liberacao TED da CEF",false]].map(([t,d])=><div key={t} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 12px",borderRadius:8,background:"#fff",border:"1px solid #f0f0f2"}}><div style={{width:18,height:18,borderRadius:99,background:d?C.grBg:"#f5f5f5",display:"flex",alignItems:"center",justifyContent:"center"}}>{d?<Check size={10} color={C.gr} strokeWidth={3}/>:<Circle_ size={7} color="#ccc"/>}</div><span style={{fontSize:12.5,color:d?C.dark:"#aaa"}}>{t}</span></div>)}
+  <DocRow name="Termo_Quitacao_aguardando.pdf" status="pending" date="Aguardando vendedor"/>
+  <AlertBox bg={C.blBg} border={C.blB} color={C.bl} icon={TrendUp_} title="Previsao de liberacao: 5 dias uteis" desc="Apos receber o termo de quitacao do vendedor, a CEF executa a TED em ate 5 dias uteis."/>
+  <div style={{display:"flex",gap:8}}><Btn primary>Solicitar liberacao</Btn><Btn>Acompanhar pendencias</Btn></div>
+  <StageNotes/>
+</div>;
+
+const CMAP={1:S1,2:S2,3:S3,4:S4,5:S5,6:S6,7:S7,8:S8,9:S9,10:S10,11:S11,12:S12};
+const SUMS={1:"Maria Silva Santos - R$ 490.000",2:"Score 782 - pre-aprovado",3:"2 propostas enviadas - 1 rascunho",4:"CEF escolhida - 8,99% a.a.",5:"Apto 3 quartos - Setor Bueno",6:"15 de 20 documentos",7:"Avaliacao: R$ 485.000",8:"5 de 8 itens aprovados",9:"Minuta v2 em revisao",10:"2 de 4 assinaturas",11:"Registro em diligencia",12:"Aguardando termo do vendedor"};
+const DATES={1:"09/04/2026 10:15",2:"09/04/2026 16:45",3:"10/04/2026 11:20",4:"12/04/2026 16:45",5:"13/04/2026 09:30",6:"13/04/2026 14:20",7:null,8:null,9:null,10:null,11:null,12:null};
+const ICONS=[FileText_,Scale_,FileText_,Building_,Home_,FileCheck_,Camera_,Shield_,PenTool_,FileSignature_,Landmark_,DollarSign_];
+const STAGES=[
+  {id:1,label:"Coleta de dados",status:"completed"},
+  {id:2,label:"Analise de credito",status:"completed"},
+  {id:3,label:"Proposta de credito (cadastro)",status:"current"},
+  {id:4,label:"Escolha da instituicao",status:"pending"},
+  {id:5,label:"Escolha do imovel",status:"pending"},
+  {id:6,label:"Documentacao das partes",status:"pending"},
+  {id:7,label:"Avaliacao do imovel",status:"pending"},
+  {id:8,label:"Analise juridica",status:"pending"},
+  {id:9,label:"Elaboracao do contrato",status:"pending"},
+  {id:10,label:"Assinatura do contrato",status:"pending"},
+  {id:11,label:"Registro no cartorio",status:"pending"},
+  {id:12,label:"Liberacao do recurso",status:"pending"}
+];
+
+/* ====== STEP ====== */
+const Step=({stage,isLast,open,onToggle,onDetail})=>{
+  const done=stage.status==="completed",cur=stage.status==="current",pend=stage.status==="pending";
+  const Icon=ICONS[stage.id-1];const canOpen=true;const dt=DATES[stage.id];const Content=CMAP[stage.id];
+  const[hov,setHov]=useState(false);const showHov=hov&&canOpen&&!open;const nodeSize=pend?28:38;
+  return<div style={{display:"flex",gap:0}}>
+    <div style={{display:"flex",flexDirection:"column",alignItems:"center",width:52,flexShrink:0}}>
+      <div style={{width:nodeSize,height:nodeSize,borderRadius:99,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,background:done?C.accent:cur?"#fff":"#f8f8fa",border:done?"2px solid "+C.accent:cur?"2px solid "+C.accent:"1.5px solid #e4e4e6",boxShadow:cur?"0 0 0 5px rgba(13,175,159,0.1)":"none",transition:"transform .15s",transform:showHov?"scale(1.1)":"scale(1)"}}>{done?<Check size={16} color="#fff" strokeWidth={3}/>:cur?<div style={{width:10,height:10,borderRadius:99,background:C.accent}}/>:<span style={{fontSize:10,fontWeight:600,color:"#d5d5d5"}}>{stage.id}</span>}</div>
+      {!isLast&&<div style={{width:2,flex:1,minHeight:pend?10:24,background:done?C.accent:cur?C.accent:"#f0f0f2"}}/>}
+    </div>
+    <div style={{flex:1,paddingBottom:isLast?0:pend?6:20,paddingTop:pend?2:6,minWidth:0,borderBottom:isLast||pend?"none":"1px solid #f8f8f8",marginBottom:isLast?0:pend?0:4}}>
+      <div onClick={canOpen?onToggle:undefined} onMouseEnter={()=>canOpen&&setHov(true)} onMouseLeave={()=>setHov(false)} style={{cursor:canOpen?"pointer":"default",padding:pend?"4px 10px":"8px 10px",borderRadius:10,background:showHov?"#f7f8f9":"transparent",border:showHov?"1px solid #eeefef":"1px solid transparent",transition:"all .15s",marginBottom:open?8:0}}>
+        <div style={{display:"flex",alignItems:"center",gap:8,userSelect:"none",flexWrap:"wrap",rowGap:4}}>
+          <Icon size={pend?14:16} color={done||cur?C.accent:"#d8d8d8"}/>
+          <div style={{flex:1,minWidth:0}}>
+            <span style={{fontSize:pend?13:14,fontWeight:cur?600:done?500:400,color:pend?"#ccc":C.dark}}>{stage.label}</span>
+            {dt&&<span style={{fontSize:10,color:"#b5b5b5",marginLeft:8}}>Iniciada em {dt}</span>}
+          </div>
+          {cur&&!open&&<span style={{display:"inline-flex",alignItems:"center",gap:4,fontSize:10,fontWeight:600,color:C.accent,background:"rgba(13,175,159,0.06)",border:"1px solid rgba(13,175,159,0.18)",borderRadius:99,padding:"3px 10px",flexShrink:0}}><Clock_ size={10} color={C.accent}/>Em andamento</span>}
+          {done&&!open&&<span style={{display:"inline-flex",alignItems:"center",gap:3,fontSize:10,fontWeight:600,color:C.gr,background:C.grBg,borderRadius:99,padding:"2px 8px",flexShrink:0}}><CheckCircle2 size={10} color={C.gr}/>Concluida</span>}
+          {canOpen&&<div style={{width:26,height:26,borderRadius:6,background:showHov?"#edeeed":open?"#f5f5f5":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"background .15s"}}>{open?<ChevronUp size={14} color="#bbb"/>:<ChevronDown size={14} color={showHov?"#999":"#ccc"}/>}</div>}
+        </div>
+        {!open&&done&&<div style={{fontSize:12,color:"#aaa",paddingLeft:26,paddingTop:3}}>{SUMS[stage.id]}</div>}
+      </div>
+      {open&&<div style={{background:cur?"rgba(13,175,159,0.03)":"#fafafa",border:cur?"1px solid rgba(13,175,159,0.18)":"1px solid #f0f0f2",borderRadius:12,padding:20,overflow:"hidden"}}>
+        {stage.id===1?<Content onDetail={onDetail}/>:<Content/>}
+        {done&&<div style={{display:"flex",alignItems:"center",gap:4,paddingTop:12,fontSize:11,color:C.gr}}><CheckCircle2 size={12} color={C.gr}/>Etapa concluida</div>}
+      </div>}
+    </div>
+  </div>;
+};
+
+/* ====== APP ====== */
+const App=()=>{
+  const[openSteps,setOpenSteps]=useState(new Set([3]));
+  const[modal,setModal]=useState(false);
+  const[detailModal,setDetailModal]=useState(false);
+  const toggle=id=>setOpenSteps(p=>{const n=new Set(p);n.has(id)?n.delete(id):n.add(id);return n;});
+  const completed=STAGES.filter(s=>s.status==="completed").length;
+  return(
+    <div style={{display:"flex",minHeight:"100vh",background:C.bg,fontFamily:font}}>
+      <Sidebar/>
+      <div style={{flex:1,padding:8,paddingLeft:0}}>
+        <div style={{background:"#fff",borderRadius:12,boxShadow:"0 1px 3px rgba(0,0,0,0.1),0 1px 2px -1px rgba(0,0,0,0.1)",minHeight:"calc(100vh - 16px)",padding:32,display:"flex",flexDirection:"column",gap:20,overflow:"auto"}}>
+          {/* Breadcrumb */}
+          <div style={{display:"flex",alignItems:"center",gap:8}}>
+            <ArrowLeft size={20} color={C.dark} style={{cursor:"pointer"}}/>
+            <div style={{width:1,height:16,background:C.gl}}/>
+            <span style={{fontSize:14,color:C.dark}}>Operacoes &#8250; Detalhe da Operacao</span>
+          </div>
+          {/* Header */}
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:16,flexWrap:"wrap"}}>
+            <div>
+              <div style={{display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
+                <h1 style={{fontSize:24,fontWeight:500,color:C.accent,margin:0}}>Maria Silva Santos</h1>
+                <span style={{fontSize:12,color:C.gray,background:C.gs,padding:"3px 10px",borderRadius:6,border:"1px solid #efefef"}}>OP-000001</span>
+              </div>
+              <div style={{display:"flex",alignItems:"center",gap:16,marginTop:8,flexWrap:"wrap",rowGap:8}}>
+                <div style={{display:"flex",alignItems:"center",gap:6}}><span style={{fontSize:12,color:C.gray}}>Produto:</span><span style={{fontSize:13,fontWeight:600,color:C.dark}}>Financ. Imobiliario - Aquisicao</span></div>
+                <div style={{width:1,height:14,background:C.gl}}/>
+                <div style={{display:"flex",alignItems:"center",gap:6}}><span style={{fontSize:12,color:C.gray}}>Valor:</span><span style={{fontSize:13,fontWeight:600,color:C.accent}}>R$ 490.000,00</span></div>
+                <div style={{width:1,height:14,background:C.gl}}/>
+                <div style={{display:"flex",alignItems:"center",gap:6}}><span style={{fontSize:12,color:C.gray}}>Personal Finance:</span><Tooltip content="(62) 98765-1234 - victor@hubfi.com"><span style={{fontSize:13,fontWeight:600,color:C.accent,cursor:"pointer",borderBottom:"1px dashed "+C.accent}}>Victor Tavares</span></Tooltip></div>
+              </div>
+            </div>
+            <button onClick={()=>setModal(true)} style={{display:"flex",alignItems:"center",gap:8,padding:"8px 16px",borderRadius:8,border:"1px solid "+C.gl,background:"#fff",fontSize:13,fontWeight:500,color:C.dark,cursor:"pointer",flexShrink:0}}><Info size={16} color={C.accent}/>Ver informacoes</button>
+          </div>
+          {/* Progress bar */}
+          <div style={{display:"flex",alignItems:"center",gap:16,padding:"14px 20px",borderRadius:10,background:"#fafbfc",border:"1px solid #f0f0f2",flexWrap:"wrap"}}>
+            <div style={{display:"flex",alignItems:"center",gap:2}}>{STAGES.map((s,i)=>{const d=s.status==="completed",cu=s.status==="current";return<div key={i}><div style={{width:cu?12:d?8:6,height:cu?12:d?8:6,borderRadius:99,background:d?C.accent:cu?"transparent":"#e4e4e6",border:cu?"2.5px solid "+C.accent:"none",transition:"all .2s"}}/></div>;})}</div>
+            <div style={{width:1,height:20,background:"#ebebeb"}}/>
+            <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
+              <div style={{display:"flex",alignItems:"center",gap:5}}><div style={{width:7,height:7,borderRadius:99,background:C.accent}}/><span style={{fontSize:12,fontWeight:500,color:C.accent}}>{completed} concluidas</span></div>
+              <div style={{display:"flex",alignItems:"center",gap:5}}><div style={{width:7,height:7,borderRadius:99,border:"2px solid "+C.accent,background:"transparent"}}/><span style={{fontSize:12,color:"#aaa"}}>1 em andamento</span></div>
+              <div style={{display:"flex",alignItems:"center",gap:5}}><div style={{width:7,height:7,borderRadius:99,background:"#e0e0e0"}}/><span style={{fontSize:12,color:"#ccc"}}>{STAGES.length-completed-1} pendentes</span></div>
+            </div>
+          </div>
+
+          {/* Stages timeline */}
+          <div style={{width:"100%"}}>{STAGES.map((s,i)=><Step key={s.id} stage={s} isLast={i===STAGES.length-1} open={openSteps.has(s.id)} onToggle={()=>toggle(s.id)} onDetail={()=>setDetailModal(true)}/>)}</div>
+        </div>
+      </div>
+      <InfoModal open={modal} onClose={()=>setModal(false)}/>
+      <DetailModal open={detailModal} onClose={()=>setDetailModal(false)}/>
+    </div>
+  );
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

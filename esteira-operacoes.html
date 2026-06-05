@@ -146,9 +146,8 @@ svg{display:block}
 /* status badge in card (em análise = secondary gray) */
 .bbadge{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:500;padding:4px 10px;border-radius:999px;background:var(--badge-bg);color:var(--badge-tx)}
 .bbadge .i{width:12px;height:12px;color:#141515}
-.btn-reg{height:32px;display:inline-flex;align-items:center;gap:4px;font-size:14px;font-weight:500;line-height:1;border:1px solid #e0e1e1;background:#fff;color:#282a2a;border-radius:8px;padding:0 8px;cursor:pointer;white-space:nowrap;font-family:inherit}
-.btn-reg svg{width:16px;height:16px;flex:0 0 16px;stroke-width:2}
-.btn-reg:hover{background:#f7f8fa;border-color:#d4d6d6}
+.btn-reg{height:30px;font-size:13px;font-weight:500;border:1px solid var(--border-input);background:#fff;color:var(--ink);border-radius:8px;padding:0 12px;cursor:pointer;white-space:nowrap}
+.btn-reg:hover{background:#f6f7f9}
 
 .slot-actions{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:0}
 .btn-add{font-size:13px;font-weight:500;border:1px solid var(--border-input);background:#fff;color:var(--ink);border-radius:8px;padding:7px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
@@ -571,8 +570,6 @@ var IINFO='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx
 var ICO_FILECHECK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v4"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="m3 15 2 2 4-4"/></svg>';
 var ICO_CHEVRON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>';
 var SELHTML=ICO_FILECHECK+'Selecionar instituição';
-var ICO_FILEPLUS='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v4"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M3 15h6"/><path d="M6 12v6"/></svg>';
-var REGHTML=ICO_FILEPLUS+'Registrar resultado';
 function badge(b){var m=BADGE[b.status];return '<span class="st '+m[0]+'">'+m[1]+IINFO+'</span>';}
 function dadosHtml(b){if(!b.det)return '';var d=b.det;var items=[["Taxa de juros",d.taxa],["Prazo",d.prazo],["Valor do imóvel",d.imovel],["Valor do financiamento",d.financiado],["CET anual",d.cet],["1ª parcela",d.parcela]];return '<div class="dados">'+items.map(function(x){return '<div class="dado"><span class="dl">'+x[0]+'</span><span class="dv">'+esc(x[1])+'</span></div>';}).join('')+'</div>';}
 function notasHtml(b){if(!b.notas||!b.notas.length)return '';return '<div class="notas">'+b.notas.map(function(n){return '<div class="nota '+(n.k||'info')+'">'+esc(n.t)+'</div>';}).join('')+'</div>';}
@@ -583,7 +580,7 @@ function operatorCard(b){
     return '<div class="cardp chosen"><div class="top"><img class="blogo" src="'+b.logo+'"><span class="bname">'+b.name+'</span><span class="spacer"></span><div class="right"><span class="st escolhido">Banco escolhido</span><button class="iconbtn" onclick="openProposta(\''+b.id+'\')">'+PENCIL+'</button></div></div>'+dadosHtml(b)+notasHtml(b)+'</div>';
   }
   if(b.status==="em_analise"){
-    return '<div class="cardp"><div class="top"><img class="blogo grayed" src="'+b.logo+'"><span class="bname">'+b.name+'</span><span class="spacer"></span><div class="right">'+badge(b)+'<button class="btn-reg" onclick="openProposta(\''+b.id+'\')">'+REGHTML+'</button></div></div></div>';
+    return '<div class="cardp"><div class="top"><img class="blogo grayed" src="'+b.logo+'"><span class="bname">'+b.name+'</span><span class="spacer"></span><div class="right">'+badge(b)+'<button class="btn-reg" onclick="openProposta(\''+b.id+'\')">Registrar resultado</button></div></div></div>';
   }
   var act;
   if(escolhaActive && CHOOSABLE.indexOf(b.status)>=0){act='<button class="btn-escolher" onclick="escolher(\''+b.id+'\')">'+SELHTML+'</button>';}

@@ -3,779 +3,699 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Painel da Operacao - HubFi</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<title>Detalhes da operação — Análise de Crédito</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Outfit',sans-serif}
-  ::-webkit-scrollbar{width:5px;height:5px}
-  ::-webkit-scrollbar-track{background:transparent}
-  ::-webkit-scrollbar-thumb{background:#ddd;border-radius:99px}
-  input::placeholder,textarea::placeholder{color:#a8a8a8;font-family:'Outfit',sans-serif}
-  button{font-family:'Outfit',sans-serif}
-  input,select,textarea{font-family:'Outfit',sans-serif}
+:root{
+  --teal:#0daf9f; --teal-dark:#008a7e; --teal-btn:#00a396;
+  --ink:#191a1a; --gray-text:#a1a5a5; --label:#808080;
+  --page:#f5f6fa; --sidebar:#fcfcfc; --panel:#fff;
+  --border:#f0f0f0; --border-card:#ededed; --border-input:#e0e1e1; --divider:#e3e3e3;
+  --active:#e0e1e1; --iconbox:#f5f5f7; --badge-bg:#f0f0f0; --badge-tx:#333333;
+  --blue:#3672e2; --blue-soft:#e4ecfb; --yellow:#e7b008; --yellow-tx:#9a7806;
+  --radius:8px;
+  --font:'Outfit',-apple-system,Segoe UI,Roboto,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);color:var(--ink);background:var(--page);font-size:14px;line-height:1.4;-webkit-font-smoothing:antialiased}
+.app{display:flex;min-height:100vh;background:var(--sidebar)}
+svg{display:block}
+
+/* ============ SIDEBAR ============ */
+.sidebar{width:256px;flex:0 0 256px;background:var(--sidebar);padding:8px;display:flex;flex-direction:column}
+.logo{display:flex;align-items:center;gap:8px;padding:24px 12px;font-size:24px;font-weight:700;color:var(--ink);letter-spacing:-.5px}
+.logo .teal{color:var(--teal)}
+.logo .mark{width:30px;height:30px;flex:0 0 30px}
+.company{display:flex;align-items:center;gap:12px;padding:12px;border-radius:8px;cursor:pointer;margin-bottom:8px}
+.company:hover{background:#f1f2f4}
+.company .ava{width:40px;height:40px;border-radius:10px;background:var(--ink);display:flex;align-items:center;justify-content:center;flex:0 0 40px}
+.company .ava svg{width:22px;height:22px;color:var(--teal)}
+.company .txt{flex:1;min-width:0}
+.company .txt small{display:block;font-size:13px;color:var(--label);line-height:1.3}
+.company .txt b{font-size:15px;font-weight:700;color:var(--teal);line-height:1.3}
+.company .updown{width:18px;height:18px;color:var(--ink);flex:0 0 18px}
+.nav-group{padding:8px 8px 16px}
+.nav-group h4{font-size:14px;font-weight:700;color:var(--ink);padding:8px 8px 10px}
+.nav-list{display:flex;flex-direction:column;gap:4px}
+.nav-item{display:flex;align-items:center;gap:12px;height:44px;padding:0 12px;border-radius:8px;color:var(--ink);font-size:15px;cursor:pointer}
+.nav-item:hover{background:#f1f2f4}
+.nav-item.active{background:var(--active)}
+.nav-item .ic{width:22px;height:22px;flex:0 0 22px;color:var(--ink)}
+.nav-item .ic svg{width:22px;height:22px}
+.nav-item.active .ic{color:var(--teal)}
+.nav-item .lbl{flex:1}
+.nav-item .chev{width:18px;height:18px;color:var(--ink);flex:0 0 18px}
+
+/* ============ MAIN ============ */
+.main{flex:1;min-width:0;background:var(--panel);border:1px solid var(--border-card);display:flex;flex-direction:column}
+.topbar{padding:20px 24px 0;display:flex;flex-direction:column;gap:16px;border-bottom:1px solid var(--border)}
+.breadcrumb{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--ink)}
+.breadcrumb .collapse{width:20px;height:20px;color:var(--ink)}
+.breadcrumb .sep{width:1px;height:16px;background:var(--divider)}
+.breadcrumb .chev{width:16px;height:16px;color:#787d7d}
+
+.op-header{display:flex;justify-content:space-between;align-items:flex-start;gap:32px}
+.op-info{display:flex;flex-direction:column;gap:6px}
+.op-id{display:flex;align-items:center;gap:6px}
+.op-id span{font-size:14px;font-weight:500;color:var(--gray-text)}
+.op-id .copy{width:16px;height:16px;color:#bbb;cursor:pointer}
+.op-title{display:flex;align-items:center;gap:8px}
+.op-title h1{font-size:24px;font-weight:600;color:var(--ink)}
+.op-title .vdiv{width:1px;height:18px;background:var(--divider)}
+.op-title .creator{font-size:14px;font-weight:500;color:var(--gray-text)}
+.op-chips{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:2px}
+.chip{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:500}
+.chip .cbox{width:24px;height:24px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex:0 0 24px}
+.chip .cbox svg{width:14px;height:14px;color:#fff}
+.chip.product .cbox{background:var(--blue-soft)}.chip.product .cbox svg{color:var(--blue)}
+.chip.product span{color:var(--ink)}
+.chip.value .cbox{background:var(--teal-dark)}.chip.value span{color:var(--teal)}
+.chip.advisor span{color:var(--gray-text)}
+.chip .avatar{width:24px;height:24px;border-radius:50%;background:#e4e4e7;display:flex;align-items:center;justify-content:center}
+.chip .msg{width:18px;height:18px;color:var(--teal);cursor:pointer}
+.chip.team .markmini{width:18px;height:18px}
+.chip.team span{color:var(--teal);font-weight:600}
+.op-chips .vdiv{width:1px;height:20px;background:var(--divider)}
+.btn{font-family:var(--font);font-size:13px;font-weight:500;border-radius:var(--radius);padding:7px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border-input);background:#fff;color:var(--ink);white-space:nowrap}
+.btn:hover{background:#f6f7f9}
+.btn svg{width:16px;height:16px}
+.btn.icon{width:32px;height:32px;padding:0;justify-content:center}
+.btn.advancar{background:var(--teal-btn);border-color:var(--teal-btn);color:#fff}
+
+/* stepper */
+.stepper{display:flex;width:100%;padding:4px 0 18px}
+.step{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:80px}
+.step .track{display:flex;align-items:center;width:100%;height:14px}
+.step .seg{height:2px;flex:1;background:var(--divider)}
+.step .seg.on{background:var(--teal)}
+.step .seg.blank{background:transparent}
+.step .node{width:10px;height:10px;border-radius:50%;flex:0 0 10px;margin:0 2px;background:var(--divider)}
+.step.done .node,.step.current .node{background:var(--teal)}
+.step .slbl{font-size:12px;line-height:1.25;text-align:center;color:var(--label);white-space:pre-line}
+.step.done .slbl{color:var(--ink)}
+
+/* ============ CONTENT (gray, full width) ============ */
+.content{flex:1;background:var(--page);display:flex;justify-content:center;padding:24px 16px 120px}
+.cards-col{width:100%;max-width:980px;display:flex;flex-direction:column;gap:16px}
+
+/* hero */
+.hero{display:flex;gap:10px;align-items:stretch}
+.card-obs{flex:1;background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px;display:flex;gap:12px;align-items:center}
+.card-obs .obox{width:32px;height:32px;border-radius:8px;background:var(--blue);display:flex;align-items:center;justify-content:center;flex:0 0 32px}
+.card-obs .obox svg{width:20px;height:20px;color:#fff}
+.card-obs .oc{display:flex;flex-direction:column;gap:4px}
+.card-obs .oc b{font-size:14px;font-weight:600;color:var(--ink)}
+.card-obs .oc p{font-size:12px;color:var(--label)}
+.card-temp{flex:0 0 342px;background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px;display:flex;align-items:center;gap:16px}
+.card-temp .tinfo{display:flex;flex-direction:column;gap:10px;flex:1}
+.card-temp .trow{display:flex;align-items:center;gap:8px;font-size:12px}
+.card-temp .trow svg{width:16px;height:16px}
+.card-temp .trow.a{color:#6d758f}.card-temp .trow.a svg{color:var(--teal-dark)}
+.card-temp .trow.b{color:#19213d;font-weight:500}.card-temp .trow.b svg{color:#ef4343}
+.gauge{width:56px;height:56px;border-radius:50%;flex:0 0 56px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--yellow);background:conic-gradient(var(--yellow) 0 60%, #eee 60% 100%);position:relative}
+.gauge::after{content:"";position:absolute;inset:6px;background:#fff;border-radius:50%}
+.gauge span{position:relative;z-index:1}
+
+/* section bar */
+.sec-bar{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 12px}
+.sec-bar .iconbox{width:36px;height:36px;border-radius:10px;background:var(--iconbox);display:flex;align-items:center;justify-content:center;flex:0 0 36px}
+.sec-bar .iconbox svg{width:18px;height:18px;color:var(--ink)}
+.sec-bar .stitle{flex:1;display:flex;flex-direction:column}
+.sec-bar .stitle b{font-size:14px;font-weight:600;color:var(--ink)}
+.sec-bar .stitle small{font-size:12px;color:var(--label)}
+.sec-bar .right{display:flex;align-items:center;gap:8px}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;padding:4px 10px;border-radius:999px;border:1px solid var(--border);background:var(--badge-bg);color:var(--badge-tx)}
+.badge.warning{background:rgba(231,176,8,.12);border-color:rgba(231,176,8,.35);color:var(--yellow)}
+.badge.warning::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+
+/* slot: alert + banks */
+.slot{display:flex;flex-direction:column;gap:16px}
+.alert{display:flex;gap:12px;padding:16px;border-radius:8px;border:1px solid rgba(231,176,8,.35);background:rgba(231,176,8,.08)}
+.alert .ai{width:20px;height:20px;flex:0 0 20px;color:var(--yellow);margin-top:1px}
+.alert b{display:block;color:var(--yellow);font-size:14px;font-weight:600}
+.alert p{color:var(--yellow-tx);font-size:12px;margin-top:3px}
+
+.banks{display:flex;flex-direction:column;gap:4px}
+.bank{background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px 16px;display:flex;align-items:center;gap:16px;min-height:56px}
+.bank .inst{display:flex;align-items:center;gap:12px}
+.bank .blogo{width:32px;height:32px;flex:0 0 32px;object-fit:contain;border-radius:6px;background:#fff}
+.bank .bname{font-size:14px;font-weight:500;color:var(--ink)}
+.bank .spacer{flex:1}
+.bank .right{display:flex;align-items:center;gap:8px}
+/* status badge in card (em análise = secondary gray) */
+.bbadge{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:500;padding:4px 10px;border-radius:999px;background:var(--badge-bg);color:var(--badge-tx)}
+.bbadge .i{width:12px;height:12px;color:#141515}
+.btn-reg{height:30px;font-size:13px;font-weight:500;border:1px solid var(--border-input);background:#fff;color:var(--ink);border-radius:8px;padding:0 12px;cursor:pointer;white-space:nowrap}
+.btn-reg:hover{background:#f6f7f9}
+
+.slot-actions{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:0}
+.btn-add{font-size:13px;font-weight:500;border:1px solid var(--border-input);background:#fff;color:var(--ink);border-radius:8px;padding:7px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.btn-add svg{width:14px;height:14px}
+
+/* ============ FOOTER FIXO (composer) ============ */
+.footer{position:fixed;bottom:0;left:256px;right:0;background:var(--sidebar);border-top:1px solid var(--border);padding:16px 24px;display:flex;justify-content:center;z-index:20}
+.composer{width:100%;max-width:640px;display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #e9e9e9;border-radius:8px;padding:8px}
+.composer .micon{width:20px;height:20px;color:#cbcdcd;flex:0 0 20px}
+.composer input{flex:1;border:none;outline:none;font-family:var(--font);font-size:14px;color:var(--ink);background:transparent}
+.composer input::placeholder{color:#a6a6a6}
+.composer .vis{display:flex;align-items:center;gap:2px;border:1px solid var(--border-input);border-radius:8px;padding:6px 6px}
+.composer .vis .g{width:16px;height:16px;color:var(--teal-dark)}
+.composer .vis .cd{width:16px;height:16px;color:var(--gray-text)}
+.composer .send{width:32px;height:32px;border:1px solid var(--border-input);border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 32px}
+.composer .send svg{width:16px;height:16px;color:#141515}
+
+/* ===== MODAL / DRAWER cadastrar proposta ===== */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;justify-content:center;align-items:center;padding:24px;z-index:100}
+.modal-overlay.open{display:flex}
+.drawer{width:560px;max-width:100%;max-height:90vh;background:#fff;display:flex;flex-direction:column;border-radius:12px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.28);animation:popin .18s ease}
+@keyframes popin{from{transform:scale(.98);opacity:.5}to{transform:none;opacity:1}}
+.drawer-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:20px 20px 20px 24px}
+.dh-txt b{display:block;font-size:16px;font-weight:500;color:var(--ink)}
+.dh-txt span{font-size:14px;color:var(--label)}
+.dh-close{width:30px;height:30px;border:none;background:none;border-radius:6px;cursor:pointer;color:var(--label);display:flex;align-items:center;justify-content:center}
+.dh-close:hover{background:#f4f4f5}.dh-close svg{width:18px;height:18px}
+.drawer-divider{height:1px;background:#ececec}
+.drawer-body{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:16px}
+.radio-row{display:flex;gap:24px;flex-wrap:wrap}
+.radio{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--ink);cursor:pointer}
+.radio .dot{width:16px;height:16px;border-radius:50%;border:1px solid #a1a5a5;position:relative;flex:0 0 16px}
+.radio.on .dot{border-color:var(--teal-dark)}
+.radio.on .dot::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--teal-dark)}
+.field{display:flex;flex-direction:column;gap:6px}
+.flbl{font-size:14px;font-weight:500;color:#141515}
+.dropzone{display:flex;flex-direction:column;align-items:center;gap:12px;padding:18px 16px;border:1px dashed #d8dadd;border-radius:8px;text-align:center;background:#fff}
+.dz-icon{width:48px;height:48px;border-radius:50%;background:#31c9b7;display:flex;align-items:center;justify-content:center}
+.dz-icon svg{width:22px;height:22px;color:#fff}
+.dz-txt b{display:block;font-size:14px;color:var(--ink);font-weight:500}
+.dz-txt span{font-size:12px;color:var(--label)}
+.fld{height:40px;border:1px solid #e3e3e3;border-radius:8px;padding:0 12px;font-family:var(--font);font-size:14px;background:#fff;color:var(--ink);width:100%}
+.fld::placeholder{color:#787d7d}
+.selectbox{height:40px;border:1px solid #e3e3e3;border-radius:8px;padding:0 12px;display:flex;align-items:center;justify-content:space-between;background:#fff;cursor:pointer}
+.selectbox .ph{font-size:14px;color:#787d7d}
+.selectbox svg{width:16px;height:16px;color:#787d7d}
+.help{font-size:12px;color:var(--label)}
+.sec-label{font-size:14px;font-weight:500;color:var(--label);margin-top:4px;display:flex;align-items:center;gap:6px}
+.sec-label svg{width:14px;height:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.drawer-foot{display:flex;justify-content:flex-end;gap:8px;padding:16px 24px;background:#fafbfc;border-top:1px solid #ececec}
+.send.active{background:var(--teal-dark);border-color:var(--teal-dark)}
+.send.active svg{color:#fff}
+.vis{cursor:pointer}
+
+/* cards populados */
+.cardp{background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 8px;display:flex;flex-direction:column;gap:12px}
+.cardp .top{display:flex;align-items:center;gap:12px}
+.cardp .top .spacer{flex:1}
+.cardp .top .right{display:flex;align-items:center;gap:8px}
+.cardp .blogo{width:32px;height:32px;flex:0 0 32px;object-fit:contain;border-radius:6px;background:#fff}
+.cardp .bname{font-size:14px;font-weight:500;color:var(--ink)}
+.st{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:500;padding:4px 10px;border-radius:999px;line-height:1}
+.st svg{width:12px;height:12px;flex:0 0 12px;stroke-width:2.2}
+
+.st.success{background:rgba(0,138,126,.1);color:#008a7e}
+.st.warning{background:rgba(231,176,8,.1);color:#e7b008}
+.st.secondary{background:#f0f0f0;color:#333333}
+.st.neutral{background:#f0f0f0;color:#333333}
+.st.destructive{background:rgba(222,53,53,.1);color:#d93326}
+.st.information{background:rgba(54,114,226,.05);color:#3672e2}
+.btn-edit{height:30px;font-size:13px;font-weight:500;border:1px solid var(--border-input);background:#fff;color:var(--ink);border-radius:8px;padding:0 12px;cursor:pointer}
+.btn-edit:hover{background:#f6f7f9}
+.dados{display:grid;grid-template-columns:repeat(6,1fr);gap:12px 16px;border-top:1px solid #f4f4f5;padding-top:12px}
+.dado{display:flex;flex-direction:column;gap:2px;min-width:0}
+.dado .dl{font-size:11px;color:var(--gray-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dado .dv{font-size:13px;font-weight:600;color:var(--ink)}
+.notas{display:flex;flex-direction:column;gap:6px;border-top:1px solid #f4f4f5;padding-top:10px}
+.nota{display:flex;gap:8px;align-items:flex-start;font-size:12px;color:#6b6f6f;line-height:1.45}
+.nota svg{width:14px;height:14px;flex:0 0 14px;margin-top:1px;color:var(--gray-text)}
+.nota.info svg{color:var(--blue)}
+.nota.warn svg{color:var(--yellow)}
+.nota.danger svg{color:#d92d20}
+.btn.advancar.is-disabled{background:#bfeae4;border-color:#bfeae4;color:#fff;cursor:not-allowed}
+/* modal form controls */
+#formFull,#formMotivo{display:flex;flex-direction:column;gap:16px}
+.radio input{display:none}
+.fld-select{height:40px;border:1px solid #e3e3e3;border-radius:8px;padding:0 36px 0 12px;font-family:var(--font);font-size:14px;color:var(--ink);background:#fff;width:100%;appearance:none;cursor:pointer;background-image:url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' fill=\'none\' stroke=\'%23787d7d\' stroke-width=\'2\' viewBox=\'0 0 24 24\'><path d=\'m6 9 6 6 6-6\'/></svg>');background-repeat:no-repeat;background-position:right 12px center}
+.fld-area{border:1px solid #e3e3e3;border-radius:8px;padding:10px 12px;font-family:var(--font);font-size:14px;color:var(--ink);width:100%;min-height:103px;resize:vertical;line-height:1.5}
+.fld-area::placeholder{color:#787d7d}
+
+.cardp .blogo.grayed{filter:grayscale(1);opacity:.5}
+.hist{background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px}
+.hist-head{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:8px}
+.hist-item{display:flex;gap:12px;padding:10px 0;border-top:1px solid #f4f4f5}
+.hist-item:first-child{border-top:none}
+.hist-dot{width:8px;height:8px;border-radius:50%;background:var(--teal);margin-top:5px;flex:0 0 8px}
+.hist-txt{font-size:13px;color:var(--ink)}
+.hist-time{font-size:12px;color:var(--gray-text);margin-top:1px}
+.btn.advancar.is-done{background:var(--teal-dark);border-color:var(--teal-dark);cursor:default}
+
+.viewtabs{display:inline-flex;gap:4px;background:#f0f0f2;border-radius:10px;padding:3px;width:fit-content}
+.vtab{border:none;background:none;font-family:var(--font);font-size:13px;font-weight:500;color:#6b6f6f;padding:6px 14px;border-radius:8px;cursor:pointer}
+.vtab.active{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.dropzone{cursor:pointer}
+.uploaded{display:flex;align-items:center;gap:12px;padding:12px 16px;border:1px solid var(--teal);border-radius:10px;background:#fff}
+.uploaded .up-ic{width:36px;height:36px;border-radius:6px;background:var(--teal-btn);display:flex;align-items:center;justify-content:center;flex:0 0 36px}
+.uploaded .up-ic svg{width:18px;height:18px;color:#fff}
+.uploaded .up-txt{flex:1;min-width:0}
+.uploaded .up-txt b{display:block;font-size:14px;color:var(--ink);font-weight:500}
+.uploaded .up-txt span{font-size:12px;color:var(--label)}
+.uploaded .up-check{width:20px;height:20px;color:var(--teal);flex:0 0 20px}
+.uploaded .up-x{width:32px;height:32px;border:none;background:none;border-radius:8px;color:#787d7d;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 32px}
+.uploaded .up-x:hover{background:#f4f4f5}
+.notas{display:flex;flex-direction:column;gap:6px;border-top:1px solid #f4f4f5;padding-top:10px}
+.nota{display:block;font-size:12px;border-radius:6px;padding:6px 10px;line-height:1.45}
+.nota.danger{background:#fef2f2;border:1px solid #f3c2c2;color:#dc2626}
+.nota.warn{background:rgba(231,176,8,.10);border:1px solid rgba(231,176,8,.30);color:#9a7806}
+.nota.info{background:#eff4fd;border:1px solid #d3e0fb;color:#3672e2}
+.cardp.chosen{background:rgba(13,175,159,.07);border-color:var(--teal)}
+.st.escolhido{background:#00a395;color:#fff}
+
+.iconbtn{width:32px;height:32px;border:1px solid var(--border-input);background:#fff;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink)}
+.iconbtn svg{width:16px;height:16px}
+.btn-escolher{height:30px;font-size:13px;font-weight:600;border:1px solid #e0e1e1;background:#fff;color:var(--ink);border-radius:8px;padding:0 14px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.btn-escolher:hover{background:#f7f8fa;border-color:#d4d6d6}
+.scard .sdado{display:flex;flex-direction:column;gap:1px;margin-right:8px}
+.scard .sdado i{font-size:11px;color:var(--gray-text);font-style:normal}
+.scard .sdado b{font-size:13px;font-weight:600;color:var(--ink)}
+.scard .await{font-size:13px;color:var(--gray-text)}
+.hist-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid #f4f4f5}
+.hist-item:first-child{border-top:none}
+.hist-ic{width:16px;height:16px;color:#c7c7c7;flex:0 0 16px}
+.hist-line{flex:1;display:flex;align-items:baseline;gap:8px}
+.hist-msg{font-size:12px;font-weight:500;color:#808080}
+.hist-date{font-size:10px;color:#b5b5b5;margin-left:auto;white-space:nowrap}
+
+.confirm{width:440px;max-width:100%;background:#fff;border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:8px;box-shadow:0 24px 64px rgba(0,0,0,.28)}
+.confirm h3{font-size:16px;font-weight:600;color:var(--ink)}
+.confirm p{font-size:14px;color:var(--label);line-height:1.5}
+.cf-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+.cf-bank{display:flex;align-items:center;gap:12px;background:#f7f8fa;border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-top:6px}
+.cf-bank img{width:32px;height:32px;object-fit:contain;border-radius:6px;flex:0 0 32px}
+.cf-bank .cb-name{font-size:14px;font-weight:500;color:var(--ink)}
+.cf-bank .cb-data{margin-left:16px;text-align:right;font-size:11px;color:var(--gray-text)}
+.cf-bank .cb-data b{display:block;font-size:13px;color:var(--ink);font-weight:600}
+.cf-bank .cb-data:nth-of-type(2){margin-left:auto}
+
+.scard{display:grid;grid-template-columns:minmax(150px,1fr) 110px 148px auto;align-items:center;column-gap:16px;row-gap:0;padding:8px 8px}
+.scard.chosen{background:rgba(13,175,159,.07);border-color:var(--teal)}
+.s-inst{display:flex;align-items:center;gap:12px;min-width:0}
+.s-inst .bname{font-size:14px;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.s-col{display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px}
+.s-col i{font-size:11px;font-style:normal;color:var(--gray-text);white-space:nowrap}
+.s-col b{font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap}
+.s-msg{grid-column:2/4;text-align:right;font-size:13px;color:var(--gray-text)}
+.s-end{display:flex;flex-direction:row;align-items:center;justify-content:flex-end;gap:10px}
+.s-end .btn-escolher{white-space:nowrap}
+.s-note{grid-column:1/-1;margin-top:8px}
+.cf-fields{border:1px solid var(--border);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:9px;margin-top:8px;background:#f9fafb}
+.cf-fields .row{display:flex;justify-content:space-between;align-items:center;font-size:13px}
+.cf-fields .row span{color:var(--gray-text)}
+.cf-fields .row b{color:var(--ink);font-weight:600}
 </style>
 </head>
 <body>
-<div id="root"></div>
-<script type="text/babel">
-const {useState} = React;
+<div class="app">
 
-/* ====== ICONS ====== */
-const Ic = ({d,size=16,color="#808080",strokeWidth=2,fill="none",style={}}) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,...style}}><path d={d}/></svg>
-);
-const ChevronDown=p=><Ic d="M6 9l6 6 6-6" {...p}/>;
-const ChevronUp=p=><Ic d="M18 15l-6-6-6 6" {...p}/>;
-const ChevronRight=p=><Ic d="M9 18l6-6-6-6" {...p}/>;
-const ArrowLeft=p=><Ic d="M19 12H5M12 19l-7-7 7-7" {...p}/>;
-const Info=p=><Ic d="M12 2a10 10 0 100 20 10 10 0 000-20zM12 16v-4M12 8h.01" {...p}/>;
-const X_=p=><Ic d="M18 6L6 18M6 6l12 12" {...p}/>;
-const Check=p=><Ic d="M20 6L9 17l-5-5" {...p}/>;
-const Plus_=p=><Ic d="M12 5v14M5 12h14" {...p}/>;
-const Star_=({size=18,color="#e3e3e3",fill="none"})=><svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0}}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>;
-const Circle_=p=><Ic d="M12 2a10 10 0 100 20 10 10 0 000-20z" {...p}/>;
-const Clock_=p=><Ic d="M12 2a10 10 0 100 20 10 10 0 000-20zM12 6v6l4 2" {...p}/>;
-const CheckCircle2=p=><Ic d="M12 2a10 10 0 100 20 10 10 0 000-20zM9 12l2 2 4-4" {...p}/>;
-const Eye_=p=><Ic d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8zM12 9a3 3 0 100 6 3 3 0 000-6z" {...p}/>;
-const Upload_=p=><Ic d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" {...p}/>;
-const Paperclip_=p=><Ic d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.49" {...p}/>;
-const MapPin_=p=><Ic d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0zM12 7a3 3 0 100 6 3 3 0 000-6z" {...p}/>;
-const User_=p=><Ic d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 3a4 4 0 100 8 4 4 0 000-8z" {...p}/>;
-const Building_=p=><Ic d="M6 22V4a2 2 0 012-2h8a2 2 0 012 2v18zM6 12H4a2 2 0 00-2 2v6a2 2 0 002 2h2M18 9h2a2 2 0 012 2v9a2 2 0 01-2 2h-2" {...p}/>;
-const Phone_=p=><Ic d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" {...p}/>;
-const MsgSq=p=><Ic d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" {...p}/>;
-const FileText_=p=><Ic d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8" {...p}/>;
-const CreditCard_=p=><Ic d="M1 10h22M1 4h22v16H1zM1 4a2 2 0 012-2h18a2 2 0 012 2" {...p}/>;
-const Scale_=p=><Ic d="M12 3v18M1 12h22M5 6l7-3 7 3M4 15l4-9 4 9M16 15l4-9-4-9" {...p}/>;
-const Home_=p=><Ic d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2zM9 22V12h6v10" {...p}/>;
-const Shield_=p=><Ic d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" {...p}/>;
-const PenTool_=p=><Ic d="M12 19l7-7 3 3-7 7zM18 13l-1.5-7.5L2 2l3.5 14.5L13 18zM2 2l7.586 7.586M11 13a2 2 0 100-4 2 2 0 000 4z" {...p}/>;
-const BookOpen_=p=><Ic d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2zM22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" {...p}/>;
-const Landmark_=p=><Ic d="M3 22h18M6 18v-7M10 18v-7M14 18v-7M18 18v-7M12 2L2 8h20z" {...p}/>;
-const DollarSign_=p=><Ic d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" {...p}/>;
-const FileCheck_=p=><Ic d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M9 15l2 2 4-4" {...p}/>;
-const Package_=p=><Ic d="M16.5 9.4l-9-5.19M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16zM3.27 6.96L12 12.01l8.73-5.05M12 22.08V12" {...p}/>;
-const LayoutGrid_=p=><Ic d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z" {...p}/>;
-const FolderOpen_=p=><Ic d="M2 19a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2h-7.93a2 2 0 01-1.66-.9l-.82-1.2A2 2 0 007.93 4H4a2 2 0 00-2 2z" {...p}/>;
-const Settings_=p=><Ic d="M12.22 2h-.44a2 2 0 00-2 2v.18a2 2 0 01-1 1.73l-.43.25a2 2 0 01-2 0l-.15-.08a2 2 0 00-2.73.73l-.22.38a2 2 0 00.73 2.73l.15.1a2 2 0 011 1.72v.51a2 2 0 01-1 1.74l-.15.09a2 2 0 00-.73 2.73l.22.38a2 2 0 002.73.73l.15-.08a2 2 0 012 0l.43.25a2 2 0 011 1.73V20a2 2 0 002 2h.44a2 2 0 002-2v-.18a2 2 0 011-1.73l.43-.25a2 2 0 012 0l.15.08a2 2 0 002.73-.73l.22-.39a2 2 0 00-.73-2.73l-.15-.08a2 2 0 01-1-1.74v-.5a2 2 0 011-1.74l.15-.09a2 2 0 00.73-2.73l-.22-.38a2 2 0 00-2.73-.73l-.15.08a2 2 0 01-2 0l-.43-.25a2 2 0 01-1-1.73V4a2 2 0 00-2-2z" {...p}/>;
-const Users_=p=><Ic d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 3a4 4 0 100 8 4 4 0 000-8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" {...p}/>;
-const Send_=p=><Ic d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" {...p}/>;
-const Trash_=p=><Ic d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" {...p}/>;
-const Edit_=p=><Ic d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z" {...p}/>;
-const Whatsapp_=p=><Ic d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" {...p}/>;
-const AlertTri=p=><Ic d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9v4M12 17h.01" {...p}/>;
-const FileSignature_=p=><Ic d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M9 18l2-2 1 1 2-2 3 3" {...p}/>;
-const Calendar_=p=><Ic d="M19 4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2zM16 2v4M8 2v4M3 10h18" {...p}/>;
-const Camera_=p=><Ic d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2zM12 17a4 4 0 100-8 4 4 0 000 8z" {...p}/>;
-const TrendUp_=p=><Ic d="M23 6l-9.5 9.5-5-5L1 18M17 6h6v6" {...p}/>;
-const Receipt_=p=><Ic d="M21 22V5l-3-3H6L3 5v17l3-2 3 2 3-2 3 2 3-2 3 2zM8 7h8M8 11h8M8 15h6" {...p}/>;
-
-const font = "'Outfit', sans-serif";
-const C = {bg:"#fcfcfc",accent:"#0daf9f",dark:"#191a1a",muted:"rgba(25,26,26,0.7)",gray:"#808080",gl:"#e3e3e3",gbg:"#eaecec",gs:"#f5f5f7",grBg:"#ecfdf5",gr:"#059669",grB:"#a7f3d0",blBg:"#eff6ff",bl:"#2563eb",blB:"#bfdbfe",orBg:"#fff7ed",or:"#ea580c",orB:"#fed7aa",rdBg:"#fef2f2",rd:"#ef4444",rdB:"#fecaca"};
-
-/* ====== SIDEBAR ====== */
-const Sidebar=()=>{
-  const navs=[{t:"Rotina",items:[{ic:Plus_,l:"Nova Operacao"},{ic:FolderOpen_,l:"Operacoes",a:true},{ic:LayoutGrid_,l:"Painel de Produtos"}]},{t:"Gestao",items:[{ic:Users_,l:"Clientes"},{ic:User_,l:"Usuarios",c:true}]},{t:"Administracao Interna",items:[{ic:Settings_,l:"Backoffice",c:true},{ic:Package_,l:"Gestao de Produtos",c:true},{ic:Building_,l:"Empresas"}]}];
-  return(
-    <div style={{width:256,minHeight:"100vh",background:C.bg,display:"flex",flexDirection:"column",fontFamily:font}}>
-      <div style={{padding:"20px 16px 0"}}><div style={{display:"flex",alignItems:"center",gap:8}}><div style={{width:36,height:36,borderRadius:10,background:C.accent,display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{color:"#fff",fontWeight:700,fontSize:16}}>H</span></div><span style={{fontSize:22,fontWeight:700,color:C.dark}}>hubfi</span></div></div>
-      <div style={{padding:"12px 8px 0"}}><div style={{display:"flex",alignItems:"center",gap:8,padding:8}}><div style={{width:36,height:36,borderRadius:8,background:C.dark,display:"flex",alignItems:"center",justifyContent:"center"}}><Package_ size={18} color="#fff"/></div><div style={{flex:1}}><div style={{fontSize:12,color:C.dark}}>Contexto da Empresa</div><div style={{fontSize:14,fontWeight:600,color:C.accent}}>Todas as empresas</div></div><ChevronDown size={16} color={C.gray}/></div></div>
-      <nav style={{flex:1,overflow:"auto",padding:"0 8px"}}>
-        {navs.map(s=><div key={s.t} style={{padding:"8px 0"}}><div style={{padding:"7px 8px",fontSize:12,fontWeight:500,color:C.muted}}>{s.t}</div>{s.items.map(it=>{const I=it.ic;return<div key={it.l} style={{display:"flex",alignItems:"center",gap:8,padding:8,borderRadius:8,background:it.a?C.gbg:"transparent",cursor:"pointer"}}><I size={18} color={C.dark}/><span style={{fontSize:14,color:C.dark,flex:1,fontWeight:it.a?500:400}}>{it.l}</span>{it.c&&<ChevronRight size={16} color={C.gray}/>}</div>;})}</div>)}
-        <div style={{margin:"4px 8px 8px",borderRadius:8,background:"linear-gradient(90deg,#191a1a 20%,#0daf9f)",padding:"20px 16px"}}><div style={{fontSize:14,fontWeight:700,color:"#fff"}}>Portal do</div><div style={{fontSize:14,fontWeight:700,color:"#fff"}}>Personal Finance</div></div>
-      </nav>
-      <div style={{padding:8}}><div style={{display:"flex",alignItems:"center",gap:8,padding:8}}><div style={{width:32,height:32,borderRadius:99,background:C.bg,border:"2px solid "+C.accent,display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{fontSize:14,color:C.dark}}>LA</span></div><div style={{flex:1,minWidth:0}}><div style={{fontSize:14,fontWeight:600,color:C.dark}}>Lucas Augusto</div><div style={{fontSize:12,color:C.dark,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>lucasaugusto@hubfi.com.br</div></div></div></div>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">
+      <span class="mark"><svg viewBox="0 0 30 30"><circle cx="15" cy="15" r="15" fill="#191a1a"/><path d="M11 8v14M11 15c0-2.5 2-4 4-4s4 1.5 4 4v7" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/><circle cx="19" cy="22" r="2.4" fill="#0daf9f"/></svg></span>
+      hub<span class="teal">fi</span>
     </div>
-  );
-};
+    <div class="company">
+      <div class="ava"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4M10 10h4M10 14h4M10 18h4"/></svg></div>
+      <div class="txt"><small>Contexto da Empresa</small><b>Todas as empresas</b></div>
+      <svg class="updown" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m7 15 5 5 5-5M7 9l5-5 5 5"/></svg>
+    </div>
+    <div class="nav-group">
+      <h4>Rotina</h4>
+      <div class="nav-list">
+        <div class="nav-item"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5v14"/></svg></span><span class="lbl">Nova Operação</span></div>
+        <div class="nav-item active"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></span><span class="lbl">Operações</span></div>
+        <div class="nav-item"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m16 6 4 14M12 6v14M8 8v12M4 4v16"/></svg></span><span class="lbl">Painel de Produtos</span></div>
+      </div>
+    </div>
+    <div class="nav-group">
+      <h4>Gestão</h4>
+      <div class="nav-list">
+        <div class="nav-item"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="lbl">Clientes</span></div>
+        <div class="nav-item"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2"/><circle cx="12" cy="10" r="3"/><path d="M7 18a5 5 0 0 1 10 0"/></svg></span><span class="lbl">Usuários</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></div>
+      </div>
+    </div>
+    <div class="nav-group">
+      <h4>Administração Interna</h4>
+      <div class="nav-list">
+        <div class="nav-item"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg></span><span class="lbl">Backoffice</span></div>
+        <div class="nav-item"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4M12 16h4M8 11h.01M8 16h.01"/></svg></span><span class="lbl">Gestão de Produtos</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></div>
+        <div class="nav-item"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4M10 10h4M10 14h4M10 18h4"/></svg></span><span class="lbl">Empresas</span></div>
+      </div>
+    </div>
+  </aside>
 
-/* ====== SHARED ====== */
-const RF=({l,v,accent})=><div style={{flex:"1 1 180px",minWidth:0,background:C.gs,borderRadius:8,padding:"10px 12px",border:"1px solid #efefef"}}><div style={{fontSize:10,color:C.gray,fontWeight:500,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:3}}>{l}</div><div style={{fontSize:13,fontWeight:500,color:accent?C.accent:C.dark,wordBreak:"break-word"}}>{v}</div></div>;
-const FR=({children})=><div style={{display:"flex",gap:10,flexWrap:"wrap"}}>{children}</div>;
-const SL=({children})=><div style={{fontSize:10,fontWeight:600,color:C.dark,textTransform:"uppercase",letterSpacing:"0.08em",padding:"4px 0 2px"}}>{children}</div>;
-const Btn=({children,primary,danger,disabled,onClick,small})=><button onClick={disabled?undefined:onClick} disabled={disabled} style={{padding:small?"6px 12px":"8px 16px",fontSize:small?11:12,fontWeight:600,borderRadius:8,border:primary||danger?"none":"1px solid "+C.gl,background:disabled?"#f0f0f0":primary?C.accent:danger?C.rd:"#fff",color:disabled?"#bbb":primary||danger?"#fff":C.dark,cursor:disabled?"not-allowed":"pointer",display:"flex",alignItems:"center",gap:6,opacity:disabled?0.6:1}}>{children}</button>;
-const DocRow=({name,status,date})=>{const m={ok:{bg:C.grBg,c:C.gr,b:C.grB,l:"Enviado"},pending:{bg:"#fffbeb",c:"#d97706",b:"#fde68a",l:"Em analise"},missing:{bg:"#fef2f2",c:"#ef4444",b:"#fecaca",l:"Pendente"},rejected:{bg:"#fef2f2",c:"#ef4444",b:"#fecaca",l:"Rejeitado"}}[status];return<div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"8px 12px",borderRadius:8,background:"#fff",border:"1px solid #f0f0f2",gap:8,flexWrap:"wrap"}}><div style={{display:"flex",alignItems:"center",gap:8,flex:1,minWidth:0}}><Paperclip_ size={13} color={C.gray}/><div style={{minWidth:0}}><div style={{fontSize:13,fontWeight:500,color:C.dark,wordBreak:"break-word"}}>{name}</div>{date&&<div style={{fontSize:10,color:C.gray}}>{date}</div>}</div></div><span style={{fontSize:10,fontWeight:600,padding:"2px 8px",borderRadius:99,background:m.bg,color:m.c,border:"1px solid "+m.b}}>{m.l}</span></div>;};
-const AlertBox=({color,bg,border,title,desc,icon})=>{const Ico=icon||Info;return<div style={{padding:12,borderRadius:8,background:bg,border:"1px solid "+border,display:"flex",gap:8,alignItems:"flex-start"}}><Ico size={14} color={color} style={{marginTop:1,flexShrink:0}}/><div>{title&&<div style={{fontSize:12,fontWeight:600,color,marginBottom:2}}>{title}</div>}<div style={{fontSize:11,color,lineHeight:"16px"}}>{desc}</div></div></div>;};
-const Tooltip=({children,content})=>{const[show,setShow]=useState(false);return<div style={{position:"relative",display:"inline-flex"}} onMouseEnter={()=>setShow(true)} onMouseLeave={()=>setShow(false)}>{children}{show&&<div style={{position:"absolute",bottom:"calc(100% + 8px)",left:"50%",transform:"translateX(-50%)",background:C.dark,color:"#fff",padding:"8px 12px",borderRadius:8,fontSize:12,whiteSpace:"nowrap",zIndex:100,boxShadow:"0 4px 12px rgba(0,0,0,0.15)"}}><div style={{display:"flex",alignItems:"center",gap:6}}><Phone_ size={12} color="#fff"/>{content}</div><div style={{position:"absolute",top:"100%",left:"50%",marginLeft:-6,width:0,height:0,borderLeft:"6px solid transparent",borderRight:"6px solid transparent",borderTop:"6px solid "+C.dark}}/></div>}</div>;};
-const StageNotes=()=>{const[open,setOpen]=useState(false);const[val,setVal]=useState("");return<div style={{marginTop:12,borderTop:"1px solid #f0f0f2",paddingTop:12}}>{!open?<button onClick={()=>setOpen(true)} style={{display:"flex",alignItems:"center",gap:6,padding:"7px 14px",borderRadius:8,border:"1px solid "+C.gl,background:"#fff",fontSize:12,fontWeight:500,color:C.gray,cursor:"pointer"}}><MsgSq size={13} color={C.gray}/>Adicionar anotacao</button>:<div><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}><div style={{fontSize:11,fontWeight:600,color:C.gray,textTransform:"uppercase",letterSpacing:"0.06em"}}>Anotacoes</div><button onClick={()=>setOpen(false)} style={{fontSize:11,color:C.gray,background:"none",border:"none",cursor:"pointer"}}>Fechar</button></div><div style={{position:"relative"}}><textarea value={val} onChange={e=>setVal(e.target.value)} placeholder="Escreva uma observacao sobre esta etapa..." rows={3} autoFocus style={{width:"100%",padding:"10px 12px",borderRadius:8,border:"1px solid "+C.gl,fontSize:13,fontFamily:font,resize:"vertical",outline:"none",boxSizing:"border-box",background:"#fff"}}/>{val.trim()&&<button style={{position:"absolute",right:8,bottom:12,padding:"4px 12px",borderRadius:6,border:"none",background:C.accent,color:"#fff",fontSize:11,fontWeight:600,cursor:"pointer"}}>Salvar</button>}</div></div>}</div>;};
-
-/* ====== INPUT COMPONENTS (para formulario de cadastro de proposta) ====== */
-const Field=({label,children,hint,required,full})=><div style={{flex:full?"1 1 100%":"1 1 calc(50% - 5px)",minWidth:0,display:"flex",flexDirection:"column",gap:4}}><label style={{fontSize:11,fontWeight:600,color:C.dark,textTransform:"uppercase",letterSpacing:"0.06em"}}>{label}{required&&<span style={{color:C.rd,marginLeft:3}}>*</span>}</label>{children}{hint&&<div style={{fontSize:10,color:C.gray}}>{hint}</div>}</div>;
-const Input=({value,onChange,placeholder,prefix,suffix,type="text"})=><div style={{display:"flex",alignItems:"center",border:"1px solid "+C.gl,borderRadius:8,background:"#fff",overflow:"hidden"}}>{prefix&&<span style={{padding:"0 10px",fontSize:13,color:C.gray,background:"#fafafa",borderRight:"1px solid #f0f0f2",alignSelf:"stretch",display:"flex",alignItems:"center"}}>{prefix}</span>}<input type={type} value={value||""} onChange={e=>onChange&&onChange(e.target.value)} placeholder={placeholder} style={{flex:1,padding:"9px 11px",fontSize:13,border:"none",outline:"none",background:"transparent",minWidth:0,fontFamily:font,color:C.dark}}/>{suffix&&<span style={{padding:"0 10px",fontSize:12,color:C.gray,background:"#fafafa",borderLeft:"1px solid #f0f0f2",alignSelf:"stretch",display:"flex",alignItems:"center"}}>{suffix}</span>}</div>;
-const Select=({value,onChange,options,placeholder})=><select value={value||""} onChange={e=>onChange&&onChange(e.target.value)} style={{padding:"9px 11px",fontSize:13,border:"1px solid "+C.gl,borderRadius:8,outline:"none",background:"#fff",fontFamily:font,color:value?C.dark:C.gray,cursor:"pointer",appearance:"none",backgroundImage:"url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23808080' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>\")",backgroundRepeat:"no-repeat",backgroundPosition:"right 10px center",paddingRight:30}}>{placeholder&&<option value="">{placeholder}</option>}{options.map(o=><option key={o.value} value={o.value}>{o.label}</option>)}</select>;
-const Radio=({value,onChange,options})=><div style={{display:"flex",gap:8,flexWrap:"wrap"}}>{options.map(o=>{const sel=value===o.value;return<button key={o.value} onClick={()=>onChange&&onChange(o.value)} style={{padding:"7px 14px",borderRadius:8,border:"1.5px solid "+(sel?C.accent:C.gl),background:sel?"rgba(13,175,159,0.06)":"#fff",fontSize:12,fontWeight:sel?600:500,color:sel?C.accent:C.dark,cursor:"pointer",display:"flex",alignItems:"center",gap:6,transition:"all .15s"}}>{sel&&<div style={{width:6,height:6,borderRadius:99,background:C.accent}}/>}{o.label}</button>;})}</div>;
-const TextArea=({value,onChange,placeholder,rows=3})=><textarea value={value||""} onChange={e=>onChange&&onChange(e.target.value)} placeholder={placeholder} rows={rows} style={{padding:"9px 11px",fontSize:13,border:"1px solid "+C.gl,borderRadius:8,outline:"none",resize:"vertical",fontFamily:font,color:C.dark,background:"#fff"}}/>;
-
-/* ====== BANCO LOGO ====== */
-const BankLogo=({bank,size=32})=>{const b={CEF:{bg:"#005ca9",l:"CEF"},Itau:{bg:"#ec7000",l:"Itau"},Bradesco:{bg:"#cc092f",l:"Brad"},Santander:{bg:"#ea1d25",l:"Sant"},Inter:{bg:"#ff7a00",l:"Inter"},Nubank:{bg:"#820ad1",l:"Nu"}}[bank]||{bg:"#888",l:"?"};return<div style={{width:size,height:size,borderRadius:8,background:b.bg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:size<=24?8:10,fontWeight:700,color:"#fff",flexShrink:0}}>{b.l}</div>;};
-
-/* ====== MODAL: CADASTRO DE PROPOSTA (rapido) ====== */
-const PropostaModal=({open,onClose,onSave,proposta})=>{
-  const[form,setForm]=useState(proposta||{banco:"",taxa:"",cet:"",prazo:"360",sistema:"SAC",indexador:"fixa",primeira:"",ultima:"",seguro:"",rendaMin:"",compMax:"30",observacoes:""});
-  const set=(k,v)=>setForm(p=>({...p,[k]:v}));
-  if(!open)return null;
-  const valid=form.banco&&form.taxa&&form.cet&&form.prazo&&form.primeira;
-  return<div style={{position:"fixed",inset:0,zIndex:80,display:"flex",alignItems:"center",justifyContent:"center"}}>
-    <div style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.4)"}} onClick={onClose}/>
-    <div style={{position:"relative",background:"#fff",borderRadius:16,boxShadow:"0 8px 32px rgba(0,0,0,0.16)",width:"100%",maxWidth:600,maxHeight:"92vh",overflow:"hidden",margin:16,display:"flex",flexDirection:"column"}}>
-      {/* Header */}
-      <div style={{padding:"14px 22px",borderBottom:"1px solid #f0f0f2",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-        <div style={{display:"flex",alignItems:"center",gap:10}}>
-          {form.banco?<BankLogo bank={form.banco} size={32}/>:<div style={{width:32,height:32,borderRadius:8,background:C.gs,border:"1px dashed "+C.gl,display:"flex",alignItems:"center",justifyContent:"center"}}><FileText_ size={14} color={C.gray}/></div>}
-          <div>
-            <div style={{fontSize:15,fontWeight:600,color:C.dark}}>{proposta?"Editar proposta":"Cadastrar proposta"}</div>
-            <div style={{fontSize:11,color:C.gray}}>OP-000001 - Maria Silva Santos</div>
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div class="breadcrumb">
+        <svg class="collapse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="m16 15-3-3 3-3"/></svg>
+        <span class="sep"></span>
+        <span>Operações</span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+        <span>Detalhes da operação</span>
+      </div>
+      <div class="viewtabs"><button class="vtab active" id="tabOper" onclick="switchView('operador')">Visão operador</button><button class="vtab" id="tabSolic" onclick="switchView('solicitante')">Visão solicitante</button></div>
+      <div class="op-header">
+        <div class="op-info">
+          <div class="op-id"><span>OP-000000</span><svg class="copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></div>
+          <div class="op-title"><h1>Nome Cliente</h1><span class="vdiv"></span><span class="creator">{{nome_criador_op}}</span></div>
+          <div class="op-chips">
+            <div class="chip product"><span class="cbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/></svg></span><span>Financiamento Imobiliário - Aquisição</span></div>
+            <span class="vdiv"></span>
+            <div class="chip value"><span class="cbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/></svg></span><span>R$ 490.000,00</span></div>
+            <span class="vdiv"></span>
+            <div class="chip advisor"><span class="avatar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#52525b" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span><span>Victor Tavares</span><svg class="msg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7A8.38 8.38 0 0 1 4 11.5 8.5 8.5 0 0 1 21 11.5z"/></svg></div>
+            <span class="vdiv"></span>
+            <div class="chip team"><span class="markmini"><svg viewBox="0 0 30 30"><circle cx="15" cy="15" r="15" fill="#191a1a"/><path d="M11 8v14M11 15c0-2.5 2-4 4-4s4 1.5 4 4v7" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/><circle cx="19" cy="22" r="2.4" fill="#0daf9f"/></svg></span><span>Time Hubfi</span></div>
           </div>
         </div>
-        <button onClick={onClose} style={{width:30,height:30,borderRadius:8,border:"none",background:"#f5f5f5",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><X_ size={14} color={C.gray}/></button>
+        <button class="btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3"/><path d="M12 11h4M12 16h4M8 11h.01M8 16h.01"/></svg> Ver informações</button>
       </div>
+      <div class="stepper">
+        <div class="step done"><div class="track"><div class="seg blank"></div><div class="node"></div><div class="seg on"></div></div><div class="slbl">Coleta de
+dados</div></div>
+        <div class="step current"><div class="track"><div class="seg on"></div><div class="node"></div><div class="seg"></div></div><div class="slbl">Análise de
+Crédito</div></div>
+        <div class="step"><div class="track"><div class="seg"></div><div class="node"></div><div class="seg"></div></div><div class="slbl">Escolha da
+Instituição</div></div>
+        <div class="step"><div class="track"><div class="seg"></div><div class="node"></div><div class="seg"></div></div><div class="slbl">Documentação
+das Partes</div></div>
+        <div class="step"><div class="track"><div class="seg"></div><div class="node"></div><div class="seg"></div></div><div class="slbl">Avaliação do
+Imóvel</div></div>
+        <div class="step"><div class="track"><div class="seg"></div><div class="node"></div><div class="seg"></div></div><div class="slbl">Análise
+Jurídica</div></div>
+        <div class="step"><div class="track"><div class="seg"></div><div class="node"></div><div class="seg"></div></div><div class="slbl">Elaboração
+Contrato</div></div>
+        <div class="step"><div class="track"><div class="seg"></div><div class="node"></div><div class="seg"></div></div><div class="slbl">Assinatura
+Contrato</div></div>
+        <div class="step"><div class="track"><div class="seg"></div><div class="node"></div><div class="seg"></div></div><div class="slbl">Registro
+Cartório</div></div>
+        <div class="step"><div class="track"><div class="seg"></div><div class="node"></div><div class="seg blank"></div></div><div class="slbl">Liberação
+Recurso</div></div>
+      </div>
+    </div>
 
-      {/* Body */}
-      <div style={{flex:1,overflowY:"auto",padding:"16px 22px",display:"flex",flexDirection:"column",gap:14}}>
-        {/* Linha 1: banco + PDF */}
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-          <Field label="Instituicao" required>
-            <Select value={form.banco} onChange={v=>set("banco",v)} placeholder="Selecione" options={[{value:"CEF",label:"Caixa Economica Federal"},{value:"Itau",label:"Itau Unibanco"},{value:"Bradesco",label:"Bradesco"},{value:"Santander",label:"Santander"},{value:"Inter",label:"Banco Inter"}]}/>
-          </Field>
-          <Field label="PDF da proposta" required>
-            <div style={{border:"1px dashed "+C.gl,borderRadius:8,padding:"7px 11px",background:"#fafbfc",display:"flex",alignItems:"center",gap:8,cursor:"pointer",height:38}} onMouseOver={e=>{e.currentTarget.style.borderColor=C.accent;}} onMouseOut={e=>{e.currentTarget.style.borderColor=C.gl;}}>
-              <Upload_ size={14} color={C.accent}/>
-              <span style={{fontSize:12.5,color:C.dark,flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>Anexar PDF do banco</span>
+    <div class="content">
+      <div class="cards-col">
+        <div class="hero">
+          <div class="card-obs">
+            <div class="obox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+            <div class="oc"><b>Observações da operação</b><p>Cliente solteiro, trabalha CLT há 3 anos como motorista na D...</p></div>
+          </div>
+          <div class="card-temp">
+            <div class="tinfo">
+              <div class="trow a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3"/></svg> Formulário preenchido</div>
+              <div class="trow b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg> Imóvel escolhido</div>
             </div>
-          </Field>
+            <div class="gauge"><span>Média</span></div>
+            <button class="btn icon" style="width:43px"><svg viewBox="0 0 24 24" fill="none" stroke="#808080" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+          </div>
         </div>
 
-        {/* Separador: visivel a cliente */}
-        <div style={{display:"flex",alignItems:"center",gap:8,marginTop:4,padding:"6px 10px",borderRadius:8,background:"rgba(13,175,159,0.06)",border:"1px solid rgba(13,175,159,0.18)"}}>
-          <Eye_ size={13} color={C.accent}/>
-          <span style={{fontSize:11,fontWeight:600,color:C.accent,textTransform:"uppercase",letterSpacing:"0.06em"}}>Informacoes que sua cliente vai ver</span>
-        </div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>
-          <Field label="Taxa juros (a.a.)" required><Input value={form.taxa} onChange={v=>set("taxa",v)} placeholder="9,49" suffix="%"/></Field>
-          <Field label="CET (a.a.)" required><Input value={form.cet} onChange={v=>set("cet",v)} placeholder="10,82" suffix="%"/></Field>
-          <Field label="Prazo" required><Input value={form.prazo} onChange={v=>set("prazo",v)} placeholder="360" suffix="m"/></Field>
-          <Field label="Primeira parcela" required><Input value={form.primeira} onChange={v=>set("primeira",v)} placeholder="3.245" prefix="R$"/></Field>
-          <Field label="Sistema">
-            <Select value={form.sistema} onChange={v=>set("sistema",v)} options={[{value:"SAC",label:"SAC"},{value:"Price",label:"Price"}]}/>
-          </Field>
-          <Field label="Tipo de taxa">
-            <Select value={form.indexador} onChange={v=>set("indexador",v)} options={[{value:"fixa",label:"Fixa"},{value:"tr",label:"TR + juros"},{value:"poupanca",label:"Poupanca + juros"},{value:"ipca",label:"IPCA + juros"}]}/>
-          </Field>
+        <div class="sec-bar">
+          <div class="iconbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/></svg></div>
+          <div class="stitle"><b id="secTitle">Análise de crédito</b><small>Etapa iniciada em 21/05/2026 | 11:30</small></div>
+          <div class="right"><span class="st warning">Pendente<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></span><button class="btn icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></button></div>
         </div>
 
-        {/* Separador: uso interno */}
-        <div style={{display:"flex",alignItems:"center",gap:8,marginTop:4,padding:"6px 10px",borderRadius:8,background:"#f5f5f7",border:"1px solid #ececef"}}>
-          <Shield_ size={13} color={C.gray}/>
-          <span style={{fontSize:11,fontWeight:600,color:C.gray,textTransform:"uppercase",letterSpacing:"0.06em"}}>Uso interno - nao vai pra cliente</span>
+        <div class="slot">
+          <div class="alert" id="alertPend">
+            <svg class="ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            <div><b>Resultado pendente</b><p>Todas as análises de crédito precisam ter resultado registrado antes de avançar de etapa.</p></div>
+          </div>
+
+          <div class="banks" id="banksList"></div>
+
+          <div class="slot-actions">
+            <button class="btn-add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5v14"/></svg> Adicionar instituição</button>
+            <button class="btn advancar" id="btnAvancar" onclick="avancarEtapa()">Avançar etapa <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></button>
+          </div>
         </div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:10}}>
-          <Field label="Ultima parcela"><Input value={form.ultima} onChange={v=>set("ultima",v)} placeholder="1.120" prefix="R$"/></Field>
-          <Field label="Seguro mensal"><Input value={form.seguro} onChange={v=>set("seguro",v)} placeholder="180" prefix="R$"/></Field>
-          <Field label="Renda minima"><Input value={form.rendaMin} onChange={v=>set("rendaMin",v)} placeholder="10.800" prefix="R$"/></Field>
-          <Field label="Comp. max"><Input value={form.compMax} onChange={v=>set("compMax",v)} placeholder="30" suffix="%"/></Field>
-        </div>
-        <Field label="Observacoes (opcional)" full>
-          <TextArea value={form.observacoes} onChange={v=>set("observacoes",v)} placeholder="Ex: gerente Carla pediu confirmacao por email ate 18h." rows={2}/>
-        </Field>
-      </div>
-
-      {/* Footer */}
-      <div style={{padding:"12px 22px",borderTop:"1px solid #f0f0f2",background:"#fafafa",display:"flex",justifyContent:"flex-end",gap:8}}>
-        <Btn onClick={onClose}>Cancelar</Btn>
-        <Btn primary disabled={!valid} onClick={()=>{onSave&&onSave(form);onClose();}}>{proposta?"Salvar alteracoes":"Salvar proposta"}</Btn>
-      </div>
-    </div>
-  </div>;
-};
-
-/* ====== MODALS DE INFO ====== */
-const DetailModal=({open,onClose})=>{if(!open)return null;return<div style={{position:"fixed",inset:0,zIndex:60,display:"flex",alignItems:"center",justifyContent:"center"}}><div style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.4)"}} onClick={onClose}/><div style={{position:"relative",background:"#fff",borderRadius:16,boxShadow:"0 8px 32px rgba(0,0,0,0.16)",width:"100%",maxWidth:720,maxHeight:"85vh",overflow:"hidden",margin:16}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"16px 24px",borderBottom:"1px solid #f0f0f2"}}><div><div style={{fontSize:18,fontWeight:600,color:C.dark}}>Dados completos da operacao</div><div style={{fontSize:13,color:C.gray}}>Informacoes coletadas</div></div><button onClick={onClose} style={{width:32,height:32,borderRadius:8,border:"none",background:"#f5f5f5",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><X_ size={16} color={C.gray}/></button></div><div style={{overflowY:"auto",padding:24,maxHeight:"calc(85vh - 120px)",display:"flex",flexDirection:"column",gap:14}}><SL>Dados Pessoais</SL><FR><RF l="Nome" v="Maria Silva Santos"/><RF l="CPF" v="123.456.789-00"/></FR><FR><RF l="Nascimento" v="15/03/1988"/><RF l="Estado civil" v="Casada"/></FR><div style={{height:1,background:"#f0f0f2"}}/><SL>Contato</SL><FR><RF l="Telefone" v="(62) 99876-5432"/><RF l="E-mail" v="maria.santos@email.com"/></FR><FR><RF l="WhatsApp" v="(62) 99876-5432" accent/><RF l="Tel. secundario" v="(62) 3333-4444"/></FR><div style={{height:1,background:"#f0f0f2"}}/><SL>Financeiro</SL><FR><RF l="Renda bruta" v="R$ 12.500" accent/><RF l="Renda liquida" v="R$ 9.800"/></FR><FR><RF l="FGTS" v="R$ 45.000" accent/><RF l="Restricoes" v="Nenhuma"/></FR><div style={{height:1,background:"#f0f0f2"}}/><SL>Imovel</SL><FR><RF l="Valor" v="R$ 490.000" accent/><RF l="Entrada" v="R$ 147.000 (30%)"/></FR><RF l="Localizacao" v="Rua das Flores, 120 - Setor Bueno, Goiania/GO"/></div><div style={{display:"flex",justifyContent:"flex-end",gap:8,padding:"14px 24px",borderTop:"1px solid #f0f0f2",background:"#fafafa"}}><button onClick={onClose} style={{padding:"8px 16px",borderRadius:8,border:"none",background:"transparent",fontSize:13,fontWeight:500,color:C.gray,cursor:"pointer"}}>Fechar</button><Btn primary>Editar dados</Btn></div></div></div>;};
-const InfoModal=({open,onClose})=>{if(!open)return null;return<div style={{position:"fixed",inset:0,zIndex:50,display:"flex",alignItems:"center",justifyContent:"center"}}><div style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.4)"}} onClick={onClose}/><div style={{position:"relative",background:"#fff",borderRadius:16,boxShadow:"0 8px 32px rgba(0,0,0,0.16)",width:"100%",maxWidth:620,maxHeight:"85vh",overflow:"hidden",margin:16}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"16px 24px",borderBottom:"1px solid #f0f0f2"}}><div><div style={{fontSize:18,fontWeight:600,color:C.dark}}>Informacoes da Operacao</div><div style={{fontSize:13,color:C.gray}}>OP-000001</div></div><button onClick={onClose} style={{width:32,height:32,borderRadius:8,border:"none",background:"#f5f5f5",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><X_ size={16} color={C.gray}/></button></div><div style={{overflowY:"auto",padding:24,maxHeight:"calc(85vh - 120px)",display:"flex",flexDirection:"column",gap:14}}><SL>Resumo</SL><FR><RF l="Produto" v="Financ. Imobiliario - Aquisicao"/><RF l="Valor" v="R$ 490.000" accent/></FR><FR><RF l="Status" v="Cadastrando propostas"/><RF l="SLA" v="2 dias"/></FR></div><div style={{display:"flex",justifyContent:"flex-end",gap:8,padding:"14px 24px",borderTop:"1px solid #f0f0f2",background:"#fafafa"}}><button onClick={onClose} style={{padding:"8px 16px",borderRadius:8,border:"none",background:"transparent",fontSize:13,fontWeight:500,color:C.gray,cursor:"pointer"}}>Fechar</button><Btn primary>Editar</Btn></div></div></div>;};
-
-/* ====== STAGES ====== */
-
-/* S1 - Coleta de dados */
-const S1=({onDetail})=><div style={{display:"flex",flexDirection:"column",gap:10}}><FR><RF l="Nome" v="Maria Silva Santos"/><RF l="CPF" v="123.456.789-00"/></FR><FR><RF l="Renda" v="R$ 12.500"/><RF l="Valor imovel" v="R$ 490.000" accent/></FR><FR><RF l="Entrada" v="R$ 147.000 (30%)"/><RF l="FGTS" v="Sim - R$ 45.000" accent/></FR><button onClick={onDetail} style={{display:"flex",alignItems:"center",gap:6,padding:"8px 14px",borderRadius:8,border:"1px solid "+C.gl,background:"#fff",fontSize:12,fontWeight:500,color:C.accent,cursor:"pointer",width:"fit-content",marginTop:4}}><Eye_ size={14} color={C.accent}/>Ver todos os dados</button><StageNotes/></div>;
-
-/* S2 - Analise de credito */
-const S2=()=><div style={{display:"flex",flexDirection:"column",gap:10}}><FR><RF l="Score" v="782 - Bom" accent/><RF l="Comprometimento" v="28,5%"/></FR><FR><RF l="Capacidade pgto" v="R$ 3.562/mes"/><RF l="Parcela teorica" v="R$ 2.890/mes" accent/></FR><FR><RF l="Restricoes" v="Nenhuma" accent/><RF l="Idade + prazo" v="68 anos - OK"/></FR><AlertBox bg={C.grBg} border={C.grB} color={C.gr} icon={CheckCircle2} title="Credito pre-aprovado" desc="Perfil aprovado para enviar a 5 bancos parceiros. Aguardando propostas formais."/><StageNotes/></div>;
-
-/* S3 - CADASTRO DE PROPOSTAS */
-const S3=()=>{
-  const[propostas,setPropostas]=useState([
-    {id:1,banco:"Itau",financiado:"343000",prazo:"360",sistema:"SAC",indexador:"fixa",taxa:"9,49",cet:"10,82",primeira:"3245",ultima:"1120",seguro:"180",rendaMin:"10800",compMax:"30",pros:["Esteira fast - aprovacao em 3 dias","Aceita FGTS na entrada","Sem necessidade de conta no banco"],cons:["Renda comprometida proxima do limite"]},
-    {id:2,banco:"CEF",financiado:"343000",prazo:"360",sistema:"SAC",indexador:"tr",taxa:"8,99",cet:"10,12",primeira:"3180",ultima:"1050",seguro:"165",rendaMin:"10600",compMax:"30",pros:["Menor taxa entre os 5 bancos","Aceita FGTS na entrada","Programa Casa Verde Amarela disponivel"],cons:["Exige abertura de conta CEF"]},
-    {id:3,banco:"Bradesco",financiado:"343000",prazo:"360",sistema:"SAC",indexador:"fixa",taxa:"9,99",cet:"11,15",primeira:"3380",ultima:"1180",seguro:"195",rendaMin:"11200",compMax:"25",pros:["Possibilidade de portabilidade futura","Atendimento gerente dedicado"],cons:["Exige relacionamento previo - 6 meses","Comprometimento maximo mais restrito (25%)"]},
-    {id:4,banco:"Santander",financiado:"343000",prazo:"300",sistema:"SAC",indexador:"fixa",taxa:"10,20",cet:"11,45",primeira:"3410",ultima:"1200",seguro:"210",rendaMin:"11500",compMax:"30",pros:["Prazo menor reduz juros totais","Renegociacao flexivel apos 12 meses"],cons:["Primeira parcela mais alta do grupo"]},
-    
-  ]);
-  const[modal,setModal]=useState(false);
-  const[editing,setEditing]=useState(null);
-  const[envioStatus,setEnvioStatus]=useState("pending"); // pending | sent
-  const[envioModal,setEnvioModal]=useState(false);
-
-  const banks=["CEF","Itau","Bradesco","Santander","Inter"];
-  const banksJaCad=propostas.map(p=>p.banco);
-  const faltam=banks.filter(b=>!banksJaCad.includes(b));
-  const bankName=b=>({CEF:"Caixa Economica Federal",Itau:"Itau Unibanco",Bradesco:"Bradesco",Santander:"Santander",Inter:"Banco Inter"})[b];
-  const indexadorLabel=i=>({fixa:"Fixa",tr:"TR + juros",poupanca:"Poupanca + juros",ipca:"IPCA + juros"})[i]||"-";
-  const fmtBRL=v=>v?`R$ ${parseInt(String(v).replace(/\D/g,"")).toLocaleString("pt-BR")}`:"-";
-
-  return<div style={{display:"flex",flexDirection:"column",gap:12}}>
-    {/* Header explicativo */}
-    <div style={{padding:"14px 16px",borderRadius:10,background:"rgba(13,175,159,0.05)",border:"1px solid rgba(13,175,159,0.2)",display:"flex",alignItems:"flex-start",gap:10}}>
-      <div style={{width:32,height:32,borderRadius:8,background:"#fff",border:"1px solid "+C.grB,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><FileText_ size={15} color={C.accent}/></div>
-      <div style={{flex:1}}>
-        <div style={{fontSize:13,fontWeight:600,color:C.dark}}>Cadastro de propostas recebidas dos bancos</div>
-        <div style={{fontSize:12,color:C.muted,lineHeight:"18px",marginTop:2}}>Anexe o PDF e preencha os dados estruturados de cada proposta recebida. Quando todas as propostas estiverem cadastradas, envie o resumo a cliente — ela escolhe na proxima etapa.</div>
       </div>
     </div>
 
-    
-    {/* Header de lista */}
-    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:4}}>
-      <SL>Propostas cadastradas ({propostas.length})</SL>
-      <Btn small onClick={()=>{setEditing(null);setModal(true);}}><Plus_ size={12} color={C.dark}/>Nova proposta</Btn>
+    <!-- FOOTER FIXO: composer de comentário -->
+    <div class="footer">
+      <div class="composer">
+        <svg class="micon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h6"/></svg>
+        <input id="commentInput" type="text" placeholder="Escreva um comentário..." oninput="onCommentInput()">
+        <button class="vis" id="visBtn" type="button" onclick="toggleVis()" title="Público">
+          <span id="visIcon"></span>
+          <svg class="cd" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <button class="send" id="sendBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></button>
+      </div>
     </div>
+  </main>
+</div>
 
-    {/* Lista horizontal de propostas — lado a lado para comparacao visual */}
-    <div style={{display:"flex",flexDirection:"row",gap:10,overflowX:"auto",paddingBottom:6,marginLeft:-2,marginRight:-2,paddingLeft:2,paddingRight:2}}>
-      {propostas.map(p=><div key={p.id} style={{background:"#fff",border:"1px solid #f0f0f2",borderRadius:12,overflow:"hidden",minWidth:280,maxWidth:280,flexShrink:0,display:"flex",flexDirection:"column"}}>
-        {/* Header do card */}
-        <div style={{padding:"12px 14px",borderBottom:"1px solid #f6f6f7"}}>
-          <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:8}}>
-            <BankLogo bank={p.banco} size={32}/>
-            <div style={{flex:1,minWidth:0}}>
-              <div style={{fontSize:13,fontWeight:600,color:C.dark,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{bankName(p.banco)}</div>
+  <!-- confirmação: avançar / enviar propostas -->
+  <div class="modal-overlay" id="confirmAvancar">
+    <div class="confirm">
+      <h3>Enviar propostas para cliente</h3>
+      <p>Ao confirmar, o cliente vai receber um link via WhatsApp com as propostas para escolher com qual deseja seguir.</p>
+      <div class="cf-actions">
+        <button class="btn" onclick="closeConfirm('confirmAvancar')">Cancelar</button>
+        <button class="btn advancar" onclick="doAvancar()">Sim, enviar</button>
+      </div>
+    </div>
+  </div>
+  <!-- confirmação: escolher proposta -->
+  <div class="modal-overlay" id="confirmEscolha">
+    <div class="confirm">
+      <h3>Confirmar instituição</h3>
+      <p>Ao confirmar, você seleciona este banco para seguir com a operação. Essa escolha não poderá ser alterada depois.</p>
+      <div class="cf-fields" id="cfBank"></div>
+      <div class="cf-actions">
+        <button class="btn" onclick="closeConfirm('confirmEscolha')">Cancelar</button>
+        <button class="btn advancar" onclick="doEscolher()">Sim, confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Cadastrar nova proposta (drawer) -->
+  <div class="modal-overlay" id="propostaModal">
+    <div class="drawer" role="dialog" aria-label="Cadastrar nova proposta">
+      <div class="drawer-head">
+        <div class="dh-txt"><b>Cadastrar nova proposta</b><span>Anexe o PDF e preencha os dados da proposta recebida do banco</span></div>
+        <button class="dh-close" onclick="closeProposta()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+      </div>
+      <div class="drawer-divider"></div>
+      <div class="drawer-body">
+        <div class="radio-row">
+          <label class="radio on"><input type="radio" name="modo" value="realizada" checked onchange="toggleFormMode()"><span class="dot"></span> Proposta Realizada</label>
+          <label class="radio"><input type="radio" name="modo" value="nao_teve" onchange="toggleFormMode()"><span class="dot"></span> Não teve proposta</label>
+          <label class="radio"><input type="radio" name="modo" value="recusado" onchange="toggleFormMode()"><span class="dot"></span> Cliente recusado</label>
+        </div>
+
+        <div id="formFull">
+          <div class="field">
+            <label class="flbl">Documento da proposta</label>
+            <div class="dropzone" id="dropzone" onclick="toggleUpload()">
+              <div class="dz-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5M12 3v12"/></svg></div>
+              <div class="dz-txt"><b>Clique para enviar o documento</b><span>PDF, PNG ou JPG (máx. 10MB)</span></div>
+            </div>
+            <div class="uploaded" id="uploaded" style="display:none">
+              <div class="up-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></div>
+              <div class="up-txt"><b>proposta-itau.pdf</b><span>240 KB · enviado</span></div>
+              <span class="up-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></span>
+              <button class="up-x" onclick="event.stopPropagation();toggleUpload()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
             </div>
           </div>
-          <div style={{display:"flex",alignItems:"center",gap:6}}>
-            <div style={{flex:1,minWidth:0,display:"flex",alignItems:"center",gap:5,padding:"4px 8px",borderRadius:6,background:C.gs,border:"1px solid #efefef"}}>
-              <Paperclip_ size={10} color={C.gray}/>
-              <span style={{fontSize:10,color:C.gray,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>proposta-{p.banco.toLowerCase()}.pdf</span>
-            </div>
-            <button title="Visualizar PDF" style={{width:26,height:26,borderRadius:6,border:"1px solid #f0f0f2",background:"#fff",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><Eye_ size={12} color={C.gray}/></button>
-            <button title="Editar" onClick={()=>{setEditing(p);setModal(true);}} style={{width:26,height:26,borderRadius:6,border:"1px solid #f0f0f2",background:"#fff",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><Edit_ size={12} color={C.gray}/></button>
-            <button title="Excluir" onClick={()=>setPropostas(prev=>prev.filter(x=>x.id!==p.id))} style={{width:26,height:26,borderRadius:6,border:"1px solid #f0f0f2",background:"#fff",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><Trash_ size={12} color="#bbb"/></button>
+
+          <div class="field">
+            <label class="flbl">Resultado da análise</label>
+            <select class="fld-select" id="fldResultado" onchange="toggleCond()">
+              <option value="aprovada">Aprovada</option>
+              <option value="aprovada_menor">Aprovada a menor</option>
+              <option value="condicionante">Aprovada com condicionante</option>
+            </select>
+            <small class="help">Selecione conforme a carta de aprovação enviada pelo banco.</small>
+          </div>
+
+          <div id="condWrap" style="display:none"><div class="field"><label class="flbl">Condicionante (preencher se aprovada com condicionante)</label><input class="fld" id="fldCondicionante" placeholder="Descreva a exigência do banco"></div></div>
+
+          <div class="sec-label">Dados da proposta</div>
+          <div class="grid2">
+            <div class="field"><label class="flbl">Taxa de juros</label><input class="fld" id="fldTaxa" value="11,29% a.a."></div><div class="field"><label class="flbl">CET anual</label><input class="fld" id="fldCet" value="12,41% a.a."></div><div class="field"><label class="flbl">Prazo</label><input class="fld" id="fldPrazo" value="360 meses"></div><div class="field"><label class="flbl">1ª parcela</label><input class="fld" id="fldParcela" value="R$ 3.180"></div>
+            <div class="field"><label class="flbl">Sistema</label><select class="fld-select" id="fldSistema"><option>SAC</option><option>PRICE</option></select></div>
+            <div class="field"><label class="flbl">Tipo de taxa</label><select class="fld-select" id="fldTipo"><option>Fixa</option><option>IPCA</option></select></div>
+          </div>
+
+          <div class="sec-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61M2 2l20 20"/></svg> USO INTERNO (não enviado ao cliente)</div>
+          <div class="grid2">
+            <div class="field"><label class="flbl">Valor financiado</label><input class="fld" id="fldFinanciado" value="R$ 350.000"></div><div class="field"><label class="flbl">Última parcela</label><input class="fld" id="fldUltima" value="R$ 2.450"></div><div class="field"><label class="flbl">Seguro mensal</label><input class="fld" id="fldSeguro" value="R$ 89"></div><div class="field"><label class="flbl">Renda mínima</label><input class="fld" id="fldRenda" value="R$ 9.800"></div><div class="field"><label class="flbl">Comprometimento máx</label><input class="fld" id="fldComp" value="28%"></div>
           </div>
         </div>
 
-        {/* Conteudo VERTICAL: linhas empilhadas, label esquerda + valor direita */}
-        <div style={{padding:"4px 16px 12px"}}>
-          {/* Header de secao: visivel a cliente */}
-          <div style={{display:"flex",alignItems:"center",gap:6,padding:"10px 0 6px"}}>
-            <Eye_ size={11} color={C.accent}/>
-            <span style={{fontSize:10,fontWeight:600,color:C.accent,textTransform:"uppercase",letterSpacing:"0.06em"}}>Visivel a cliente</span>
-          </div>
-          {[
-            ["Taxa de juros",p.taxa+"% a.a."],
-            ["CET",p.cet+"% a.a."],
-            ["Prazo",p.prazo+" meses"],
-            ["Sistema",p.sistema],
-            ["Tipo de taxa",indexadorLabel(p.indexador)],
-            ["Primeira parcela","R$ "+parseInt(p.primeira).toLocaleString("pt-BR"),true],
-          ].map(([l,v,ac])=><div key={l} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"7px 0",borderBottom:"1px solid #f5f5f7",gap:12}}>
-            <span style={{fontSize:12,color:C.muted}}>{l}</span>
-            <span style={{fontSize:13,fontWeight:500,color:ac?C.accent:C.dark,textAlign:"right"}}>{v}</span>
-          </div>)}
-
-          {/* Header de secao: uso interno */}
-          <div style={{display:"flex",alignItems:"center",gap:6,padding:"14px 0 6px"}}>
-            <Shield_ size={11} color={C.gray}/>
-            <span style={{fontSize:10,fontWeight:600,color:C.gray,textTransform:"uppercase",letterSpacing:"0.06em"}}>Uso interno</span>
-          </div>
-          {[
-            ["Valor financiado",fmtBRL(p.financiado)],
-            ["Ultima parcela","R$ "+parseInt(p.ultima).toLocaleString("pt-BR")],
-            ["Seguro mensal","R$ "+parseInt(p.seguro).toLocaleString("pt-BR")],
-            ["Renda minima","R$ "+parseInt(p.rendaMin).toLocaleString("pt-BR")],
-            ["Compromet. max",p.compMax+"%"],
-          ].map(([l,v])=><div key={l} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"7px 0",borderBottom:"1px solid #f5f5f7",gap:12}}>
-            <span style={{fontSize:12,color:C.muted}}>{l}</span>
-            <span style={{fontSize:13,fontWeight:500,color:C.dark,textAlign:"right"}}>{v}</span>
-          </div>)}
-        </div>
-      </div>)}
-
-      {/* Bancos faltantes */}
-      {faltam.length>0&&<div style={{padding:"12px 14px",borderRadius:10,background:"#fafbfc",border:"1px dashed #e3e4e6"}}>
-        <div style={{fontSize:11,fontWeight:600,color:C.gray,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:8}}>Aguardando proposta de</div>
-        <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-          {faltam.map(b=><div key={b} style={{display:"flex",alignItems:"center",gap:6,padding:"5px 10px 5px 5px",borderRadius:99,background:"#fff",border:"1px solid #f0f0f2"}}><BankLogo bank={b} size={22}/><span style={{fontSize:11,fontWeight:500,color:C.gray}}>{bankName(b)}</span></div>)}
-        </div>
-      </div>}
-    </div>
-
-    {/* Acao final: enviar resumo a cliente */}
-    {envioStatus==="pending"?<div style={{padding:"14px 16px",borderRadius:10,background:"linear-gradient(90deg,rgba(13,175,159,0.08),rgba(13,175,159,0.02))",border:"1px solid rgba(13,175,159,0.18)",display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,flexWrap:"wrap"}}>
-      <div style={{display:"flex",alignItems:"center",gap:10}}>
-        <Whatsapp_ size={18} color={C.accent}/>
-        <div>
-          <div style={{fontSize:13,fontWeight:600,color:C.dark}}>Enviar resumo das {propostas.length} propostas a cliente</div>
-          <div style={{fontSize:11,color:C.muted}}>Ela vai receber um link via WhatsApp com as propostas resumidas pra escolher</div>
+        <div id="formMotivo" style="display:none">
+          <div class="field"><label class="flbl" id="motivoLabel">Informe o motivo</label><textarea class="fld-area" id="fldMotivo" placeholder="Descreva o que aconteceu..."></textarea></div>
         </div>
       </div>
-      <Btn primary onClick={()=>setEnvioModal(true)} disabled={propostas.length<2}><Send_ size={12} color="#fff"/>Enviar resumo a cliente</Btn>
-    </div>:<AlertBox color={C.gr} bg={C.grBg} border={C.grB} icon={CheckCircle2} title="Resumo enviado a cliente" desc={"Link de escolha enviado via WhatsApp em "+new Date().toLocaleDateString("pt-BR")+". Aguardando decisao na proxima etapa."}/>}
-
-    <PropostaModal open={modal} onClose={()=>setModal(false)} proposta={editing} onSave={data=>{if(editing){setPropostas(prev=>prev.map(p=>p.id===editing.id?{...p,...data}:p));}else{setPropostas(prev=>[...prev,{id:Date.now(),...data}]);}}}/>
-
-    <EnvioModal open={envioModal} onClose={()=>setEnvioModal(false)} propostas={propostas} onConfirm={()=>{setEnvioStatus("sent");setEnvioModal(false);}}/>
-
-    <StageNotes/>
-  </div>;
-};
-
-/* MODAL: confirmacao de envio do resumo a cliente */
-const EnvioModal=({open,onClose,onConfirm,propostas})=>{
-  if(!open)return null;
-  const bankName=b=>({CEF:"Caixa Economica Federal",Itau:"Itau Unibanco",Bradesco:"Bradesco",Santander:"Santander",Inter:"Banco Inter"})[b];
-  return<div style={{position:"fixed",inset:0,zIndex:80,display:"flex",alignItems:"center",justifyContent:"center"}}>
-    <div style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.4)"}} onClick={onClose}/>
-    <div style={{position:"relative",background:"#fff",borderRadius:16,boxShadow:"0 8px 32px rgba(0,0,0,0.16)",width:"100%",maxWidth:560,maxHeight:"90vh",overflow:"hidden",margin:16,display:"flex",flexDirection:"column"}}>
-      <div style={{padding:"16px 24px",borderBottom:"1px solid #f0f0f2",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-        <div style={{display:"flex",alignItems:"center",gap:10}}><Whatsapp_ size={18} color={C.accent}/><div><div style={{fontSize:16,fontWeight:600,color:C.dark}}>Enviar resumo a cliente</div><div style={{fontSize:12,color:C.gray}}>Maria Silva Santos - (62) 99876-5432</div></div></div>
-        <button onClick={onClose} style={{width:32,height:32,borderRadius:8,border:"none",background:"#f5f5f5",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><X_ size={16} color={C.gray}/></button>
-      </div>
-      <div style={{flex:1,overflowY:"auto",padding:24,display:"flex",flexDirection:"column",gap:14}}>
-        <AlertBox color={C.bl} bg={C.blBg} border={C.blB} title="Pre-visualizacao da mensagem" desc="Esta e a mensagem que sera enviada via WhatsApp. Cliente recebe um link unico com todas as propostas pra escolher."/>
-        <div style={{background:"#efeae2",borderRadius:12,padding:14}}>
-          <div style={{background:"#fff",borderRadius:8,padding:"10px 14px",fontSize:13,lineHeight:1.55,color:"#111b21"}}>
-            <div style={{fontWeight:600,marginBottom:4}}>Oi Maria! 👋</div>
-            <div>Aqui e a <b>Hubfi</b>, sua plataforma de intermediacao de credito imobiliario - a gente cuidou de comparar bancos pra voce.</div>
-            <div style={{marginTop:6}}>Boa noticia: ja temos <b>{propostas.length} propostas aprovadas</b> pro seu financiamento. 🎉</div>
-            <div style={{marginTop:6}}>Toque no link abaixo pra comparar e escolher a melhor pra voce:</div>
-            <div style={{marginTop:8,padding:"8px 10px",borderRadius:6,background:"#f0f4f7",fontSize:12.5,color:C.bl,wordBreak:"break-all"}}>https://hubfi.app/escolha/op000001/k3xs9p</div>
-            <div style={{marginTop:6,fontSize:11.5,color:"#888"}}>O link é pessoal ,qualquer duvida, e só responder por aqui.</div>
-          </div>
-        </div>
-        <SL>Propostas que serao enviadas</SL>
-        <div style={{display:"flex",flexDirection:"column",gap:6}}>
-          {propostas.map(p=><div key={p.id} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 12px",borderRadius:8,border:"1px solid #f0f0f2",background:"#fff"}}>
-            <BankLogo bank={p.banco} size={28}/>
-            <div style={{flex:1,minWidth:0}}><div style={{fontSize:13,fontWeight:500,color:C.dark}}>{bankName(p.banco)}</div><div style={{fontSize:11,color:C.gray}}>1a parcela R$ {parseInt(p.primeira).toLocaleString("pt-BR")} - {p.taxa}% a.a. - {p.prazo}m {p.sistema}</div></div>
-            <Check size={14} color={C.gr} strokeWidth={3}/>
-          </div>)}
-        </div>
-      </div>
-      <div style={{padding:"14px 24px",borderTop:"1px solid #f0f0f2",background:"#fafafa",display:"flex",justifyContent:"flex-end",gap:8}}>
-        <Btn onClick={onClose}>Cancelar</Btn>
-        <Btn primary onClick={onConfirm}><Whatsapp_ size={12} color="#fff"/>Confirmar e enviar</Btn>
+      <div class="drawer-foot">
+        <button class="btn" onclick="closeProposta()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg> Fechar</button>
+        <button class="btn advancar" onclick="salvarProposta()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5v14"/></svg> Salvar dados</button>
       </div>
     </div>
-  </div>;
-};
-
-/* S4 - ESCOLHA DA INSTITUICAO (cliente escolhe via link, ou operador escolhe por ela) */
-const S4=()=>{
-  const[escolhida,setEscolhida]=useState(null); // null = aguardando, ou banco id
-  const[confirmEsc,setConfirmEsc]=useState(null);
-  const[previewModal,setPreviewModal]=useState(false);
-  const propostas=[
-    {id:1,banco:"CEF",financiado:"343000",prazo:"360",sistema:"SAC",indexador:"tr",taxa:"8,99",cet:"10,12",primeira:"3180",ultima:"1050"},
-   
-    {id:3,banco:"Itau",financiado:"343000",prazo:"360",sistema:"SAC",indexador:"fixa",taxa:"9,49",cet:"10,82",primeira:"3245",ultima:"1120"},
-    {id:4,banco:"Bradesco",financiado:"343000",prazo:"360",sistema:"SAC",indexador:"fixa",taxa:"9,99",cet:"11,15",primeira:"3380",ultima:"1180"},
-    {id:5,banco:"Santander",financiado:"343000",prazo:"300",sistema:"SAC",indexador:"fixa",taxa:"10,20",cet:"11,45",primeira:"3410",ultima:"1200"},
-  ];
-  const bankName=b=>({CEF:"Caixa Economica Federal",Itau:"Itau Unibanco",Bradesco:"Bradesco",Santander:"Santander"})[b];
-  const indexadorLabel=i=>({fixa:"Fixa",tr:"TR + juros",poupanca:"Poupanca + juros",ipca:"IPCA + juros"})[i]||"-";
-
-  return<div style={{display:"flex",flexDirection:"column",gap:12}}>
-    {/* Status do link */}
-    {!escolhida?<div style={{padding:"14px 16px",borderRadius:10,background:"#fff",border:"1px solid "+C.gl}}>
-      <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
-        <div style={{width:36,height:36,borderRadius:8,background:"rgba(13,175,159,0.1)",display:"flex",alignItems:"center",justifyContent:"center"}}><Whatsapp_ size={16} color={C.accent}/></div>
-        <div style={{flex:1}}>
-          <div style={{fontSize:13,fontWeight:600,color:C.dark}}>Link de escolha enviado a cliente</div>
-          <div style={{fontSize:11,color:C.gray}}>Enviado em 11/04/2026 as 16:30 via WhatsApp - aguardando decisao</div>
-        </div>
-        <button onClick={()=>setPreviewModal(true)} style={{padding:"6px 12px",borderRadius:8,border:"1px solid "+C.gl,background:"#fff",fontSize:11,fontWeight:500,color:C.dark,cursor:"pointer",display:"flex",alignItems:"center",gap:5}}><Eye_ size={11} color={C.gray}/>Ver como cliente</button>
-      </div>
-      {/* Link copiavel */}
-      <div style={{display:"flex",alignItems:"center",gap:8,padding:"8px 12px",borderRadius:8,background:C.gs,border:"1px solid #efefef"}}>
-        <span style={{fontSize:12,color:C.bl,fontFamily:"monospace",flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>https://hubfi.app/escolha/op000001/k3xs9p</span>
-        <button style={{padding:"4px 10px",borderRadius:6,border:"1px solid "+C.gl,background:"#fff",fontSize:10,fontWeight:500,color:C.gray,cursor:"pointer"}}>Copiar</button>
-        <button style={{padding:"4px 10px",borderRadius:6,border:"1px solid "+C.gl,background:"#fff",fontSize:10,fontWeight:500,color:C.gray,cursor:"pointer"}}>Reenviar</button>
-      </div>
-      {/* Stats do link */}
-      <div style={{display:"flex",gap:18,marginTop:10,paddingTop:10,borderTop:"1px solid #f5f5f7",flexWrap:"wrap"}}>
-        <div><div style={{fontSize:10,color:C.gray,textTransform:"uppercase",letterSpacing:"0.06em"}}>Entregue</div><div style={{fontSize:12,fontWeight:600,color:C.gr,display:"flex",alignItems:"center",gap:3}}><Check size={11} color={C.gr} strokeWidth={3}/>16:30</div></div>
-        <div><div style={{fontSize:10,color:C.gray,textTransform:"uppercase",letterSpacing:"0.06em"}}>Lido</div><div style={{fontSize:12,fontWeight:600,color:C.gr,display:"flex",alignItems:"center",gap:3}}><Check size={11} color={C.gr} strokeWidth={3}/>16:42</div></div>
-        <div><div style={{fontSize:10,color:C.gray,textTransform:"uppercase",letterSpacing:"0.06em"}}>Link aberto</div><div style={{fontSize:12,fontWeight:600,color:C.accent}}>3 vezes</div></div>
-        <div><div style={{fontSize:10,color:C.gray,textTransform:"uppercase",letterSpacing:"0.06em"}}>Ultimo acesso</div><div style={{fontSize:12,fontWeight:600,color:C.dark}}>12/04 09:15</div></div>
-      </div>
-    </div>:<AlertBox color={C.gr} bg={C.grBg} border={C.grB} icon={CheckCircle2} title={"Cliente escolheu "+bankName(escolhida.banco)} desc={"Decisao confirmada em "+new Date().toLocaleDateString("pt-BR")+". Avancando para escolha do imovel."}/>}
-
-    {/* Propostas como cliente ve, com opcao do operador escolher por ela */}
-    <div>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:6,marginBottom:8}}>
-        <SL>Propostas enviadas ({propostas.length})</SL>
-        <span style={{fontSize:11,color:C.gray}}>Se necessario, voce pode escolher em nome da cliente</span>
-      </div>
-      <div style={{display:"flex",flexDirection:"column",gap:8}}>
-        {propostas.map(p=>{const sel=escolhida&&escolhida.banco===p.banco;return<div key={p.id} style={{display:"flex",alignItems:"center",gap:12,padding:"14px 16px",borderRadius:10,background:sel?"rgba(13,175,159,0.05)":"#fff",border:sel?"2px solid "+C.accent:"1px solid "+C.gl,position:"relative"}}>
-          <BankLogo bank={p.banco} size={40}/>
-          <div style={{flex:1,minWidth:0}}>
-            <div style={{fontSize:13,fontWeight:600,color:C.dark}}>{bankName(p.banco)}</div>
-            <div style={{display:"flex",gap:8,flexWrap:"wrap",marginTop:4,fontSize:11,color:C.muted}}>
-              <span><b style={{color:C.dark}}>{p.taxa}%</b> a.a.</span>
-              <span>-</span>
-              <span>{p.prazo}m {p.sistema}</span>
-              <span>-</span>
-              <span>{indexadorLabel(p.indexador)}</span>
-              <span>-</span>
-              <span>CET <b style={{color:C.dark}}>{p.cet}%</b></span>
-            </div>
-          </div>
-          <div style={{textAlign:"right",flexShrink:0}}>
-            <div style={{fontSize:10,color:C.gray,textTransform:"uppercase",letterSpacing:"0.06em"}}>1a parcela</div>
-            <div style={{fontSize:18,fontWeight:700,color:sel?C.accent:C.dark}}>R$ {parseInt(p.primeira).toLocaleString("pt-BR")}</div>
-            <div style={{fontSize:11,color:C.gray}}>ultima R$ {parseInt(p.ultima).toLocaleString("pt-BR")}</div>
-          </div>
-          {!escolhida&&<button onClick={()=>setConfirmEsc(p)} style={{padding:"7px 12px",borderRadius:8,border:"1px solid "+C.gl,background:"#fff",fontSize:11,fontWeight:500,color:C.dark,cursor:"pointer",flexShrink:0}}>Escolher por ela</button>}
-          {sel&&<div style={{position:"absolute",top:-9,right:14,padding:"2px 10px",borderRadius:99,background:C.accent,color:"#fff",fontSize:10,fontWeight:600,display:"flex",alignItems:"center",gap:3}}><Check size={10} color="#fff" strokeWidth={3}/>{escolhida.por==="op"?"Selecionada pelo operador":"Escolhida pela cliente"}</div>}
-        </div>;})}
-      </div>
-    </div>
-
-    {/* Modal: confirmar escolha pelo operador */}
-    {confirmEsc&&<div style={{position:"fixed",inset:0,zIndex:80,display:"flex",alignItems:"center",justifyContent:"center"}}>
-      <div style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.4)"}} onClick={()=>setConfirmEsc(null)}/>
-      <div style={{position:"relative",background:"#fff",borderRadius:16,boxShadow:"0 8px 32px rgba(0,0,0,0.16)",width:"100%",maxWidth:460,overflow:"hidden",margin:16}}>
-        <div style={{padding:"18px 24px",borderBottom:"1px solid #f0f0f2"}}>
-          <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:4}}><AlertTri size={18} color="#d97706"/><div style={{fontSize:16,fontWeight:600,color:C.dark}}>Escolher em nome da cliente?</div></div>
-          <div style={{fontSize:12,color:C.gray}}>Use esta opcao apenas quando a cliente solicitou por voz ou texto. A acao sera registrada com seu usuario.</div>
-        </div>
-        <div style={{padding:"18px 24px",display:"flex",flexDirection:"column",gap:12}}>
-          <div style={{padding:"10px 14px",borderRadius:8,background:C.gs,border:"1px solid #efefef",display:"flex",alignItems:"center",gap:10}}><BankLogo bank={confirmEsc.banco} size={32}/><div><div style={{fontSize:13,fontWeight:600,color:C.dark}}>{bankName(confirmEsc.banco)}</div><div style={{fontSize:11,color:C.gray}}>{confirmEsc.taxa}% a.a. - 1a parcela R$ {parseInt(confirmEsc.primeira).toLocaleString("pt-BR")}</div></div></div>
-          <div style={{display:"flex",flexDirection:"column",gap:4}}>
-            <label style={{fontSize:11,fontWeight:600,color:C.dark,textTransform:"uppercase",letterSpacing:"0.06em"}}>Justificativa</label>
-            <TextArea placeholder="Ex: Cliente confirmou escolha por audio em ligacao as 14h30 de 12/04..." rows={2}/>
-          </div>
-        </div>
-        <div style={{padding:"12px 24px",borderTop:"1px solid #f0f0f2",background:"#fafafa",display:"flex",justifyContent:"flex-end",gap:8}}>
-          <Btn onClick={()=>setConfirmEsc(null)}>Cancelar</Btn>
-          <Btn primary onClick={()=>{setEscolhida({...confirmEsc,por:"op"});setConfirmEsc(null);}}>Confirmar escolha</Btn>
-        </div>
-      </div>
-    </div>}
-
-    {/* Modal: preview do que cliente ve */}
-    {previewModal&&<div style={{position:"fixed",inset:0,zIndex:80,display:"flex",alignItems:"center",justifyContent:"center"}}>
-      <div style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.5)"}} onClick={()=>setPreviewModal(false)}/>
-      <div style={{position:"relative",background:"#fff",borderRadius:16,boxShadow:"0 8px 32px rgba(0,0,0,0.16)",width:"100%",maxWidth:420,maxHeight:"90vh",overflow:"hidden",margin:16,display:"flex",flexDirection:"column"}}>
-        <div style={{padding:"14px 18px",borderBottom:"1px solid #f0f0f2",display:"flex",alignItems:"center",justifyContent:"space-between",background:"#fafafa"}}>
-          <div style={{display:"flex",alignItems:"center",gap:8}}><Phone_ size={14} color={C.gray}/><span style={{fontSize:13,fontWeight:500,color:C.dark}}>Preview mobile</span></div>
-          <button onClick={()=>setPreviewModal(false)} style={{width:28,height:28,borderRadius:6,border:"none",background:"#f0f0f0",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><X_ size={14} color={C.gray}/></button>
-        </div>
-        <div style={{flex:1,overflowY:"auto",padding:18,background:"#f5f7fa"}}>
-          <div style={{maxWidth:340,margin:"0 auto"}}>
-            <div style={{textAlign:"center",marginBottom:14}}>
-              <div style={{display:"inline-flex",alignItems:"center",gap:6,marginBottom:8}}><div style={{width:24,height:24,borderRadius:6,background:C.accent,display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{color:"#fff",fontWeight:700,fontSize:11}}>H</span></div><span style={{fontSize:15,fontWeight:700,color:C.dark}}>hubfi</span></div>
-              <div style={{fontSize:18,fontWeight:600,color:C.dark,lineHeight:1.2}}>Oi Maria,<br/>suas propostas chegaram!</div>
-              <div style={{fontSize:12,color:C.muted,marginTop:6}}>Comparamos {propostas.length} bancos pra voce. Escolha a que faz mais sentido.</div>
-            </div>
-            {propostas.map((p,i)=><div key={p.id} style={{background:"#fff",borderRadius:12,padding:14,marginBottom:8,border:i===0?"2px solid "+C.accent:"1px solid "+C.gl,position:"relative"}}>
-              {i===0&&<div style={{position:"absolute",top:-9,left:14,padding:"2px 10px",borderRadius:99,background:C.accent,color:"#fff",fontSize:10,fontWeight:600}}>Melhor taxa</div>}
-              <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}><BankLogo bank={p.banco} size={32}/><div style={{fontSize:13,fontWeight:600,color:C.dark}}>{bankName(p.banco)}</div></div>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:6}}>
-                <div><div style={{fontSize:10,color:C.gray,textTransform:"uppercase"}}>Primeira parcela</div><div style={{fontSize:20,fontWeight:700,color:C.dark}}>R$ {parseInt(p.primeira).toLocaleString("pt-BR")}</div></div>
-                <div style={{textAlign:"right"}}><div style={{fontSize:10,color:C.gray,textTransform:"uppercase"}}>Taxa</div><div style={{fontSize:14,fontWeight:600,color:C.accent}}>{p.taxa}% a.a.</div></div>
-              </div>
-              <div style={{padding:"8px 0",borderTop:"1px solid #f5f5f7",fontSize:11,color:C.muted,display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:4}}>
-                <span>CET <b style={{color:C.dark}}>{p.cet}%</b></span>
-                <span>{p.prazo}m {p.sistema}</span>
-                <span>{indexadorLabel(p.indexador)}</span>
-              </div>
-              <button style={{width:"100%",marginTop:8,padding:10,borderRadius:8,border:"none",background:C.accent,color:"#fff",fontSize:12,fontWeight:600,cursor:"pointer"}}>Escolher esta proposta</button>
-            </div>)}
-            <div style={{textAlign:"center",fontSize:11,color:C.gray,marginTop:14}}>Duvida? Responde a Hubfi no WhatsApp.</div>
-          </div>
-        </div>
-      </div>
-    </div>}
-
-    <StageNotes/>
-  </div>;
-};
-
-/* S5 - Escolha do Imovel */
-const S5=()=><div style={{display:"flex",flexDirection:"column",gap:10}}><SL>Imovel escolhido</SL><FR><RF l="Tipo" v="Apartamento"/><RF l="Area util" v="85 m2"/></FR><FR><RF l="Quartos" v="3 (1 suite)"/><RF l="Vagas" v="2"/></FR><FR><RF l="Valor de compra" v="R$ 490.000" accent/><RF l="Idade do imovel" v="6 anos"/></FR><div style={{padding:14,borderRadius:10,background:C.gs,border:"1px solid #efefef",display:"flex",gap:10}}><MapPin_ size={18} color={C.accent} style={{flexShrink:0,marginTop:2}}/><div><div style={{fontSize:13,fontWeight:600,color:C.dark}}>Rua das Flores, 120 - Apto 502</div><div style={{fontSize:11,color:C.gray}}>Edif. Vista Verde - Setor Bueno, Goiania/GO - 74230-010</div></div></div><SL>Vendedor</SL><FR><RF l="Nome" v="Carlos Eduardo Lima"/><RF l="CPF" v="234.567.890-11"/></FR><FR><RF l="Tipo" v="Pessoa fisica"/><RF l="Contato" v="(62) 99988-7766" accent/></FR><DocRow name="Foto fachada.jpg" status="ok" date="12/04/2026"/><DocRow name="Memorial descritivo.pdf" status="ok" date="12/04/2026"/><StageNotes/></div>;
-
-/* S6 - Documentacao das partes */
-const S6=()=>{
-  const totalDocs=20;
-  const enviados=12;
-  return<div style={{display:"flex",flexDirection:"column",gap:12}}>
-    {/* Link do formulario de upload — disparado automaticamente quando a etapa inicia */}
-    <div style={{padding:"14px 16px",borderRadius:10,background:"#fff",border:"1px solid "+C.gl}}>
-      <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
-        <div style={{width:36,height:36,borderRadius:8,background:"rgba(13,175,159,0.1)",display:"flex",alignItems:"center",justifyContent:"center"}}><Whatsapp_ size={16} color={C.accent}/></div>
-        <div style={{flex:1,minWidth:0}}>
-          <div style={{fontSize:13,fontWeight:600,color:C.dark}}>Link do formulario de upload enviado a cliente</div>
-          <div style={{fontSize:11,color:C.gray}}>Disparado automaticamente em 13/04/2026 as 09:15 via WhatsApp - aguardando documentos</div>
-        </div>
-        <button style={{padding:"6px 12px",borderRadius:8,border:"1px solid "+C.gl,background:"#fff",fontSize:11,fontWeight:500,color:C.dark,cursor:"pointer",display:"flex",alignItems:"center",gap:5}}><Eye_ size={11} color={C.gray}/>Ver formulario</button>
-      </div>
-      {/* Link copiavel */}
-      <div style={{display:"flex",alignItems:"center",gap:8,padding:"8px 12px",borderRadius:8,background:C.gs,border:"1px solid #efefef"}}>
-        <span style={{fontSize:12,color:C.bl,fontFamily:"monospace",flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>https://hubfi.app/docs/op000001/d8m2qf</span>
-        <button style={{padding:"4px 10px",borderRadius:6,border:"1px solid "+C.gl,background:"#fff",fontSize:10,fontWeight:500,color:C.gray,cursor:"pointer"}}>Copiar</button>
-        <button style={{padding:"4px 10px",borderRadius:6,border:"1px solid "+C.gl,background:"#fff",fontSize:10,fontWeight:500,color:C.gray,cursor:"pointer"}}>Reenviar</button>
-      </div>
-      {/* Stats */}
-      <div style={{display:"flex",gap:18,marginTop:10,paddingTop:10,borderTop:"1px solid #f5f5f7",flexWrap:"wrap"}}>
-        <div><div style={{fontSize:10,color:C.gray,textTransform:"uppercase",letterSpacing:"0.06em"}}>Entregue</div><div style={{fontSize:12,fontWeight:600,color:C.gr,display:"flex",alignItems:"center",gap:3}}><Check size={11} color={C.gr} strokeWidth={3}/>09:15</div></div>
-        <div><div style={{fontSize:10,color:C.gray,textTransform:"uppercase",letterSpacing:"0.06em"}}>Lido</div><div style={{fontSize:12,fontWeight:600,color:C.gr,display:"flex",alignItems:"center",gap:3}}><Check size={11} color={C.gr} strokeWidth={3}/>09:32</div></div>
-        <div><div style={{fontSize:10,color:C.gray,textTransform:"uppercase",letterSpacing:"0.06em"}}>Link aberto</div><div style={{fontSize:12,fontWeight:600,color:C.accent}}>5 vezes</div></div>
-        <div><div style={{fontSize:10,color:C.gray,textTransform:"uppercase",letterSpacing:"0.06em"}}>Ultimo upload</div><div style={{fontSize:12,fontWeight:600,color:C.dark}}>13/04 14:20</div></div>
-        <div><div style={{fontSize:10,color:C.gray,textTransform:"uppercase",letterSpacing:"0.06em"}}>Progresso</div><div style={{fontSize:12,fontWeight:600,color:C.dark}}>{enviados}/{totalDocs} docs</div></div>
-      </div>
-    </div>
-
-    {/* Checklist de documentos */}
-    <SL>Compradora - Maria Silva Santos</SL>
-    <DocRow name="RG/CNH (frente e verso)" status="ok" date="13/04/2026 09:35"/>
-    <DocRow name="CPF" status="ok" date="13/04/2026 09:35"/>
-    <DocRow name="Comprovante de residencia" status="ok" date="13/04/2026 09:42"/>
-    <DocRow name="Holerites (3 ultimos)" status="ok" date="13/04/2026 14:10"/>
-    <DocRow name="Declaracao de IR completa" status="pending" date="13/04/2026 14:20"/>
-    <DocRow name="Extrato FGTS" status="missing"/>
-    <SL>Conjuge - Joao Silva Santos</SL>
-    <DocRow name="RG/CNH" status="ok" date="13/04/2026 09:38"/>
-    <DocRow name="Certidao de casamento" status="ok" date="13/04/2026 09:38"/>
-    <DocRow name="Comprovante de renda" status="missing"/>
-    <SL>Vendedor - Carlos Eduardo Lima</SL>
-    <DocRow name="RG/CNH" status="ok" date="13/04/2026 11:05"/>
-    <DocRow name="CPF" status="ok" date="13/04/2026 11:05"/>
-    <DocRow name="Certidao de casamento/nascimento" status="pending" date="13/04/2026 11:20"/>
-    <DocRow name="Comprovante de residencia" status="missing"/>
-    <SL>Imovel</SL>
-    <DocRow name="Matricula atualizada (ate 30 dias)" status="missing"/>
-    <DocRow name="IPTU 2026 quitado" status="ok" date="13/04/2026 11:10"/>
-    <DocRow name="Habite-se" status="missing"/>
-    <DocRow name="Convencao de condominio" status="pending" date="13/04/2026 11:25"/>
-    <DocRow name="Decl. quitacao de condominio" status="missing"/>
-    <AlertBox bg="#fffbeb" border="#fde68a" color="#d97706" icon={AlertTri} title="6 documentos pendentes" desc="Cliente ja recebeu 2 lembretes automaticos via WhatsApp. Proximo follow-up em 14/04/2026 as 09:00."/>
-    <div style={{display:"flex",gap:8,flexWrap:"wrap"}}><Btn primary><Upload_ size={12} color="#fff"/>Upload manual</Btn><Btn><Whatsapp_ size={12} color={C.dark}/>Reenviar lembrete</Btn></div>
-    <StageNotes/>
-  </div>;
-};
-
-/* S7 - Avaliacao do Imovel */
-const S7=()=><div style={{display:"flex",flexDirection:"column",gap:10}}>
-  <SL>Engenheiro responsavel</SL>
-  <FR><RF l="Nome" v="Carlos Alberto Mendes"/><RF l="CREA" v="GO-12345/D"/></FR>
-  <FR><RF l="Empresa" v="CAM Avaliacoes"/><RF l="Telefone" v="(62) 99888-1234" accent/></FR>
-  <SL>Agendamento</SL>
-  <div style={{padding:14,borderRadius:10,background:"#fff",border:"1px solid "+C.gl,display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
-    <div style={{width:48,height:48,borderRadius:10,background:"rgba(13,175,159,0.08)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",border:"1px solid rgba(13,175,159,0.2)"}}><span style={{fontSize:9,fontWeight:600,color:C.accent,textTransform:"uppercase"}}>Abr</span><span style={{fontSize:18,fontWeight:700,color:C.accent,lineHeight:1}}>15</span></div>
-    <div style={{flex:1,minWidth:140}}><div style={{fontSize:13,fontWeight:600,color:C.dark}}>Sexta-feira, 15/04/2026</div><div style={{fontSize:11,color:C.gray}}>14h00 - duracao estimada de 1h30</div></div>
-    <div style={{padding:"3px 10px",borderRadius:99,background:C.blBg,color:C.bl,border:"1px solid "+C.blB,fontSize:10,fontWeight:600,display:"inline-flex",alignItems:"center",gap:4}}><Calendar_ size={10} color={C.bl}/>Confirmado</div>
   </div>
-  <SL>Resultado da vistoria</SL>
-  <FR><RF l="Valor de avaliacao" v="R$ 485.000" accent/><RF l="Valor de compra" v="R$ 490.000"/></FR>
-  <FR><RF l="Base para financiamento" v="R$ 485.000 (menor valor)" accent/><RF l="Diferenca" v="-R$ 5.000 (-1,0%)"/></FR>
-  <FR><RF l="Estado de conservacao" v="Otimo" accent/><RF l="Padrao construtivo" v="Medio-alto"/></FR>
-  <DocRow name="Laudo_Avaliacao_OP000001.pdf" status="ok" date="15/04/2026"/>
-  <DocRow name="Album_Fotografico.pdf" status="ok" date="15/04/2026"/>
-  <AlertBox bg={C.orBg} border={C.orB} color={C.or} icon={AlertTri} title="Atencao - valor de avaliacao abaixo do compra" desc="A CEF financiara sobre R$ 485.000. Cliente precisara complementar entrada com R$ 5.000 ou renegociar valor com vendedor."/>
-  <div style={{display:"flex",gap:8}}><Btn primary>Confirmar avaliacao</Btn><Btn>Solicitar nova vistoria</Btn></div>
-  <StageNotes/>
-</div>;
 
-/* S8 - Analise Juridica */
-const S8=()=>{const itens=[["Matricula sem onus reais",true,"Sem hipoteca, alienacao ou penhora"],["Certidao negativa Justica Federal",true,"Sem acoes em andamento"],["Certidao negativa Justica Estadual",true,"Sem acoes civeis ou criminais"],["Certidao trabalhista (vendedor)",false,"Aguardando 2a via solicitada"],["Certidao quitacao tributos federais",false,"Em diligencia desde 16/04"],["Certidao quitacao IPTU e condominio",true,"Quitado e em dia"],["Habite-se valido",false,"Habite-se nao localizado - solicitado ao construtor"],["Pendencias do vendedor",true,"Vendedor sem restricoes no CPF"]];return<div style={{display:"flex",flexDirection:"column",gap:10}}><FR><RF l="Responsavel" v="Dra. Patricia Coelho"/><RF l="OAB" v="GO-45678"/></FR><FR><RF l="Inicio" v="16/04/2026"/><RF l="Prazo" v="5 dias uteis"/></FR><SL>Checklist juridico</SL>{itens.map(([t,d,obs])=><div key={t} style={{display:"flex",alignItems:"flex-start",gap:10,padding:"10px 12px",borderRadius:8,border:"1px solid #f0f0f2",background:"#fff"}}><div style={{width:22,height:22,borderRadius:99,background:d?C.grBg:"#fffbeb",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:1}}>{d?<Check size={12} color={C.gr} strokeWidth={3}/>:<Clock_ size={11} color="#d97706"/>}</div><div style={{flex:1,minWidth:0}}><div style={{fontSize:13,fontWeight:500,color:d?C.dark:"#777"}}>{t}</div><div style={{fontSize:11,color:C.gray,marginTop:1}}>{obs}</div></div></div>)}<AlertBox bg="#fffbeb" border="#fde68a" color="#d97706" icon={AlertTri} title="3 pendencias em diligencia" desc="Certidao trabalhista e tributos federais foram solicitadas. Habite-se sendo regularizado pelo vendedor."/><div style={{display:"flex",gap:8}}><Btn primary disabled>Aprovar analise</Btn><Btn>Solicitar saneamento</Btn></div><StageNotes/></div>;};
-
-/* S9 - Elaboracao do contrato */
-const S9=()=><div style={{display:"flex",flexDirection:"column",gap:10}}>
-  <FR><RF l="No do contrato" v="CEF-2026-00123456" accent/><RF l="Modelo" v="Padrao CEF SBPE - SAC"/></FR>
-  <FR><RF l="Cartorio" v="1o Oficio de Registro de Goiania"/><RF l="Comarca" v="Goiania/GO"/></FR>
-  <FR><RF l="Valor total da operacao" v="R$ 490.000" accent/><RF l="Valor financiado" v="R$ 343.000" accent/></FR>
-  <FR><RF l="ITBI estimado" v="R$ 14.700 (3%)"/><RF l="Custas + emolumentos" v="R$ 4.200"/></FR>
-  <SL>Versoes do contrato</SL>
-  <DocRow name="Minuta_v1_CEF_OP000001.pdf" status="ok" date="18/04/2026"/>
-  <DocRow name="Revisao_juridica_HubFi_v1.pdf" status="ok" date="19/04/2026"/>
-  <DocRow name="Minuta_v2_apos_ajustes.pdf" status="pending" date="20/04/2026"/>
-  <SL>Ajustes solicitados</SL>
-  <div style={{display:"flex",flexDirection:"column",gap:6}}>
-    {[["Clausula 12 - revisao da forma de reajuste","resolved"],["Clausula 18 - inclusao de seguradora alternativa","resolved"],["Anexo II - corrigir endereco do imovel","pending"]].map(([t,s])=><div key={t} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 12px",borderRadius:8,border:"1px solid #f0f0f2",background:"#fff"}}><div style={{width:18,height:18,borderRadius:99,background:s==="resolved"?C.grBg:"#fffbeb",display:"flex",alignItems:"center",justifyContent:"center"}}>{s==="resolved"?<Check size={10} color={C.gr} strokeWidth={3}/>:<Clock_ size={10} color="#d97706"/>}</div><span style={{fontSize:12.5,color:C.dark,flex:1}}>{t}</span><span style={{fontSize:10,color:s==="resolved"?C.gr:"#d97706",fontWeight:500}}>{s==="resolved"?"Resolvido":"Pendente"}</span></div>)}
-  </div>
-  <AlertBox bg={C.blBg} border={C.blB} color={C.bl} title="Aguardando minuta v2 do banco" desc="Solicitamos correcao do anexo II. Prazo de retorno: 1 dia util."/>
-  <div style={{display:"flex",gap:8}}><Btn primary disabled>Aprovar versao final</Btn><Btn>Solicitar nova revisao</Btn></div>
-  <StageNotes/>
-</div>;
-
-/* S10 - Assinatura do contrato */
-const S10=()=>{const partes=[{n:"Maria Silva Santos",r:"Compradora",cpf:"123.456.789-00",s:"signed",d:"22/04/2026 14:30"},{n:"Joao Silva Santos",r:"Conjuge - anuente",cpf:"987.654.321-00",s:"signed",d:"22/04/2026 14:35"},{n:"Carlos Eduardo Lima",r:"Vendedor",cpf:"234.567.890-11",s:"pending"},{n:"Caixa Economica Federal",r:"Credora",cpf:"00.360.305/0001-04",s:"pending"}];return<div style={{display:"flex",flexDirection:"column",gap:10}}>
-  <FR><RF l="Modalidade" v="Eletronica (ICP-Brasil)" accent/><RF l="Provedor" v="Clicksign"/></FR>
-  <FR><RF l="Documento" v="Contrato CEF-2026-00123456"/><RF l="Iniciada em" v="22/04/2026 14:00"/></FR>
-  <SL>Partes signatarias</SL>
-  {partes.map(p=>{const sgn=p.s==="signed";return<div key={p.cpf} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 12px",borderRadius:8,background:"#fff",border:"1px solid #f0f0f2"}}>
-    <div style={{width:36,height:36,borderRadius:99,background:sgn?C.grBg:C.gs,display:"flex",alignItems:"center",justifyContent:"center",border:sgn?"1px solid "+C.grB:"1px solid #f0f0f2"}}>{sgn?<Check size={15} color={C.gr} strokeWidth={3}/>:<User_ size={14} color={C.gray}/>}</div>
-    <div style={{flex:1,minWidth:0}}><div style={{fontSize:13,fontWeight:600,color:C.dark}}>{p.n}</div><div style={{fontSize:11,color:C.gray}}>{p.r} - CPF {p.cpf}</div></div>
-    {sgn?<div style={{textAlign:"right"}}><span style={{fontSize:11,fontWeight:600,padding:"3px 10px",borderRadius:99,background:C.grBg,color:C.gr,border:"1px solid "+C.grB,display:"inline-flex",alignItems:"center",gap:3}}><FileSignature_ size={10} color={C.gr}/>Assinado</span><div style={{fontSize:10,color:C.gray,marginTop:2}}>{p.d}</div></div>:<span style={{fontSize:11,fontWeight:600,padding:"3px 10px",borderRadius:99,background:"#f5f5f5",color:C.gray,border:"1px solid #e8e8e8"}}>Aguardando</span>}
-  </div>;})}
-  <AlertBox bg={C.blBg} border={C.blB} color={C.bl} desc="Vendedor e CEF receberam o link de assinatura. Prazo limite: 25/04/2026."/>
-  <div style={{display:"flex",gap:8}}><Btn primary>Reenviar lembrete</Btn><Btn>Acompanhar Clicksign</Btn></div>
-  <StageNotes/>
-</div>;};
-
-/* S11 - Registro no Cartorio */
-const S11=()=>{const passos=[["Protocolo de entrada no cartorio","done","23/04/2026"],["Analise pela escrevente","done","24/04/2026"],["Pagamento ITBI municipal","done","24/04/2026 - R$ 14.700"],["Pagamento de emolumentos","done","24/04/2026 - R$ 4.200"],["Conferencia de documentos","current","Em andamento"],["Lavratura do registro","pending","Aguardando"],["Emissao da matricula atualizada","pending","Aguardando"]];return<div style={{display:"flex",flexDirection:"column",gap:10}}>
-  <FR><RF l="Cartorio" v="1o Oficio de Registro de Imoveis"/><RF l="Matricula" v="45.678 - L4 Goiania" accent/></FR>
-  <FR><RF l="Protocolo" v="2026/04/23-7891"/><RF l="Prazo legal" v="30 dias (Lei 6015/73)"/></FR>
-  <SL>Etapas do registro</SL>
-  <div style={{position:"relative",paddingLeft:18}}>
-    <div style={{position:"absolute",left:7,top:6,bottom:6,width:2,background:"#f0f0f2"}}/>
-    {passos.map(([t,s,d])=><div key={t} style={{position:"relative",paddingBottom:10}}>
-      <div style={{position:"absolute",left:-18,top:0,width:16,height:16,borderRadius:99,background:s==="done"?C.accent:s==="current"?"#fff":"#fafafa",border:s==="current"?"2px solid "+C.accent:s==="pending"?"1.5px solid #e3e3e3":"none",display:"flex",alignItems:"center",justifyContent:"center"}}>{s==="done"&&<Check size={9} color="#fff" strokeWidth={3}/>}{s==="current"&&<div style={{width:6,height:6,borderRadius:99,background:C.accent}}/>}</div>
-      <div style={{fontSize:13,fontWeight:s==="pending"?400:500,color:s==="pending"?"#aaa":C.dark}}>{t}</div>
-      <div style={{fontSize:11,color:C.gray}}>{d}</div>
-    </div>)}
-  </div>
-  <SL>Comprovantes de pagamento</SL>
-  <DocRow name="DAM_ITBI_2026.pdf" status="ok" date="24/04/2026"/>
-  <DocRow name="Comprov_Emolumentos.pdf" status="ok" date="24/04/2026"/>
-  <AlertBox bg={C.blBg} border={C.blB} color={C.bl} icon={Clock_} title="Aguardando lavratura" desc="Documentos conferidos. Previsao de emissao da matricula: 28/04/2026."/>
-  <div style={{display:"flex",gap:8}}><Btn primary>Atualizar status</Btn><Btn>Acompanhar cartorio</Btn></div>
-  <StageNotes/>
-</div>;};
-
-/* S12 - Liberacao do Recurso */
-const S12=()=><div style={{display:"flex",flexDirection:"column",gap:10}}>
-  <div style={{padding:"16px 18px",borderRadius:12,background:"linear-gradient(135deg,rgba(13,175,159,0.08),rgba(13,175,159,0.02))",border:"1px solid rgba(13,175,159,0.2)"}}>
-    <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:8}}><div style={{width:36,height:36,borderRadius:8,background:C.accent,display:"flex",alignItems:"center",justifyContent:"center"}}><DollarSign_ size={18} color="#fff"/></div><div><div style={{fontSize:11,fontWeight:600,color:C.gray,textTransform:"uppercase",letterSpacing:"0.06em"}}>Valor a liberar</div><div style={{fontSize:24,fontWeight:700,color:C.accent,lineHeight:1.1}}>R$ 343.000,00</div></div></div>
-    <div style={{fontSize:11,color:C.muted}}>Valor financiado integral. Sera liberado direto na conta do vendedor mediante apresentacao do contrato registrado.</div>
-  </div>
-  <SL>Beneficiario</SL>
-  <FR><RF l="Nome" v="Carlos Eduardo Lima"/><RF l="CPF" v="234.567.890-11"/></FR>
-  <FR><RF l="Banco" v="Bradesco - 237"/><RF l="Agencia/Conta" v="1234 / 56789-0"/></FR>
-  <SL>Composicao da operacao</SL>
-  <div style={{display:"flex",gap:0,flexWrap:"wrap",borderRadius:10,overflow:"hidden",border:"1px solid #f0f0f2"}}>
-    {[["Entrada da cliente","R$ 102.000","direta ao vendedor"],["FGTS da cliente","R$ 45.000","via CEF"],["Financiamento CEF","R$ 343.000","via CEF",true]].map(([l,v,o,ac])=><div key={l} style={{flex:"1 1 140px",padding:"12px 14px",borderRight:"1px solid #f0f0f2",background:"#fff"}}><div style={{fontSize:10,color:C.gray,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:3}}>{l}</div><div style={{fontSize:15,fontWeight:700,color:ac?C.accent:C.dark}}>{v}</div><div style={{fontSize:10,color:C.gray,marginTop:2}}>{o}</div></div>)}
-  </div>
-  <SL>Checklist final</SL>
-  {[["Contrato registrado no cartorio",true],["Matricula com nova titularidade emitida",true],["ITBI quitado e comprovado",true],["Termo de quitacao do vendedor",false],["Liberacao TED da CEF",false]].map(([t,d])=><div key={t} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 12px",borderRadius:8,background:"#fff",border:"1px solid #f0f0f2"}}><div style={{width:18,height:18,borderRadius:99,background:d?C.grBg:"#f5f5f5",display:"flex",alignItems:"center",justifyContent:"center"}}>{d?<Check size={10} color={C.gr} strokeWidth={3}/>:<Circle_ size={7} color="#ccc"/>}</div><span style={{fontSize:12.5,color:d?C.dark:"#aaa"}}>{t}</span></div>)}
-  <DocRow name="Termo_Quitacao_aguardando.pdf" status="pending" date="Aguardando vendedor"/>
-  <AlertBox bg={C.blBg} border={C.blB} color={C.bl} icon={TrendUp_} title="Previsao de liberacao: 5 dias uteis" desc="Apos receber o termo de quitacao do vendedor, a CEF executa a TED em ate 5 dias uteis."/>
-  <div style={{display:"flex",gap:8}}><Btn primary>Solicitar liberacao</Btn><Btn>Acompanhar pendencias</Btn></div>
-  <StageNotes/>
-</div>;
-
-const CMAP={1:S1,2:S2,3:S3,4:S4,5:S5,6:S6,7:S7,8:S8,9:S9,10:S10,11:S11,12:S12};
-const SUMS={1:"Maria Silva Santos - R$ 490.000",2:"Score 782 - pre-aprovado",3:"2 propostas enviadas - 1 rascunho",4:"CEF escolhida - 8,99% a.a.",5:"Apto 3 quartos - Setor Bueno",6:"15 de 20 documentos",7:"Avaliacao: R$ 485.000",8:"5 de 8 itens aprovados",9:"Minuta v2 em revisao",10:"2 de 4 assinaturas",11:"Registro em diligencia",12:"Aguardando termo do vendedor"};
-const DATES={1:"09/04/2026 10:15",2:"09/04/2026 16:45",3:"10/04/2026 11:20",4:"12/04/2026 16:45",5:"13/04/2026 09:30",6:"13/04/2026 14:20",7:null,8:null,9:null,10:null,11:null,12:null};
-const ICONS=[FileText_,Scale_,FileText_,Building_,Home_,FileCheck_,Camera_,Shield_,PenTool_,FileSignature_,Landmark_,DollarSign_];
-const STAGES=[
-  {id:1,label:"Coleta de dados",status:"completed"},
-  {id:2,label:"Analise de credito",status:"completed"},
-  {id:3,label:"Proposta de credito (cadastro)",status:"current"},
-  {id:4,label:"Escolha da instituicao",status:"pending"},
-  {id:5,label:"Escolha do imovel",status:"pending"},
-  {id:6,label:"Documentacao das partes",status:"pending"},
-  {id:7,label:"Avaliacao do imovel",status:"pending"},
-  {id:8,label:"Analise juridica",status:"pending"},
-  {id:9,label:"Elaboracao do contrato",status:"pending"},
-  {id:10,label:"Assinatura do contrato",status:"pending"},
-  {id:11,label:"Registro no cartorio",status:"pending"},
-  {id:12,label:"Liberacao do recurso",status:"pending"}
+  <script>
+var LOGOS={caixa:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAOdEVYdFNvZnR3YXJlAEZpZ21hnrGWYwAABFxJREFUeAHFV1toXEUY/mbOnr1ks5s1V5MQQ22JVRHtBmqslQaqbdUHFURa+6IPVn1SFBHUB32QYpXYgsbbg/qgVAUJVk1qWiqikhilNEitMRjj6kbtbtPsZm/unhn/ORuSbc45uxsk6Q+H5czMzvf93/yXOQyARo+B7g+PwN2wExDqffWMMQEj9T1G77jRfDMHd0QkEj8KMI1jLUwKgdoujmNPehiue+td+Dr2Anx1PbcYkTCS3zD0HJ0hIS7FxTDGCxwMEhfNDOaCic9spxmFiMyLslswnUPKUh9oL1kulGgtE4trXSi3NJ7D0NvXI5Eq2M77vRpuv28EaPaa70rO3toJPNh6HAVYSTAaPXx2Cz45v6lIhKwsAd7gwfBIDAcevQKcMTtfcNstrRgaP68iG5vdcRztfhrZ7CVWcCYxOLcRn8ZuItRkCakbhqIE1erI4rcUZPROx+nZRB6N4c+xoUXHT9v2IJ1pBJaFlSSYk9km9I71A0RSLqEbFfOer6vFEwfPUNLYx2oooCO8QcfPvfcgZQNu0FFEhI5to28SeMwS8RUJCAqwl144A86Z45qxw11InPVZEsqgIptzZXH1Vx+Def8ylbA4iCqMr/PjqVcnbFUwQ6NuPVigabGwKlNB6PbE0DJ8DLzmD1vwqgmopNn//GlnFWjY/8ww5PzcwnqOkC+KmqFvwf2/k4rO6lVd+00V+iccYoGBh9pIhWZIxhGsiYANfkfgkbLgxX9WyoJSm6KMmHHKCAkxGwV/thO+r0eQ98ZgyArthbLAhRUYv9yPrQ+M4ar1/sUTLS0Pus+Hj0YHUPDGK4MvWNUENGagXrhw1/zrSJ/0IGl4zYxTv9THMS+8mCk0IMa7CLz69lIVAY2qGDKt+OfWzUim26kqLsW0Sj2mOjkPwXvgB7D2AaDTj2qtciEiMCPVgcKuHiTSHSawpMASC4/BdeRT0gQX1OL7D4WhrUCBsgRU/RYEntm1BXPKcyzrjJoGETuHwGu/mr2Ac46H774MRiSN/01ASSvTbfhz+05kc410DMvASXYRjSD4Tty83NA5mMOqch58cVPVKnB7cHIo14yxrXtRK9wUKMYF8yoCPIlpBN/PFsH50jaqaz6ypxPGdHUq2BPI12Eg/Dg26kmL7Ao8QKW1Z368eBHh1i1MFfqqU8Hyb2748HLXK9gRnFze2BbA/0bD8HGcGp/EVDQDu8JoqrBbqZDCigho0oXH2o9gXxvVdbpWqQwoffy+GK788gPM6VQRQx5033wCTu1BOX+oLwxeQYUL6kC9lkGT5xyem9ptWahqwWA8jF+kThFRRE0EXHho/2m01LttN6+v0yGSdJ0L6nAym15QvnlYz6W8h4wkclxi3wtWeEtn5QmX50dH63hTWBPjdCfMTL0HaQisuckCcrMnit5vn/wXqQkNzLU2H6cQBgLXaPii3TxABSpw7Rt9qOm8t3gkbJU+16h7qc+t9PRnOLXvfhrQ/gMvo6BPtl9BogAAAABJRU5ErkJggg==",itau:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFwAAABcCAYAAADj79JYAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAXKADAAQAAAABAAAAXAAAAABhCMkfAAAIHElEQVR4Ae2d/XnbNhDGQdX/150g3CDKBJYniDeI3Q6QblB7gmaB1s4EdSaIMkHkDegNlAEi9n0BQqbIOxAS9UFLwPM4JA+4w+EHEABBQjEmhUQgEUgEEoFEIBGIIpBFpdpiovLanJvMvK1M5jjPa+bHpkS8HMZIK8eVZg6VmaiWNeJKUyAd/wzyesoebLy93Mc/OwFe3pgLOO9heog6sH2UNJSHrzBfOVWlZPfmW0htk7jewC3c0ozNyEzQYgg138SRweoQfoa7Z2GmPPathI2AA/IHZH4FSPw7xfCIxvUI+J/XLfxawNH/TgD6Hn/5uhkdZXq2/tLcYByYxpYvGnj5u7mG0ftYwyeW7ib71zzElDkKuG3ZI/M1xuDJplmYy5iWPooCxG4khTCBSEadwG1XkvrsMGzGglHV7QbTdgLHoHCqM5EgODEyglU38My8F40nYZtABKsgcDtYts0mSYBAF7MgcDw9jgO2U5REoINZGHhpJpLNJAsQ4PJGIISBG/MmoJuiZAJ+JVSMDQPPwrUlWjx1YQczFTg6/+CtcepcQ+UPsVOBw+B5yGiKCxJQ2enAub6dwmYEAux04Pqrrs2cOCWtADsduEl9eI82oo5/IeC/9sgwqSoEdOAd0xvFXhKTQGZfoossdOBi8iTsS0AE3rUA0zfTU9DX5uIi8FMAsocyinPxBHwP5OtZyMADE/e6cjoPEFCWaWXgATspKppA6lKiUe0wodzCA4+mO/TlJEzLwNNjff/KV96WacD7Z5gsiAQScBHL7oTbAP4D7j3vzsXjstwH+BM+Un+Hr0bP8Zfj/Dd8pfXluPAsS8NGtZWwKfAfAHyFr0Vn3gvulcEH6le4fvKyV3p8QsP5DN/vUMZLNiQ2qm2V5UwxFHzVD4dmAFwouo+Qh/WpWGL/jNsk1Z1WyWhL4jv4MTM/TVFvQFuy3TIjA9d2i72oFy+nrTMpjq3+Ea1liiMLZtPga9NbXB8UOFovfdhFEMslA+/OXjRm1dzGqqaFxx0WrJnXMK6VRrtZH463QWidfzZLZteAM/OxKU/XLwQ2beG08DegX+A4Q39coB8c47xVCUw45IAylPv0rw9w+nll/6J2Cu2zWMPNqw9wTp/mraK5lv4r5M+25TNBps5ouO3u24oNfebC/GaVrQIDcGH1fsGUjeOGGzt4l4U+QH3xqZ6p21Ij6f2wedbT8lz3sZ5SnLuLbRO3WQFNyYEXg8quLWyancKhCyS822SgtO9TX3bMcXbzCXAfs8g98fD92uoYw0pvBtEn6Nwi4V/NxID9Dc8Wk6a84WMz2l0ruvKg6faay4b2K+Xs5iEWNl1jelRQjtNBPoDJwOn5Kw62gha2ZYq39SGLdpTACbS6KwY3azrbWW2X5gJ9o+sXF+gLhf3oVV/I/r4e8voFz5GOsvd2z9HL4MjlAQ6i/KWHO9gvkGYlsHuBD58glPrzlbT7utgd8Mze0hNbkBEWgozwAwDu64D2YOVLz0q7Md8BlbMPF+rDvJPzp0OuUSnvAH3mky2PpR3E3y+vD3wy7C6FlVaHHYKVmVsxmnfAgILWwulk81Yfittubpw17hh9rn8Yv5v+VV7IwN1PER3GUS1XrlGPMB//B6uOrzjIwIdVoGcMiisvO4bl3nreDB043yyNs8inzPWKvvPUcykHGThfFIyER13Jwi5lrmW3HMeM5BzZ+t/dWnqAx/DL5cWhTxbyYC0DP7SzLv9ntOxp0xU7J8/sVJHQtxWKbRnqsjPcaSEfaqSAOTemim3YzVVHSVf7hM+vPLZ1irYoWjKXUorApZYlKfeWuXecshlt/qxBU6ZhDePjxrW9rMr73IorzW1LFimATbHBiMAjbcYn4+O4EKqC8inUr+yx0G7BqTS5oMLH+YdlGp+ArXthH+G9RDu+0SKgP4HtL4jnPJ/2LuFfoabfMOIsoEcIbwPx60Spdqo181tvrLaeLuqw5dh+nF0Lt6fjLqkqzpvQj/xdqmuTSyAr2ZWuvEZMoHs7U83wbU6mxq4XUf0Al12rjtXEIz3gTCSYkM1h5lOsqZV0bgngekW2x4tQlzLbqh8lXjqjda1lM7M65zE61Zue7qSZ+VD+EffDadE227mq7HTg236858wC0zm22rZ/ioQLV5n5Cp2xksKKEf8RJ/ehNCtxpfmv0lkR1y/WtllXDrBTOw1kOMHDz9e6nZVzN22br8jcBSGFW6Vbx56i/y2Q1rUGDqwj6JX41ELWd19u+fTMy62Nc5roKoRLse2QIz5viyGhHxyE17fJxuPylAwr73uZNAScAL5L9pKsgwC/KlamhSpwmkQfVnaYTtECAUwOVK56H+4M+fmxYDaJFAJBZmHgw/lcQinbAMXakkTlahh43OPyAEt9QJfqA7DgRhi4ssQo2EkiT6CDmdq5e/00cHoSccfQgEkL4RbOFMe7UYql226IYNUNPHvdL223S7TDWgSrzi6FWaBbKXDQlzaZKIVndCd5F4buFk4LC7sU2mXrtOMjGUUBr5ZIb06baLD0N9IysqQRBZyKdi2bG0XTNu86R+7GvrRs6tLAeVQf3tS368T8DyYi/s+Dpu5RXHM2ggFyHdC+3BsB98o8Vsu43GMzgRNcsjy2wZV7iwqUjcvJ3IE9Zbk3Db2BSxlXlZAjLoez7qhvXJJM7FvmN1sRbIHMC67V94UrFWInwKWMvAyVcY5zt3jvd6AtI6vK8dfNo/YTo4GXtjDhITprXOv4udx9xxY7b2aTrhOBRCARSAQSgURgAAT+B5109Cbhfl1cAAAAAElFTkSuQmCC",bradesco:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAOdEVYdFNvZnR3YXJlAEZpZ21hnrGWYwAAA+9JREFUeAHtV21oG2Uc/z13l9c2SZN0iVmSbs182fDDoo66ydAOBGGIoiATNqeMIXSwL6KOffCDoMLKUJHJfMMXBAfKnH5yFCcynZ2KtkM2W4lzJDmJWUpts8RLLnke/3dph7WJuRS2guwHxx3P87////d/veeYGhoQuFpgKOW5fvJJLfXIiWJxmlY4u6oE5uCWFF6G2BfNjb60LAQM2JnMX6/kEstGwMCU4KMKlgIhIHQdgtcorzIku53uDJ2iV5KS1glIDPU/87AlVsH79F7YN28A87ghimXoZ39B8cXXoH07CsXfB9S5JZXkh8taCgzvQnZEvv8czEHeGm8YDnMOUdYARQZzOkzRwsNDqB4/BThcsAKprQQZdz4wiJXjX4IpjYDNPvcqMt7VyDoTUMO3QA3ejIwtjt9vGoBnaBf8bx8E14qwgv+OABlnYQWRH06SlxL4bAmF+x+Dc/Mm8IoOns2hOjmBWupXiIoGydVrBoslPHCsuxXayDdYGgFm5DsH5YY1iPx0wkyWlSLTz0xg+qlnoX39FRRPFFawOAVU3e4dWxHXLiBwePgyoTQpTNv6kJaNK46Mox9qLEkReRzaF6OmmG39WoRGjqCvnIVz612Uhul29ptEgNfBfE7UMln4X34e3UPbUT09jsK9uwFZbq6FIlQvqnDcsQkrPjsCZlPMQq2rOaiJJJTAaliPgCRTa+mQu4Nw3J40l2ZfONTauOkGg+yNoXY2i2zvjZjZf9BgBTkaRqyQAr+U74DAPLhotByhOj4GS6BIyK4QSu8dRf6+7Q0Dni507drZsoZaE6CW08+nG3qNXu8ERF4/PQH9XIosSPDt3wOh/dUhAZp85fc/Nh+Z19dcxvCKjJldIhaWEpPtKA6/2XDA2Oa8QwKE0ifHzLvz7i2Nyfcv8Jkp9B49hMC7w+javW0hCXLAvnG9OS1Lb30Iyd3VOQHFH0P52Ah8z+yFqFYW7Qu9AvudA9Ryg7CtW7NgT8+n0L1nh5mCmQMHFkXIEgHD7cK2nZDj14FXL84t/SPsTV9hqFFLRid/pOlYRZqFIftiLS20/RYowX6kXTFExk5B1Go0jqcQ/OgVuB99sKl8ffoiYn9MovzBp8j0XA8l3N8g3Eo/2oFyqPTEkUveQy3lp7xX4BjciPoFtam4HAxBDaylexSKN9I6UnNo/zWcIyF197RVZoLOAnJgpTVZywSuIK4R+B8R6PxQbMJowxqstOO8HZePZvwbqH535vKzuFSC/vP5JR3N2bnQhjEfpCSWCdJxLfeQjUnWDvJXgsATs9nf6oLtM34Yl+MfbT5p0m3wew6vWPVOhNm3UGX6sOSy6gx/A2peb/pRF8b1AAAAAElFTkSuQmCC",santander:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAfCAYAAACGVs+MAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAOdEVYdFNvZnR3YXJlAEZpZ21hnrGWYwAAA8lJREFUeAHFl1toVUcUhr+9U9OkaWtaK30opdJKJYXSgg9todBDaaWlFPrY0gsl9K19KPShD4VCRaiIF8QLqHgBQQUVERTEB/ECKoqiqHiJUfGKHmM0Uc8x5uzxnz2zzSSceHbUYxbZOTtnZtaa9c+//jWBJ7S/4X1GyaKd8P0J2Kj3mFGw6Ap0lqAyGcYwGlbRz3VI9BzhMVF4GtBFcvLeEnjLvvMs7RYUlb2xTx/c4TESGumCMMNIuM82OgL7x01o2gG/Um9CzhtSdvc8Ah4FQx0t2g/tx2AtA1nGe+H3a46MpqjPTlit7xuog0UKcMmWXQGeC76P+6GcodCr8XZ4iXpY4rJM9BxiAIVoDrR1exRsWfbABerBhX6fpQ02c3DZxaqIDq8J5obGF8O7PG1TZt0B4W4TZPkJNN8dQMFcgqPk0IW8MKXzjsNC45musmtW2f2Uje1RQSjossSX5esSJ56gKqzTaBG8cx52hAO1yq7Pj3XpxE7B1qnwUeAzV2D2wb/9/qzFehM0m/igOvDVoOxOwvLAeay1UzMu+I0Y9QxzBmb5OcOWaINSndLnHWcORKjkf5gcblIY92fj0t/Kt/BCNvgNvNIToJQ9dtNlfe6GHxhcxi74RVjXFQQOH22iI8gyWgkfhGUnPnQG49yv4iN4KudgUzbf/orPwiph/J0Z5pxE5benwRvuFfOz2q8mXsRxIBIiExbAJD9ei3lxE3wlwm6xiUdz4dNfRLRKDZJI2nqfh1Y8y6dAywZVZsmvGyv+KYnmgo5js+aWqGmJjuNze6s5N8aJyiNNWVUOw49fuF5gNxGfFgFfVinGjhfJNl3RJsjXRJhBDg1Q3GJUckTKZWPdokGOLWl7Bt4PjYMPe3P6a2GEei3iJSq7RcG6WE1hOv7YG13w3OKTwng/9ZvPLNRvwm+FNJbzMR9mDkEl97VMglCKVPvtbbA4zt/DjYq4Q2xswxMyPIa8Zi+0Ers/7W7jXtfnx+fdhOYlq7SBP5w+mJHwKIsv8t4VjK0P4ZJKdaulvthQRaWqmQhZFvQtBXhVqlIsk88EWaXVBdce0hu1M4nDOEG5TANJHhZJ/RpXwNfiwF/lfMQz1rea2ZpGpyepqA0lTCTRb14vYXpN+l9yE4atFAU+MF7zapSdaXJzT+v/yI+XptcKe7d5tKUbU4//R7eObl00zK0qut7le0H4XdF1UWPbttbe3A7/FVKAXYuvGqjWRmwWumhO+lKyLcn8TLI80R6ZPpuEfSQE7ingdR1Lx2XYpf8Xtk1zDerh+uECPADogZh9KA258QAAAABJRU5ErkJggg==",inter:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAOdEVYdFNvZnR3YXJlAEZpZ21hnrGWYwAABspJREFUeAGdV2uIVVUUXmvtcx+OM+ZYmji9IOlPFNIEvSDoCdHjR2EYUVYYZkX9CIwyKuu3SiTUKFaEYAWRRNQPSSqErMEHiZmSOJiWj0YdZ5q5c8/Ze7X22vuce65vPTP3nnP23Xutb6/1rcdGaF3oPx8+MPXq3p7xNy6vuxsrnE4CCuOOmZAcArF8SIY4rNCVrMsZHSDKl/ED7NCyhSTJRjMeOdSgDcv760s+3jA0IJNdWam/ktnXXktr5uw9jIONTnKEYBjL0PI3NBDWG1QMqjx/RA8ikzuBE4xk41ojLzZjriCnk2sH6i+N9cgvXpLV3fX29ib9D25rwhHZHpYUE0P5YvJKZIywBCJa4kQQZMQGahE/KGMoUzJZhY5mVAnnN7AwO7/ZkfGgQzYOCbFNab7DAoQREX6gDcTJlnDk1FsMVi0CCoTB/zn5ak6rH+x4cXSG+eC+7tt6a+kz6C/OTc0BeeElDgL0VUghbg6aKFogmgDCo/+JgOK78SpbdPF/8m8a6UTqmNpnlt1VWzmF7EyMQlAEckSLpWWKDHM4GFxxFhCFib0LIMpDLLZ0yaT6BLqU0ut1z5wvMSDWAxR6tMbi5YJS1c0xElzYr96j5HKAqAx9p/jMBb16akOzqA5YxUJoXO0FcgDhgMsEiPfTgLDcslaco+EZQUABwk8x0F11XSRMNRyJ3wIRJqsnsyBAx/0Eh2cG4eL6XGbp25M2D1FB6+cnYglWPgcQVIDgwq+klvAxWIA7HxC5Z3SuEJKdupiVDy4hNY2L5uIQBiEVyMfZghdKfC7xws9Jszj/TCCgBIIjCA48A0OEWYK6I086r8R/xJcousU7Ksj5QU8jRwGEvDXddGgsWB9AntESeFoQkpcM6a5dDEHXCjtFyV45KmPznSuI43WovjcAFV8T8qxeAqFzTwKBJ4MQHlDBUlHuhlPgwy6mTQJ7WN7TiWCTHnBjncAj0SUc7i4dB3dM1g3Kep/vRYk9IuuqV0Em82EkgsgYsiEjWKYJAa8AN5KEFOLLQeOpzuPu6U7mJ2uc7t7M/kpnd3E670puu5zjxuA+dnOI7VOdcUicI/fMvzwBPLZuKVvnivnjh3ezm0c8vvTuNlHNfVuYFxq2r1f2qL1CChak46PBAeRNlOlzNrAVsr650Nz9C9QmT4fmY4uLNOeGB8FuWQtuy9eQJTOgdufLGjnNT56GbNNnUJ1yJTTvXyhVsRF4s/VLyD5/Dnj1XK0hGmMc2Y+5r/y3y8NSnvftALPpC0heuVVmGzCzHhL2R7/v3wFJ32wwHz0CcMcDAlxifNWTQP3fgLvqlhA/ty+Q+YEoZuc6SDavguqx30P0gOYAX6LyQhMmelBUJpe/15I4xcUMF38UpcQJuNrECGoAYNleqFx8BYwPbAZYdB1whYqIDOHdWp4ge47bGCqUS9YUTHG+J2i5uDgXu4mLpgH80wTXczng9o1KTn7+U4AXLoP0UAOS6XWgCeNgXQmwf9bocUrcxHKe+21RKNhx4ec870Tj6LCxI5KDmlC9dCbAVwxGhDVfvR3S5jhUJs8AWDkYWwSGdMm9klMaQQZjOwjLTiwQItzHpetfC+nff4Cp+TBrQLquD2DXxmCZGkK6vg948C+g7hqYOTVovvM9mGkzwe7pBxrdCTR3IjQfXQR0w8MB7YFdEsbDQGP/gv3hfbHWdtmQ2i5syEjmGX2s60gdXbfWae0DXNG9tHpBDl2NJnEuiqJGig+WKmmHpC2D31mWhp7Q0wajWylk0yDT69JitJO0iwVqFd08neYEjEXKFxHNmL4jihmTURJKxcTfY01Q3yaCR4jZVsCoJJOjJdipI1i7n9KlhMSCBBjTasiYgYonpu2QhrGtpOe1o5U4sA2E7zjI+z7vrlqVjtpBQN5cXAgIyfm+nNs4ZqNf/dpMAPznxJHFImgvtyda4oJAhMKju3ahN8yr4xjWLA0nHbtzhXmlagcRq2WeMflc3UHahLbavBKIKP/Po/Qz/bg/e9tXDsxBMLWCv3BHyRp8ru7gUok+BQi0bsU2uzwcTOZ3ZzCUkp5gohCQ000RQn5EDxcW8lNQOO0os0L4UmAXF6cpAeFLdMy7GqJF6y6snlIZwXeHL/Iz8LXtXZe4CdgKEfWTCTEf/a9hGH3ZcsfZLXGKhleUG1xshifHreqVPH7TlI7Vs3DIHW1IlgxnubAyKtbd43lZAotEFg4y1rt6anVswbfXdK/YtMlDtuXwV3utuafnrpun81tdzeNXTzJUsQx5LxWoHQ+boZOF9k9+hENVzjmIEWkRBrHzt58GcPGz3x38FVp2hP8BW8p/opXX6DgAAAAASUVORK5CYII="};
+var PENCIL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"></path></svg>';
+var banks=[
+ {id:"caixa_sac",name:"Caixa Econômica Federal (SAC)",logo:LOGOS.caixa,status:"em_analise",det:null,notas:[],chosen:false},
+ {id:"caixa_price",name:"Caixa Econômica Federal (PRICE)",logo:LOGOS.caixa,status:"em_analise",det:null,notas:[],chosen:false},
+ {id:"itau",name:"Itaú Unibanco",logo:LOGOS.itau,status:"em_analise",det:null,notas:[],chosen:false},
+ {id:"bradesco",name:"Bradesco",logo:LOGOS.bradesco,status:"em_analise",det:null,notas:[],chosen:false},
+ {id:"santander",name:"Santander",logo:LOGOS.santander,status:"em_analise",det:null,notas:[],chosen:false},
+ {id:"inter",name:"Banco Inter",logo:LOGOS.inter,status:"em_analise",det:null,notas:[],chosen:false}
 ];
+var BADGE={aprovada:["success","Aprovada"],aprovada_menor:["warning","Aprovada a menor"],condicionante:["information","Condicionante"],recusada:["destructive","Recusada"],sem_proposta:["neutral","Sem proposta"],em_analise:["secondary","Em análise"]};
+var STLBL={aprovada:"Aprovada",aprovada_menor:"Aprovada a menor",condicionante:"Aprovada com condicionante",recusada:"Recusada",sem_proposta:"Não teve proposta"};
+var CHOOSABLE=["aprovada","aprovada_menor","condicionante"];
+var viewMode="operador";
+var escolhaActive=false;
+var currentId=null;
+function esc(s){return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+var IINFO='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>';
+function badge(b){var m=BADGE[b.status];return '<span class="st '+m[0]+'">'+m[1]+IINFO+'</span>';}
+function dadosHtml(b){if(!b.det)return '';var d=b.det;var items=[["Taxa de juros",d.taxa],["Prazo",d.prazo],["Valor do imóvel",d.imovel],["Valor do financiamento",d.financiado],["CET anual",d.cet],["1ª parcela",d.parcela]];return '<div class="dados">'+items.map(function(x){return '<div class="dado"><span class="dl">'+x[0]+'</span><span class="dv">'+esc(x[1])+'</span></div>';}).join('')+'</div>';}
+function notasHtml(b){if(!b.notas||!b.notas.length)return '';return '<div class="notas">'+b.notas.map(function(n){return '<div class="nota '+(n.k||'info')+'">'+esc(n.t)+'</div>';}).join('')+'</div>';}
+function notasS(b){if(!b.notas)return '';var f=b.notas.filter(function(n){return /IPCA/.test(n.t);});if(!f.length)return '';return f.map(function(n){return '<div class="nota info s-note">'+esc(n.t)+'</div>';}).join('');}
 
-/* ====== STEP ====== */
-const Step=({stage,isLast,open,onToggle,onDetail})=>{
-  const done=stage.status==="completed",cur=stage.status==="current",pend=stage.status==="pending";
-  const Icon=ICONS[stage.id-1];const canOpen=true;const dt=DATES[stage.id];const Content=CMAP[stage.id];
-  const[hov,setHov]=useState(false);const showHov=hov&&canOpen&&!open;const nodeSize=pend?28:38;
-  return<div style={{display:"flex",gap:0}}>
-    <div style={{display:"flex",flexDirection:"column",alignItems:"center",width:52,flexShrink:0}}>
-      <div style={{width:nodeSize,height:nodeSize,borderRadius:99,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,background:done?C.accent:cur?"#fff":"#f8f8fa",border:done?"2px solid "+C.accent:cur?"2px solid "+C.accent:"1.5px solid #e4e4e6",boxShadow:cur?"0 0 0 5px rgba(13,175,159,0.1)":"none",transition:"transform .15s",transform:showHov?"scale(1.1)":"scale(1)"}}>{done?<Check size={16} color="#fff" strokeWidth={3}/>:cur?<div style={{width:10,height:10,borderRadius:99,background:C.accent}}/>:<span style={{fontSize:10,fontWeight:600,color:"#d5d5d5"}}>{stage.id}</span>}</div>
-      {!isLast&&<div style={{width:2,flex:1,minHeight:pend?10:24,background:done?C.accent:cur?C.accent:"#f0f0f2"}}/>}
-    </div>
-    <div style={{flex:1,paddingBottom:isLast?0:pend?6:20,paddingTop:pend?2:6,minWidth:0,borderBottom:isLast||pend?"none":"1px solid #f8f8f8",marginBottom:isLast?0:pend?0:4}}>
-      <div onClick={canOpen?onToggle:undefined} onMouseEnter={()=>canOpen&&setHov(true)} onMouseLeave={()=>setHov(false)} style={{cursor:canOpen?"pointer":"default",padding:pend?"4px 10px":"8px 10px",borderRadius:10,background:showHov?"#f7f8f9":"transparent",border:showHov?"1px solid #eeefef":"1px solid transparent",transition:"all .15s",marginBottom:open?8:0}}>
-        <div style={{display:"flex",alignItems:"center",gap:8,userSelect:"none",flexWrap:"wrap",rowGap:4}}>
-          <Icon size={pend?14:16} color={done||cur?C.accent:"#d8d8d8"}/>
-          <div style={{flex:1,minWidth:0}}>
-            <span style={{fontSize:pend?13:14,fontWeight:cur?600:done?500:400,color:pend?"#ccc":C.dark}}>{stage.label}</span>
-            {dt&&<span style={{fontSize:10,color:"#b5b5b5",marginLeft:8}}>Iniciada em {dt}</span>}
-          </div>
-          {cur&&!open&&<span style={{display:"inline-flex",alignItems:"center",gap:4,fontSize:10,fontWeight:600,color:C.accent,background:"rgba(13,175,159,0.06)",border:"1px solid rgba(13,175,159,0.18)",borderRadius:99,padding:"3px 10px",flexShrink:0}}><Clock_ size={10} color={C.accent}/>Em andamento</span>}
-          {done&&!open&&<span style={{display:"inline-flex",alignItems:"center",gap:3,fontSize:10,fontWeight:600,color:C.gr,background:C.grBg,borderRadius:99,padding:"2px 8px",flexShrink:0}}><CheckCircle2 size={10} color={C.gr}/>Concluida</span>}
-          {canOpen&&<div style={{width:26,height:26,borderRadius:6,background:showHov?"#edeeed":open?"#f5f5f5":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"background .15s"}}>{open?<ChevronUp size={14} color="#bbb"/>:<ChevronDown size={14} color={showHov?"#999":"#ccc"}/>}</div>}
-        </div>
-        {!open&&done&&<div style={{fontSize:12,color:"#aaa",paddingLeft:26,paddingTop:3}}>{SUMS[stage.id]}</div>}
-      </div>
-      {open&&<div style={{background:cur?"rgba(13,175,159,0.03)":"#fafafa",border:cur?"1px solid rgba(13,175,159,0.18)":"1px solid #f0f0f2",borderRadius:12,padding:20,overflow:"hidden"}}>
-        {stage.id===1?<Content onDetail={onDetail}/>:<Content/>}
-        {done&&<div style={{display:"flex",alignItems:"center",gap:4,paddingTop:12,fontSize:11,color:C.gr}}><CheckCircle2 size={12} color={C.gr}/>Etapa concluida</div>}
-      </div>}
-    </div>
-  </div>;
-};
+function operatorCard(b){
+  if(b.chosen){
+    return '<div class="cardp chosen"><div class="top"><img class="blogo" src="'+b.logo+'"><span class="bname">'+b.name+'</span><span class="spacer"></span><div class="right"><span class="st escolhido">Banco escolhido</span><button class="iconbtn" onclick="openProposta(\''+b.id+'\')">'+PENCIL+'</button></div></div>'+dadosHtml(b)+notasHtml(b)+'</div>';
+  }
+  if(b.status==="em_analise"){
+    return '<div class="cardp"><div class="top"><img class="blogo grayed" src="'+b.logo+'"><span class="bname">'+b.name+'</span><span class="spacer"></span><div class="right">'+badge(b)+'<button class="btn-reg" onclick="openProposta(\''+b.id+'\')">Registrar resultado</button></div></div></div>';
+  }
+  var act;
+  if(escolhaActive && CHOOSABLE.indexOf(b.status)>=0){act='<button class="btn-escolher" onclick="escolher(\''+b.id+'\')">Selecionar instituição</button>';}
+  else {act='<button class="btn-edit" onclick="openProposta(\''+b.id+'\')">Editar resultado</button>';}
+  return '<div class="cardp"><div class="top"><img class="blogo" src="'+b.logo+'"><span class="bname">'+b.name+'</span><span class="spacer"></span><div class="right">'+badge(b)+act+'</div></div>'+dadosHtml(b)+notasHtml(b)+'</div>';
+}
+function sInst(b,gray){return '<div class="s-inst"><img class="blogo'+(gray?' grayed':'')+'" src="'+b.logo+'"><span class="bname">'+b.name+'</span></div>';}
+function sCols(b){if(!b.det)return '<div class="s-col"></div><div class="s-col"></div>';return '<div class="s-col"><i>Valor do imóvel</i><b>'+esc(b.det.imovel)+'</b></div><div class="s-col"><i>Valor do financiamento</i><b>'+esc(b.det.financiado)+'</b></div>';}
+function sMsg(t){return '<div class="s-msg">'+t+'</div>';}
+function solicitanteCard(b){
+  var note=notasS(b);
+  if(b.chosen){
+    return '<div class="cardp scard chosen">'+sInst(b,false)+sCols(b)+'<div class="s-end"><span class="st escolhido">Banco escolhido'+IINFO+'</span></div>'+note+'</div>';
+  }
+  if(b.status==="em_analise"){
+    return '<div class="cardp scard">'+sInst(b,true)+sMsg("Aguardando retorno da instituição.")+'<div class="s-end">'+badge(b)+'</div></div>';
+  }
+  if(b.status==="recusada"){
+    return '<div class="cardp scard">'+sInst(b,false)+sMsg("Proposta recusada.")+'<div class="s-end">'+badge(b)+'</div></div>';
+  }
+  if(b.status==="sem_proposta"){
+    return '<div class="cardp scard">'+sInst(b,false)+sMsg("Sem proposta informada.")+'<div class="s-end">'+badge(b)+'</div></div>';
+  }
+  var act=(escolhaActive)?'<button class="btn-escolher" onclick="escolher(\''+b.id+'\')">Selecionar instituição</button>':'';
+  return '<div class="cardp scard">'+sInst(b,false)+sCols(b)+'<div class="s-end">'+badge(b)+act+'</div>'+note+'</div>';
+}
+function renderCard(b){return (viewMode==="solicitante")?solicitanteCard(b):operatorCard(b);}
+function renderBanks(){document.getElementById("banksList").innerHTML=banks.map(renderCard).join("");updateAdvance();}
+function updateAdvance(){
+  var pend=banks.some(function(b){return b.status==="em_analise";});
+  var btn=document.getElementById("btnAvancar");if(btn&&!btn.classList.contains("is-done"))btn.classList.toggle("is-disabled",pend);
+  var al=document.getElementById("alertPend");if(al)al.style.display=pend?"flex":"none";
+}
+function switchView(m){
+  viewMode=m;
+  document.getElementById("tabOper").classList.toggle("active",m==="operador");
+  document.getElementById("tabSolic").classList.toggle("active",m==="solicitante");
+  var sa=document.querySelector(".slot-actions");if(sa)sa.style.display=(m==="solicitante")?"none":"flex";
+  renderBanks();
+}
 
-/* ====== APP ====== */
-const App=()=>{
-  const[openSteps,setOpenSteps]=useState(new Set([3]));
-  const[modal,setModal]=useState(false);
-  const[detailModal,setDetailModal]=useState(false);
-  const toggle=id=>setOpenSteps(p=>{const n=new Set(p);n.has(id)?n.delete(id):n.add(id);return n;});
-  const completed=STAGES.filter(s=>s.status==="completed").length;
-  return(
-    <div style={{display:"flex",minHeight:"100vh",background:C.bg,fontFamily:font}}>
-      <Sidebar/>
-      <div style={{flex:1,padding:8,paddingLeft:0}}>
-        <div style={{background:"#fff",borderRadius:12,boxShadow:"0 1px 3px rgba(0,0,0,0.1),0 1px 2px -1px rgba(0,0,0,0.1)",minHeight:"calc(100vh - 16px)",padding:32,display:"flex",flexDirection:"column",gap:20,overflow:"auto"}}>
-          {/* Breadcrumb */}
-          <div style={{display:"flex",alignItems:"center",gap:8}}>
-            <ArrowLeft size={20} color={C.dark} style={{cursor:"pointer"}}/>
-            <div style={{width:1,height:16,background:C.gl}}/>
-            <span style={{fontSize:14,color:C.dark}}>Operacoes &#8250; Detalhe da Operacao</span>
-          </div>
-          {/* Header */}
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:16,flexWrap:"wrap"}}>
-            <div>
-              <div style={{display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
-                <h1 style={{fontSize:24,fontWeight:500,color:C.accent,margin:0}}>Maria Silva Santos</h1>
-                <span style={{fontSize:12,color:C.gray,background:C.gs,padding:"3px 10px",borderRadius:6,border:"1px solid #efefef"}}>OP-000001</span>
-              </div>
-              <div style={{display:"flex",alignItems:"center",gap:16,marginTop:8,flexWrap:"wrap",rowGap:8}}>
-                <div style={{display:"flex",alignItems:"center",gap:6}}><span style={{fontSize:12,color:C.gray}}>Produto:</span><span style={{fontSize:13,fontWeight:600,color:C.dark}}>Financ. Imobiliario - Aquisicao</span></div>
-                <div style={{width:1,height:14,background:C.gl}}/>
-                <div style={{display:"flex",alignItems:"center",gap:6}}><span style={{fontSize:12,color:C.gray}}>Valor:</span><span style={{fontSize:13,fontWeight:600,color:C.accent}}>R$ 490.000,00</span></div>
-                <div style={{width:1,height:14,background:C.gl}}/>
-                <div style={{display:"flex",alignItems:"center",gap:6}}><span style={{fontSize:12,color:C.gray}}>Personal Finance:</span><Tooltip content="(62) 98765-1234 - victor@hubfi.com"><span style={{fontSize:13,fontWeight:600,color:C.accent,cursor:"pointer",borderBottom:"1px dashed "+C.accent}}>Victor Tavares</span></Tooltip></div>
-              </div>
-            </div>
-            <button onClick={()=>setModal(true)} style={{display:"flex",alignItems:"center",gap:8,padding:"8px 16px",borderRadius:8,border:"1px solid "+C.gl,background:"#fff",fontSize:13,fontWeight:500,color:C.dark,cursor:"pointer",flexShrink:0}}><Info size={16} color={C.accent}/>Ver informacoes</button>
-          </div>
-          {/* Progress bar */}
-          <div style={{display:"flex",alignItems:"center",gap:16,padding:"14px 20px",borderRadius:10,background:"#fafbfc",border:"1px solid #f0f0f2",flexWrap:"wrap"}}>
-            <div style={{display:"flex",alignItems:"center",gap:2}}>{STAGES.map((s,i)=>{const d=s.status==="completed",cu=s.status==="current";return<div key={i}><div style={{width:cu?12:d?8:6,height:cu?12:d?8:6,borderRadius:99,background:d?C.accent:cu?"transparent":"#e4e4e6",border:cu?"2.5px solid "+C.accent:"none",transition:"all .2s"}}/></div>;})}</div>
-            <div style={{width:1,height:20,background:"#ebebeb"}}/>
-            <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
-              <div style={{display:"flex",alignItems:"center",gap:5}}><div style={{width:7,height:7,borderRadius:99,background:C.accent}}/><span style={{fontSize:12,fontWeight:500,color:C.accent}}>{completed} concluidas</span></div>
-              <div style={{display:"flex",alignItems:"center",gap:5}}><div style={{width:7,height:7,borderRadius:99,border:"2px solid "+C.accent,background:"transparent"}}/><span style={{fontSize:12,color:"#aaa"}}>1 em andamento</span></div>
-              <div style={{display:"flex",alignItems:"center",gap:5}}><div style={{width:7,height:7,borderRadius:99,background:"#e0e0e0"}}/><span style={{fontSize:12,color:"#ccc"}}>{STAGES.length-completed-1} pendentes</span></div>
-            </div>
-          </div>
+// ---- modal ----
+function openProposta(id){
+  currentId=id;
+  var b=banks.find(function(x){return x.id===id;});
+  document.querySelector("#propostaModal .dh-txt span").textContent=b.name+" — anexe o PDF e preencha os dados da proposta";
+  document.querySelector('input[name=modo][value=realizada]').checked=true;
+  toggleFormMode();toggleCond();
+  document.getElementById("propostaModal").classList.add("open");document.body.style.overflow="hidden";
+}
+function closeProposta(){document.getElementById("propostaModal").classList.remove("open");document.body.style.overflow="";}
+function openConfirm(id){document.getElementById(id).classList.add("open");document.body.style.overflow="hidden";}
+function closeConfirm(id){document.getElementById(id).classList.remove("open");document.body.style.overflow="";}
+function toggleFormMode(){
+  var sel=document.querySelector('input[name=modo]:checked').value;
+  document.querySelectorAll('.radio-row .radio').forEach(function(l){l.classList.toggle('on',l.querySelector('input').checked);});
+  document.getElementById('formFull').style.display=(sel==='realizada')?'':'none';
+  document.getElementById('formMotivo').style.display=(sel==='realizada')?'none':'';
+  document.getElementById('motivoLabel').textContent=(sel==='recusado')?'Informe o motivo da recusa':'Informe por que não houve proposta';
+}
+function toggleCond(){var w=document.getElementById("condWrap");if(w)w.style.display=(document.getElementById("fldResultado").value==="condicionante")?"":"none";}
+function toggleUpload(){var d=document.getElementById('dropzone'),u=document.getElementById('uploaded');if(u.style.display==='none'){d.style.display='none';u.style.display='flex';}else{d.style.display='';u.style.display='none';}}
+function val(id){var e=document.getElementById(id);return e?e.value.trim():"";}
+function salvarProposta(){
+  var b=banks.find(function(x){return x.id===currentId;});
+  var modo=document.querySelector('input[name=modo]:checked').value;
+  if(modo==='realizada'){
+    var r=val('fldResultado');b.status=r;
+    b.det={taxa:val('fldTaxa'),prazo:val('fldPrazo'),imovel:'R$ 490.000',financiado:val('fldFinanciado'),cet:val('fldCet'),parcela:val('fldParcela'),sistema:val('fldSistema')};
+    b.notas=[];
+    if(r==='aprovada_menor')b.notas.push({t:'O banco aprovou o financiamento em condições abaixo do solicitado. Isso pode representar um valor de crédito inferior, um prazo menor ou uma taxa diferente.',k:'warn'});
+    if(r==='condicionante'){var c=val('fldCondicionante');b.notas.push({t:'Condicionante: '+(c||'a definir'),k:'info'});}
+    if(val('fldTipo')==='IPCA')b.notas.push({t:'Financiamento atrelado ao IPCA — a parcela é recalculada mensalmente sobre o saldo devedor.',k:'info'});
+    logAtividade('Operador registrou resultado · '+STLBL[r]+' · '+b.name);
+  }else if(modo==='nao_teve'){
+    b.status='sem_proposta';b.det=null;b.notas=[];logAtividade('Operador marcou "Não teve proposta" · '+b.name);
+  }else{
+    b.status='recusada';b.det=null;b.notas=[{t:'Motivo da recusa: '+(val('fldMotivo')||'não informado'),k:'danger'}];logAtividade('Operador registrou recusa · '+b.name);
+  }
+  b.chosen=false;
+  closeProposta();renderBanks();
+}
 
-          {/* Stages timeline */}
-          <div style={{width:"100%"}}>{STAGES.map((s,i)=><Step key={s.id} stage={s} isLast={i===STAGES.length-1} open={openSteps.has(s.id)} onToggle={()=>toggle(s.id)} onDetail={()=>setDetailModal(true)}/>)}</div>
-        </div>
-      </div>
-      <InfoModal open={modal} onClose={()=>setModal(false)}/>
-      <DetailModal open={detailModal} onClose={()=>setDetailModal(false)}/>
-    </div>
-  );
-};
+// ---- histórico ----
+var activities=[{t:"Operação criada no sistema",time:"13/04/2026 · 14:20"}];
+function nowt(){return "Hoje · "+new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});}
+function logAtividade(msg){activities.push({t:msg,time:nowt()});}
+function renderHist(){}
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+// ---- escolha / avançar ----
+var pendingEscolha=null;
+function escolher(id){pendingEscolha=id;var b=banks.find(function(x){return x.id===id;});var taxa=b.det?b.det.taxa:"—",fin=b.det?b.det.financiado:"—";document.getElementById("cfBank").innerHTML='<div class="row"><span>Instituição financeira</span><b>'+b.name+'</b></div><div class="row"><span>Taxa de juros</span><b>'+taxa+'</b></div><div class="row"><span>Valor financiado</span><b>'+fin+'</b></div>';openConfirm("confirmEscolha");}
+function doEscolher(){if(!pendingEscolha)return;banks.forEach(function(b){b.chosen=(b.id===pendingEscolha);});closeConfirm("confirmEscolha");renderBanks();pendingEscolha=null;}
+function avancarEtapa(){if(banks.some(function(b){return b.status==="em_analise";}))return;openConfirm("confirmAvancar");}
+function doAvancar(){
+  closeConfirm("confirmAvancar");
+  escolhaActive=true;
+  var steps=document.querySelectorAll(".stepper .step");
+  if(steps[1]){steps[1].classList.remove("current");steps[1].classList.add("done");var sg=steps[1].querySelectorAll(".seg");if(sg[1])sg[1].classList.add("on");}
+  if(steps[2]){steps[2].classList.add("current");var s2=steps[2].querySelectorAll(".seg");if(s2[0])s2[0].classList.add("on");}
+  var btn=document.getElementById("btnAvancar");btn.classList.remove("is-disabled");btn.classList.add("is-done");btn.innerHTML="Etapa concluída";btn.onclick=null;
+  var st=document.getElementById("secTitle");if(st)st.textContent="Escolha da Instituição";
+  renderBanks();
+}
+
+// ---- composer ----
+var GLOBE='<svg viewBox="0 0 24 24" fill="none" stroke="#008a7e" stroke-width="2" style="width:16px;height:16px"><circle cx="12" cy="12" r="10"></circle><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>';
+var HUBFI='<svg viewBox="0 0 30 30" style="width:16px;height:16px"><circle cx="15" cy="15" r="15" fill="#191a1a"></circle><path d="M11 8v14M11 15c0-2.5 2-4 4-4s4 1.5 4 4v7" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"></path><circle cx="19" cy="22" r="2.4" fill="#0daf9f"></circle></svg>';
+var vis='public';
+function toggleVis(){vis=(vis==='public')?'hubfi':'public';document.getElementById('visIcon').innerHTML=(vis==='public')?GLOBE:HUBFI;document.getElementById('visBtn').title=(vis==='public')?'Público':'Time Hubfi (interno)';}
+function onCommentInput(){document.getElementById('sendBtn').classList.toggle('active',val('commentInput').length>0);}
+
+document.addEventListener('DOMContentLoaded',function(){
+  renderBanks();renderHist();
+  document.getElementById('visIcon').innerHTML=GLOBE;
+  document.getElementById('propostaModal').addEventListener('click',function(e){if(e.target===this)closeProposta();});
+  ['confirmAvancar','confirmEscolha'].forEach(function(id){document.getElementById(id).addEventListener('click',function(e){if(e.target===this)closeConfirm(id);});});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeProposta();});
+});
 </script>
 </body>
 </html>
